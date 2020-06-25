@@ -40,7 +40,9 @@ def processCurrency(listOfDictionaries):
 def parseTime(time):
     # time in the form "2018-04-03T16:00:00Z"
     return time
-    # function to process times and prices of currencies
+
+
+# function to process times and prices of currencies
 
 
 def processTimes(dictionaryOfCurrency, currencyID):
@@ -51,20 +53,28 @@ def processTimes(dictionaryOfCurrency, currencyID):
     return array
 
 
-def displayProccessedCurrency(currencyID):
+# function which prints out processed currency data
 
-    print(processCurrency(dict_1)[currencyID])
-    print(processCurrency(dict_2)[currencyID])
-    print(processCurrency(dict_3)[currencyID])
-
+def displayProccessedCurrency(currencyID, dicts):
+    # printing processed currency data
+    print(processCurrency(dicts[0])[currencyID])
+    print(processCurrency(dicts[1])[currencyID])
+    print(processCurrency(dicts[2])[currencyID])
     return
 
 
-    # loading data into list variables
-dict_1 = json.loads(urllib.request.urlopen(URL_APRIL).read())
-dict_2 = json.loads(urllib.request.urlopen(URL_MAY).read())
-dict_3 = json.loads(urllib.request.urlopen(URL_JUNE).read())
+# function which returns a list of loaded lists of monthly data
 
-displayProccessedCurrency('BTC')
+
+def loadData():
+    # loading data into list variables
+    dict_1 = json.loads(urllib.request.urlopen(URL_APRIL).read())
+    dict_2 = json.loads(urllib.request.urlopen(URL_MAY).read())
+    dict_3 = json.loads(urllib.request.urlopen(URL_JUNE).read())
+    return [dict_1, dict_2, dict_3]
+
+
+data = loadData()
+displayProccessedCurrency('BTC', data)
 
 # print(urllib.request.urlopen(url).read())
