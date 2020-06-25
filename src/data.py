@@ -1,58 +1,61 @@
 import urllib.request
 import json
-url = "https://api.nomics.com/v1/currencies/ticker?key=c7154c3c700596fd7c4d234f71d3feb8"
+
+# monthly data from 2019
+URL_APRIL = "https://api.nomics.com/v1/currencies/sparkline?key=c7154c3c700596fd7c4d234f71d3feb8&ids=BTC,ETH,XRP&start=2019-04-14T00%3A00%3A00Z&end=2019-05-14T00%3A00%3A00Z"
+URL_MAY = "https://api.nomics.com/v1/currencies/sparkline?key=c7154c3c700596fd7c4d234f71d3feb8&ids=BTC,ETH,XRP&start=2019-05-15T00%3A00%3A00Z&end=2019-06-14T00%3A00%3A00Z"
+URL_JUNE = "https://api.nomics.com/v1/currencies/sparkline?key=c7154c3c700596fd7c4d234f71d3feb8&ids=BTC,ETH,XRP&start=2019-06-15T00%3A00%3A00Z&end=2019-07-14T00%3A00%3A00Z"
 
 
 # example template of information inside the API
 """
 {
     "currency": "BTC",
-    "id": "BTC",
-    "price": "8451.36516421",
-    "price_date": "2019-06-14T00:00:00Z",
-    "price_timestamp": "2019-06-14T12:35:00Z",
-    "symbol": "BTC",
-    "circulating_supply": "17758462",
-    "max_supply": "21000000",
-    "name": "Bitcoin",
-    "logo_url": "https://s3.us-east-2.amazonaws.com/nomics-api/static/images/currencies/btc.svg",
-    "market_cap": "150083247116.70",
-    "transparent_market_cap": "150003247116.70",
-    "rank": "1",
-    "high": "19404.81116899",
-    "high_timestamp": "2017-12-16",
-    "1d": {
-        "price_change": "269.75208019",
-        "price_change_pct": "0.03297053",
-        "volume": "1110989572.04",
-        "volume_change": "-24130098.49",
-        "volume_change_pct": "-0.02",
-        "market_cap_change": "4805518049.63",
-        "market_cap_change_pct": "0.03",
-        "transparent_market_cap_change": "4800518049.00",
-        "transparent_market_cap_change_pct": "0.0430",
-        "volume_transparency": [
-            {
-                "grade": "A",
-                "volume": "2144455081.37",
-                "volume_change": "-235524941.08",
-                "volume_change_pct": "-0.10"
-            },
-            {
-                "grade": "B",
-                "volume": "15856762.85",
-                "volume_change": "-6854329.88",
-                "volume_change_pct": "-0.30"
-            }
-        ]
-    }
+    "timestamps": [
+        "2018-04-03T16:00:00Z"
+    ],
+    "prices": [
+        "7436.82313"
+    ]
 }
 """
 
-# loading data into variable
-dict_1 = json.loads(urllib.request.urlopen(url).read())
+# function for processing data by their curreny
 
-# printing out curreny name
-for i in range(len(dict_1)):
-    print(dict_1[i].get('currency'))
+
+def processCurrency(listOfDictionaries):
+    dictionaryOfCurrency = {}
+    # looping through all the elements in given list
+    for i in range(len(listOfDictionaries)):
+        # adding currency to dictionary
+        currencyName = listOfDictionaries[i].get('currency')
+        dictionaryOfCurrency[currencyName] = listOfDictionaries[i]
+
+    return dictionaryOfCurrency
+
+# function for parsing time string
+
+
+def parseTime(time):
+    # time in the form "2018-04-03T16:00:00Z"
+
+    # function to process times and prices of currencies
+
+
+def processTimes(dictionaryOfCurrency, currenyID):
+    dictionaryOfTimes = dictionaryOfCurrency['currenyID']
+    timestamps = dictionaryOfTimes['timestamps']
+    prices = dictionaryOfTimes['prices']
+    array = [timestamps, prices]
+
+
+    # loading data into list variables
+dict_1 = json.loads(urllib.request.urlopen(URL_APRIL).read())
+dict_2 = json.loads(urllib.request.urlopen(URL_MAY).read())
+dict_3 = json.loads(urllib.request.urlopen(URL_JUNE).read())
+
+print(processCurrency(dict_1)['BTC'])
+print(processCurrency(dict_2)['BTC'])
+print(processCurrency(dict_3)['BTC'])
+
 # print(urllib.request.urlopen(url).read())
