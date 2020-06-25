@@ -1,4 +1,5 @@
 import urllib.request
+import json
 url = "https://api.nomics.com/v1/currencies/ticker?key=c7154c3c700596fd7c4d234f71d3feb8"
 
 
@@ -48,4 +49,10 @@ url = "https://api.nomics.com/v1/currencies/ticker?key=c7154c3c700596fd7c4d234f7
 }
 """
 
-print(urllib.request.urlopen(url).read())
+# loading data into variable
+dict_1 = json.loads(urllib.request.urlopen(url).read())
+
+# printing out curreny name
+for i in range(len(dict_1)):
+    print(dict_1[i].get('currency'))
+# print(urllib.request.urlopen(url).read())
