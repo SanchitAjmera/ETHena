@@ -43,12 +43,21 @@ def parseTime(time):
     # function to process times and prices of currencies
 
 
-def processTimes(dictionaryOfCurrency, currenyID):
-    dictionaryOfTimes = dictionaryOfCurrency['currenyID']
+def processTimes(dictionaryOfCurrency, currencyID):
+    dictionaryOfTimes = dictionaryOfCurrency['currencyID']
     timestamps = dictionaryOfTimes['timestamps']
     prices = dictionaryOfTimes['prices']
     array = [timestamps, prices]
     return array
+
+
+def displayProccessedCurrency(currencyID):
+
+    print(processCurrency(dict_1)[currencyID])
+    print(processCurrency(dict_2)[currencyID])
+    print(processCurrency(dict_3)[currencyID])
+
+    return
 
 
     # loading data into list variables
@@ -56,8 +65,6 @@ dict_1 = json.loads(urllib.request.urlopen(URL_APRIL).read())
 dict_2 = json.loads(urllib.request.urlopen(URL_MAY).read())
 dict_3 = json.loads(urllib.request.urlopen(URL_JUNE).read())
 
-print(processCurrency(dict_1)['BTC'])
-print(processCurrency(dict_2)['BTC'])
-print(processCurrency(dict_3)['BTC'])
+displayProccessedCurrency('BTC')
 
 # print(urllib.request.urlopen(url).read())
