@@ -33,12 +33,13 @@ def processCurrency(listOfDictionaries):
 
     return dictionaryOfCurrency
 
+
 # function for parsing time string
 
 
 def parseTime(time):
     # time in the form "2018-04-03T16:00:00Z"
-
+    return time
     # function to process times and prices of currencies
 
 
@@ -47,6 +48,7 @@ def processTimes(dictionaryOfCurrency, currenyID):
     timestamps = dictionaryOfTimes['timestamps']
     prices = dictionaryOfTimes['prices']
     array = [timestamps, prices]
+    return array
 
 
     # loading data into list variables
