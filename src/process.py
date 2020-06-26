@@ -62,4 +62,4 @@ def loadData():
 
 dataValues = loadData()
 #displayProccessedCurrency('BTC', data)
-print(processTimes(processCurrency(dataValues[0]), 'BTC'))
+dataTimesPrices = processTimes(processCurrency(dataValues[1]), 'BTC')
