@@ -28,4 +28,30 @@ make a bot
 
 testing:
 
-yahoo finance
+Trading Models
+Moving averages
+Things to experiment
+•	Short moving average
+•	Longer moving averages
+•	Length of trading – (every hour to every few days?)
+•	What is the correct percentage change to buy and sell?
+•	How can we calculate this percentage change?
+Where am I getting my data to test on?
+Terminology:
+Exponential moving averages
+Simple moving averages
+Using time horizons
+Cross overs
+Offset from moving averages needs to be a factor of the derivative of moving averages
+Need to consider how to buy each time the moving average is not in bounds
+	Maybe this will depend on the amount it is out of bounds by
+
+
+ASSUMPTION of PERFECT TRADER
+•	Selling all of stock at once
+•	Buying maximum amount of stock
+•	Offset value is constant
+•	Initially buying stock 
+TODO:
+Implement a way to make sure trader doesn’t sell at a price lower than what it bought for
+

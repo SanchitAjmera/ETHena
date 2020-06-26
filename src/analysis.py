@@ -1,13 +1,14 @@
 
 # need a function which cleverly calculates the offset
-OFFSET = 100
+OFFSET = 2000
 AVERAGE_LENGTH = 5
 # function to calculate the simple moving average over the last n days
 
 
 def calculateSMA(historicalData):
     length = len(historicalData)
-    return sum(historicalData[length - AVERAGE_LENGTH - 1:]) / AVERAGE_LENGTH
+
+    return sum(historicalData[length - AVERAGE_LENGTH:]) / AVERAGE_LENGTH
 
 
 def calculateOffset():

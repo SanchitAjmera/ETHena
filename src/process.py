@@ -46,6 +46,7 @@ def displayProccessedCurrency(currencyID, dicts):
     print(processCurrency(dicts[0])[currencyID])
     print(processCurrency(dicts[1])[currencyID])
     print(processCurrency(dicts[2])[currencyID])
+    print(processCurrency(dicts[4])[currencyID])
     return
 
 
@@ -57,7 +58,8 @@ def loadData():
     dict_1 = json.loads(urllib.request.urlopen(data.URL_APRIL).read())
     dict_2 = json.loads(urllib.request.urlopen(data.URL_MAY).read())
     dict_3 = json.loads(urllib.request.urlopen(data.URL_JUNE).read())
-    return [dict_1, dict_2, dict_3]
+    dict_4 = json.loads(urllib.request.urlopen(data.URL_JULY).read())
+    return [dict_1, dict_2, dict_3, dict_4]
 
 
 dataValues = loadData()
