@@ -62,4 +62,5 @@ def loadData():
 
 dataValues = loadData()
 #displayProccessedCurrency('BTC', data)
-dataTimesPrices = processTimes(processCurrency(dataValues[1]), 'BTC')
+historicalData = processTimes(processCurrency(dataValues[1]), 'BTC')
+testData = processTimes(processCurrency(dataValues[2]), 'BTC')
