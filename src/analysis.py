@@ -14,14 +14,15 @@ def calculateSMA(historicalData):
 def calculateOffset():
     return
 
-    # function to calculate the exponential moving average
-    # places higher weightings on recent data
+# function to calculate the exponential moving average
+# places higher weightings on recent data
 
 
 def calculateEMA(historicalData):
     return
 
 
+# function to decide what action to conduct depending on the moving average
 def checkPosition(historicalData, testPrice):
     average = calculateSMA(historicalData)
 
