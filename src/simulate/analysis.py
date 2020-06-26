@@ -9,6 +9,7 @@ def calculateSMA(historicalData):
 
 
 def calculateOffset():
+    return
 
     # function to calculate the exponential moving average
     # places higher weightings on recent data
