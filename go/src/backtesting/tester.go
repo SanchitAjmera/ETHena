@@ -24,8 +24,8 @@ func getNextPrice(currRow int,fileSlice [][][]string ) float64 {
   }
 	*/
 
-	fmt.Println("Time: "  , timeStamp,
-							"\nPrice: " , currPrice)
+	fmt.Println("Time:     "  , timeStamp,
+							"\nPrice:  " , currPrice)
 
 	currPriceDecimal, err := strconv.ParseFloat(currPrice, 8)
 	if err != nil {
