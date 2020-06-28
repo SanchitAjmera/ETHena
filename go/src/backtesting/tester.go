@@ -3,15 +3,56 @@ package main
 import (
         "fmt"
         "time"
+        "github.com/tealeg/xlsx"
+        "github.com/luno/luno-go/decimal"
 )
 
 
-func tester(getNextPrice ticker) {
+func getNextPrice(currRow int,fileSlice [][][]string ) decimal.Decimal {
+
+  const priceCol = 7
+  const timeCol = 0
+  const sheetNum = 0
+
+  currPrice := fileSlice[sheetNum][currRow][priceCol]
+	timeStamp := fileSlice[sheetNum][currRow][timeCol]
+
+	if currPrice == "NaN" {
+		return decimal.Zero() // Zero means failed to get price
+	}
+
+	/*
+  timeStampFormatted, err := time.Parse("2006-01-02 15:04:05.000", timeStamp)
+  if err != nil {
+    panic(err)
+  }
+	*/
+
+	fmt.Println("Time: "  , timeStamp,
+							"\nPrice: " , currPrice)
+
+	currPriceDecimal, err := decimal.NewFromString(currPrice)
+	if err != nil {
+		panic(err)
+	}
+	return currPriceDecimal
+}
+
+
+
+func tester() {
+
+  fileSlice, err := xlsx.FileToSlice("recentAPIdata.xlsx")
+
+  if err != nil {
+		panic(err)
+	}
+  
 	bot := verySimpleBot
   sleepTime := time.Millisecond //don't need to sleep in testing
 	stock := 0
 	rowNum := 1
-	lastPrice := getNextPrice(rowNum)
+	lastPrice := getNextPrice(rowNum, fileSlice)
 	startBalance := lastPrice.MulInt64(100)
 	balance := startBalance
 	assets:= lastPrice.MulInt64(int64(stock)).Add(balance)
@@ -21,7 +62,7 @@ func tester(getNextPrice ticker) {
 
 	for i := iterations * minutesInDay; i > 0; i--{
 		rowNum++
-		nextPrice := getNextPrice(rowNum)
+		nextPrice := getNextPrice(rowNum, fileSlice)
 
 		if (nextPrice.Sign() == 0) {
 			fmt.Println("PRICE UNAVAILABLE")

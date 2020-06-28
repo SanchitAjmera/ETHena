@@ -6,3 +6,5 @@ import (
 
 //Tickers take the current row return the current price
 type ticker func(int) decimal.Decimal
+
+// global variable for data
