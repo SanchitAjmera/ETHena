@@ -5,7 +5,7 @@ import (
         "fmt"
 )
 
-func SME(state *state_t) (int, float64) {
+func SME(state *state_t, printing bool) (int, float64) {
 
   newData, timeStamp:= getNextPrice(state.currentDay, state.historicalData)
 
@@ -28,17 +28,23 @@ func SME(state *state_t) (int, float64) {
 
 
   if average + state.metrics.offset  <  newData {
-    fmt.Println(".")
-    fmt.Println("                   Price:          £"  , newData,
-  							"\n                   Time:          " , timeStamp)
-    fmt.Println("                   Moving Average: £",average)
+    if printing {
+      fmt.Println(".")
+      fmt.Println("                   Price:          £"  , newData,
+        "\n                   Time:          " , timeStamp)
+      fmt.Println("                   Moving Average: £",average)
+    }
+
     return -1, newData
 
   } else if average - state.metrics.offset > newData {
-    fmt.Println(".")
-    fmt.Println("                   Price:          £"  , newData,
-  							"\n                   Time:          " , timeStamp)
-    fmt.Println("                   Moving Average: £",average)
+    if printing {
+      fmt.Println(".")
+      fmt.Println("                   Price:          £"  , newData,
+        "\n                   Time:          " , timeStamp)
+      fmt.Println("                   Moving Average: £",average)
+    }
+    
     return 1, newData
   }
 

@@ -40,40 +40,52 @@ func tester() {
 
   inventory := [][]float64{}
 
-  trader1 := &state_t{funds : float64(100000), assets: float64(0),
-    inventory : inventory, historicalData : fileSlice, currentDay : 15}
+  for i := 1; i<720; i++ {
 
-  trader1.metrics.tickerTime = 0
-  trader1.metrics.dataCacheLength = trader1.currentDay
-  trader1.metrics.offset = float64(100)
+    trader1 := &state_t{funds : float64(100000), assets: float64(0),
+      inventory : inventory, historicalData : fileSlice, currentDay : i}
 
-  day := 1440
+    trader1.metrics.tickerTime = 0
+    trader1.metrics.dataCacheLength = trader1.currentDay
+    trader1.metrics.offset = float64(100)
 
-  for i := 0 ; i < day; i++ {
 
-    SMEBot(trader1)
+    day := 0
+
+    for j := 0 ; j < 1440; j++ {
+      day +=trader1.metrics.dataCacheLength
+  //    fmt.Println(trader1.currentDay)
+      if day > 1440{
+        break
+      }
+      SMEBot(trader1, false)
+
+    }
+
+/*    fmt.Println(".")
+    fmt.Println(".")
+    fmt.Println(".")
+    fmt.Println(".")
+*/
+    lastPrice, _ := getNextPrice(trader1.currentDay, fileSlice)
+    sell(trader1, lastPrice, false)
+/*
+    fmt.Println(".")
+    fmt.Println(".")
+    fmt.Println(".")
+    fmt.Println(".")
+*/  fmt.Println("----------------------------------------------------------------")
+    fmt.Println(".")
+    fmt.Println("                   currentDay:  ", trader1.currentDay)
+    fmt.Println("                   timePast:    ", trader1.metrics.dataCacheLength)
+    fmt.Println("                   Initial Funds: £ 100000")
+    fmt.Println("                   Final Funds:   £", trader1.funds)
+    fmt.Println(".")
+    fmt.Println(".")
+
+    }
+
   }
-
-  fmt.Println(".")
-  fmt.Println(".")
-  fmt.Println(".")
-  fmt.Println(".")
-
-  lastPrice, _ := getNextPrice(trader1.currentDay, fileSlice)
-  sell(trader1, lastPrice)
-
-  fmt.Println(".")
-  fmt.Println(".")
-  fmt.Println(".")
-  fmt.Println(".")
-	fmt.Println("----------------------------------------------------------------")
-  fmt.Println(".")
-  fmt.Println("                   Initial Funds: £ 100000")
-  fmt.Println("                   Final Funds:   £", trader1.funds)
-  fmt.Println(".")
-  fmt.Println(".")
-  fmt.Println(".")
-}
 
 
 /*

@@ -5,7 +5,7 @@ import (
 )
 
 
-func buy(state *state_t, newPrice float64 ){
+func buy(state *state_t, newPrice float64, printing bool ){
   buyableStock := state.funds / newPrice
 
   if buyableStock != float64(0) {
@@ -14,15 +14,19 @@ func buy(state *state_t, newPrice float64 ){
     state.funds -= buyableStock * newPrice
   }
 
-  fmt.Println("                   Bought ", buyableStock, " stocks at ",newPrice)
+  if printing {
+    fmt.Println("                   Bought ", buyableStock, " stocks at ",newPrice)
+  }
 
 }
 
-func sell(state *state_t, newPrice float64) {
+func sell(state *state_t, newPrice float64, printing bool) {
   sold := float64(0)
 
   if len(state.inventory) == 0 {
-    fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
+    if printing {
+      fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
+    }
     return
   }
 
@@ -32,7 +36,10 @@ func sell(state *state_t, newPrice float64) {
   }
 
   state.inventory = [][]float64{}
-  fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
+
+  if printing {
+    fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
+  }
 
 }
 
@@ -44,21 +51,25 @@ func verySimpleBot(nextPrice float64, lastPrice *float64) float64 {
 	return returnVal
 }
 
-func SMEBot(state *state_t) {
-  action, newPrice := SME(state)
+
+
+func SMEBot(state *state_t, printing bool) {
+  action, newPrice := SME(state, printing)
 
   if action == 0 {
     state.currentDay += state.metrics.dataCacheLength
     return
   }
 
-  fmt.Println("                   inventory:     ",state.inventory)
-  fmt.Println("                   funds:          £",state.funds)
+  if printing {
+    fmt.Println("                   inventory:     ",state.inventory)
+    fmt.Println("                   funds:          £",state.funds)
+  }
 
   if action > 0 {
-    buy(state, newPrice)
+    buy(state, newPrice, printing)
   } else if action < 0{
-    sell(state, newPrice)
+    sell(state, newPrice, printing)
   }
 
   state.currentDay += state.metrics.dataCacheLength
