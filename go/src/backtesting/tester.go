@@ -4,21 +4,17 @@ import (
         "fmt"
         "time"
         "github.com/tealeg/xlsx"
-        "github.com/luno/luno-go/decimal"
+        "strconv"
 )
 
 
-func getNextPrice(currRow int,fileSlice [][][]string ) decimal.Decimal {
-
-  const priceCol = 7
-  const timeCol = 0
-  const sheetNum = 0
+func getNextPrice(currRow int,fileSlice [][][]string ) float64 {
 
   currPrice := fileSlice[sheetNum][currRow][priceCol]
 	timeStamp := fileSlice[sheetNum][currRow][timeCol]
 
 	if currPrice == "NaN" {
-		return decimal.Zero() // Zero means failed to get price
+		return float64(0) // Zero means failed to get price
 	}
 
 	/*
@@ -31,7 +27,7 @@ func getNextPrice(currRow int,fileSlice [][][]string ) decimal.Decimal {
 	fmt.Println("Time: "  , timeStamp,
 							"\nPrice: " , currPrice)
 
-	currPriceDecimal, err := decimal.NewFromString(currPrice)
+	currPriceDecimal, err := strconv.ParseFloat(currPrice, 8)
 	if err != nil {
 		panic(err)
 	}
@@ -47,15 +43,15 @@ func tester() {
   if err != nil {
 		panic(err)
 	}
-  
+
 	bot := verySimpleBot
   sleepTime := time.Millisecond //don't need to sleep in testing
 	stock := 0
 	rowNum := 1
 	lastPrice := getNextPrice(rowNum, fileSlice)
-	startBalance := lastPrice.MulInt64(100)
+	startBalance := float64(1000000)
 	balance := startBalance
-	assets:= lastPrice.MulInt64(int64(stock)).Add(balance)
+	assets:= lastPrice * float64(stock) + balance
 
 	const iterations = 3 //3 days
 	const minutesInDay = 1440
@@ -64,15 +60,15 @@ func tester() {
 		rowNum++
 		nextPrice := getNextPrice(rowNum, fileSlice)
 
-		if (nextPrice.Sign() == 0) {
+		if (nextPrice == float64(0)) {
 			fmt.Println("PRICE UNAVAILABLE")
 			continue // Skip loop if price is NaN
 		}
 
-		assets = nextPrice.MulInt64(int64(stock)).Add(balance)
+		assets = nextPrice * float64(stock) + balance
 		fmt.Println("Balance: "  , balance,
 								"\nStock: " , stock,
-								"\nProfit: ", assets.Sub(startBalance),
+								"\nProfit: ", assets - startBalance,
 								"\n")
 	  nextTrade := bot(nextPrice, &lastPrice)
 		switch {
@@ -80,15 +76,15 @@ func tester() {
 			//do nothing
 		case nextTrade > 0:
 			//buy if we have enough money
-			if balance.Sub(nextPrice).Sign() == 1 {
-				balance = balance.Sub(nextPrice)
-				stock += nextTrade
+			if balance - nextPrice > 0 {
+				balance = balance - nextPrice
+				stock += int(nextTrade)
 			}
 		case nextTrade < 0:
 			//sell if we have enough stock
-			if stock + nextTrade >= 0 {
-				stock += nextTrade
-				balance = balance.Add(nextPrice)
+			if float64(stock) + nextTrade >= 0 {
+				stock += int(nextTrade)
+				balance = balance - nextPrice
 			}
 		default:
 			panic("Unreachable")
@@ -99,7 +95,7 @@ func tester() {
 	//Analysis
 	fmt.Println("verySimpleBot: BACKTESTING COMPLETE")
 	fmt.Println("-----------------------------------")
-	fmt.Println("TOTAL PROFIT: ", assets.Sub(startBalance))
-	fmt.Println("PROFIT PER DAY: ", assets.Sub(startBalance).DivInt64(int64(iterations)))
+	fmt.Println("TOTAL PROFIT: ", assets - startBalance)
+	fmt.Println("PROFIT PER DAY: ", assets - startBalance / float64(iterations))
 
 }
