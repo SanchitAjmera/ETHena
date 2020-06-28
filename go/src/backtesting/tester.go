@@ -2,41 +2,82 @@ package main
 
 import (
         "fmt"
-        "time"
         "github.com/tealeg/xlsx"
         "strconv"
 )
 
 
-func getNextPrice(currRow int,fileSlice [][][]string ) float64 {
+func getNextPrice(currRow int,fileSlice [][][]string ) (float64, float64) {
 
   currPrice := fileSlice[sheetNum][currRow][priceCol]
 	timeStamp := fileSlice[sheetNum][currRow][timeCol]
 
 	if currPrice == "NaN" {
-		return float64(0) // Zero means failed to get price
+		return float64(0), float64(0) // Zero means failed to get price
 	}
-
-	/*
-  timeStampFormatted, err := time.Parse("2006-01-02 15:04:05.000", timeStamp)
-  if err != nil {
-    panic(err)
-  }
-	*/
-
-	fmt.Println("Time:     "  , timeStamp,
-							"\nPrice:  " , currPrice)
 
 	currPriceDecimal, err := strconv.ParseFloat(currPrice, 8)
 	if err != nil {
 		panic(err)
 	}
-	return currPriceDecimal
+
+  timeStampFloat, err := strconv.ParseFloat(timeStamp, 8)
+  if err != nil {
+		panic(err)
+	}
+
+	return currPriceDecimal, timeStampFloat
 }
 
 
 
 func tester() {
+  fileSlice, err := xlsx.FileToSlice("recentAPIdata.xlsx")
+
+  if err != nil {
+		panic(err)
+	}
+
+  inventory := [][]float64{}
+
+  trader1 := &state_t{funds : float64(100000), assets: float64(0),
+    inventory : inventory, historicalData : fileSlice, currentDay : 15}
+
+  trader1.metrics.tickerTime = 0
+  trader1.metrics.dataCacheLength = trader1.currentDay
+  trader1.metrics.offset = float64(100)
+
+  day := 1440
+
+  for i := 0 ; i < day; i++ {
+
+    SMEBot(trader1)
+  }
+
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+
+  lastPrice, _ := getNextPrice(trader1.currentDay, fileSlice)
+  sell(trader1, lastPrice)
+
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+	fmt.Println("----------------------------------------------------------------")
+  fmt.Println(".")
+  fmt.Println("                   Initial Funds: £ 100000")
+  fmt.Println("                   Final Funds:   £", trader1.funds)
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+}
+
+
+/*
+func tester2() {
 
   fileSlice, err := xlsx.FileToSlice("recentAPIdata.xlsx")
 
@@ -99,3 +140,6 @@ func tester() {
 	fmt.Println("PROFIT PER DAY: ", assets - startBalance / float64(iterations))
 
 }
+
+
+*/
