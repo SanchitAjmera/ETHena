@@ -1,13 +1,5 @@
 package main
 
-/*THINGS TO DO
- - Make tester function more general
- 		- Time intervals between trades
-		- Total trading period
-	- Make utils functions like moving average
-	- Try and implement bid and ask
-*/
-
 
 import (
         "fmt"
