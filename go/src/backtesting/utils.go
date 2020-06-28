@@ -15,6 +15,7 @@ type state_t struct {
   historicalData [][][]string
   currentDay int
   metrics struct  {
+    offset float64
     tickerTime int
     dataCacheLength int
   }
