@@ -20,20 +20,17 @@ func SME(historicalData[] string, newData float64) float64 {
   return sum / float64(n)
 }
 
-func checkSME(state *state_t) int {
+func checkSME(state *state_t) (int, float64) {
 
   newData:= getNextPrice(state.currentDay, state.historicalData)
   historicalDataSlice := state.historicalData[sheetNum][state.currentDay - state.metrics.dataCacheLength:state.currentDay][priceCol]
-
   average := SME(historicalDataSlice, newData)
 
   if average > 0 {
-
-    return 1
+    return 1, newData
 
   } else if average < 0 {
-
-    return -1
+    return -1, newData
   }
-    return 0
+    return 0, newData
 }
