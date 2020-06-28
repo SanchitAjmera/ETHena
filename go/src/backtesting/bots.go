@@ -14,8 +14,7 @@ func buy(state *state_t, newPrice float64 ){
     state.funds -= buyableStock * newPrice
   }
 
-  fmt.Println(".")
-  fmt.Println("                   Bought %d stock at %d", buyableStock, newPrice)
+  fmt.Println("                   Bought ", buyableStock, " stocks at ",newPrice)
 
 }
 
@@ -23,8 +22,7 @@ func sell(state *state_t, newPrice float64) {
   sold := float64(0)
 
   if len(state.inventory) == 0 {
-    fmt.Println(".")
-    fmt.Println("                 Sold %d stock at %d", sold, newPrice)
+    fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
     return
   }
 
@@ -34,8 +32,7 @@ func sell(state *state_t, newPrice float64) {
   }
 
   state.inventory = [][]float64{}
-  fmt.Println(".")
-  fmt.Println("                   Sold %d stocks at %d", sold, newPrice)
+  fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
 
 }
 
@@ -48,12 +45,21 @@ func verySimpleBot(nextPrice float64, lastPrice *float64) float64 {
 }
 
 func SMEBot(state *state_t) {
-  action, newPrice := checkSME(state)
+  action, newPrice := SME(state)
+
+  if action == 0 {
+    state.currentDay += state.metrics.dataCacheLength
+    return
+  }
+
+  fmt.Println("                   inventory:     ",state.inventory)
+  fmt.Println("                   funds:          £",state.funds)
+
   if action > 0 {
     buy(state, newPrice)
   } else if action < 0{
     sell(state, newPrice)
   }
 
-  state.currentDay += 1
+  state.currentDay += state.metrics.dataCacheLength
 }
