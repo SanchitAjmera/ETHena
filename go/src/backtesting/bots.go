@@ -11,3 +11,8 @@ func verySimpleBot(nextPrice decimal.Decimal, lastPrice *decimal.Decimal) int {
 	*lastPrice = nextPrice
 	return returnVal
 }
+
+func SMEBot(state *state_t) {
+  action := checkSME(state)
+
+}
