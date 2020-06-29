@@ -23,12 +23,15 @@ func main () {
     panic(err)
   }
 
+  //tester(30,100,2000,fileSlice)
 
-  for duration := 1000;  duration< 31000; duration+= 1000 {
+
+  for duration := 1000;  duration< 16000; duration+= 1000 {
     maxFunds := float64(0)
     maxMinutes := float64(0)
     maxOffset := float64(0)
-
+    // minutes is the length which the EMA/SME is calculated over
+    // and how often the bot queries for price changes
     for minutes := 1; minutes < 120; minutes+=1 {
       for offset := 5;  offset< 200; offset+=5 {
       //  fmt.Println(".")
@@ -44,8 +47,4 @@ func main () {
 
     fmt.Println("  Max Funds £",maxFunds," over duration:", duration," with offset",maxOffset, " and minute intervals of", maxMinutes)
   }
-
-  // MAX seems to be funds: 105397.6732124628  minutes: 330   offset: 85
-  //106683.81605602588 26 20
-
 }

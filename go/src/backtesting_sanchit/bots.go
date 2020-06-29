@@ -1,11 +1,11 @@
 package main
 
 import (
-//  "fmt"
+  //"fmt"
 )
 
 
-func buy(state *state_t, newPrice float64, printing bool ){
+func buy(state *state_t, newPrice float64 ){
   buyableStock := state.funds / newPrice
 
   if buyableStock != float64(0) {
@@ -19,7 +19,7 @@ func buy(state *state_t, newPrice float64, printing bool ){
 
 }
 
-func sell(state *state_t, newPrice float64, printing bool) {
+func sell(state *state_t, newPrice float64) {
   sold := float64(0)
 
   if len(state.inventory) == 0 {
@@ -53,8 +53,15 @@ func verySimpleBot(nextPrice float64, lastPrice *float64) float64 {
 
 
 
-func SMEBot(state *state_t, printing bool) {
-  action, newPrice := SME(state, printing)
+func bot(state *state_t, useEMA bool) {
+  action := 0
+  newPrice := float64(0)
+
+  if useEMA {
+    action, newPrice = checkEMA(state)
+  } else {
+    action, newPrice = SME(state)
+  }
 
   if action == 0 {
     state.currentDay += state.metrics.dataCacheLength
@@ -62,14 +69,14 @@ func SMEBot(state *state_t, printing bool) {
   }
 
   //if printing {
-//  fmt.Println("                   inventory:     ",state.inventory)
-//  fmt.Println("                   funds:          £",state.funds)
+  //fmt.Println("                   inventory:     ",state.inventory)
+  //fmt.Println("                   funds:          £",state.funds)
   //}
 
   if action > 0 {
-    buy(state, newPrice, printing)
+    buy(state, newPrice)
   } else if action < 0 {
-    sell(state, newPrice, printing)
+    sell(state, newPrice)
   }
 
   state.currentDay += state.metrics.dataCacheLength

@@ -1,7 +1,7 @@
 package main
 
 import (
-    //    "fmt"
+        //"fmt"
 
         "strconv"
 )
@@ -32,7 +32,6 @@ func getNextPrice(currRow int,fileSlice [][][]string ) (float64, float64) {
 
 
 func tester(howOften int,offset int,duration int,fileSlice [][][]string) (float64){
-  printEachTrade := false
 
   inventory := make(map[float64]float64)
 
@@ -44,14 +43,14 @@ func tester(howOften int,offset int,duration int,fileSlice [][][]string) (float6
   trader1.metrics.offset = float64(offset)
   trades := duration/trader1.metrics.dataCacheLength
   for j := 0 ; j < trades; j++ {
-
-    SMEBot(trader1, printEachTrade)
+  //  fmt.Println(".")
+    bot(trader1, true)
     //fmt.Println(trader1.historicalData[0][trader1.currentDay][0])
 
   }
 
 /*    fmt.Println(".")
-  fmt.Println(".")
+
   fmt.Println(".")
   fmt.Println(".")
 */
@@ -67,9 +66,9 @@ func tester(howOften int,offset int,duration int,fileSlice [][][]string) (float6
   fmt.Println(".")
   fmt.Println("----------------------------------------------------------------")
   fmt.Println(".")
-  fmt.Println("                   Initial Funds: £ 100000")
-  fmt.Println("                   Final Funds:   £", finalFunds)
-  fmt.Println(".")
+*///fmt.Println("                   Initial Funds: £ 100000")
+  //fmt.Println("                   Final Funds:   £", finalFunds)
+/*  fmt.Println(".")
   fmt.Println(".")
 */
   return finalFunds
