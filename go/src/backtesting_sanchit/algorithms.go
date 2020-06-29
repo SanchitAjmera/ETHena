@@ -2,7 +2,7 @@ package main
 
 import (
         "strconv"
-        "fmt"
+    //    "fmt"
 )
 
 func SME(state *state_t, printing bool) (int, float64) {
@@ -16,7 +16,7 @@ func SME(state *state_t, printing bool) (int, float64) {
 
   for i := 0; i < state.metrics.dataCacheLength; i++ {
     // TODO : should moving average include the current price
-    decimalData, err := strconv.ParseFloat(state.historicalData[sheetNum][state.currentDay - i][priceCol], 8)
+    decimalData, err := strconv.ParseFloat(state.historicalData[0][state.currentDay - i][7], 8)
     if err != nil{
       panic(err)
     }
@@ -28,23 +28,23 @@ func SME(state *state_t, printing bool) (int, float64) {
 
 
   if average + state.metrics.offset  <  newData {
-    if printing {
-      fmt.Println(".")
-      fmt.Println("                   Price:          £"  , newData,
-        "\n                   Time:          " , timeStamp)
-      fmt.Println("                   Moving Average: £",average)
-    }
+    /*if printing {
+    fmt.Println(".")
+    fmt.Println("                   Price:          £"  , newData,
+      "\n                   Time:          " , timeStamp)
+    fmt.Println("                   Moving Average: £",average)
+    }*/
 
     return -1, newData
 
   } else if average - state.metrics.offset > newData {
-    if printing {
-      fmt.Println(".")
-      fmt.Println("                   Price:          £"  , newData,
-        "\n                   Time:          " , timeStamp)
-      fmt.Println("                   Moving Average: £",average)
-    }
-    
+    /*if printing {
+    fmt.Println(".")
+    fmt.Println("                   Price:          £"  , newData,
+      "\n                   Time:          " , timeStamp)
+    fmt.Println("                   Moving Average: £",average)
+    }*/
+
     return 1, newData
   }
 
