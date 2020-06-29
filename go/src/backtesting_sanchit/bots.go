@@ -1,7 +1,7 @@
 package main
 
 import (
-  "fmt"
+//  "fmt"
 )
 
 
@@ -9,14 +9,13 @@ func buy(state *state_t, newPrice float64, printing bool ){
   buyableStock := state.funds / newPrice
 
   if buyableStock != float64(0) {
-    item := []float64{buyableStock, newPrice}
-    state.inventory = append(state.inventory, item)
+    state.inventory[buyableStock] = newPrice
     state.funds -= buyableStock * newPrice
   }
 
-  if printing {
-    fmt.Println("                   Bought ", buyableStock, " stocks at ",newPrice)
-  }
+  //if printing {
+  //fmt.Println("                   Bought ", buyableStock, " stocks at ",newPrice)
+  //}
 
 }
 
@@ -24,22 +23,23 @@ func sell(state *state_t, newPrice float64, printing bool) {
   sold := float64(0)
 
   if len(state.inventory) == 0 {
-    if printing {
-      fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
-    }
+    //if printing {
+    //fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
+    //}
     return
   }
 
-  for i := 0; i < len(state.inventory); i++ {
-    sold += state.inventory[i][0]
-    state.funds += state.inventory[i][0] * newPrice
+  for stock, price := range state.inventory {
+    if price <= newPrice{
+      sold += stock
+      state.funds += stock * newPrice
+      delete(state.inventory, stock)
+    }
   }
 
-  state.inventory = [][]float64{}
-
-  if printing {
-    fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
-  }
+  //if printing {
+  //fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
+  //}
 
 }
 
@@ -61,14 +61,14 @@ func SMEBot(state *state_t, printing bool) {
     return
   }
 
-  if printing {
-    fmt.Println("                   inventory:     ",state.inventory)
-    fmt.Println("                   funds:          £",state.funds)
-  }
+  //if printing {
+//  fmt.Println("                   inventory:     ",state.inventory)
+//  fmt.Println("                   funds:          £",state.funds)
+  //}
 
   if action > 0 {
     buy(state, newPrice, printing)
-  } else if action < 0{
+  } else if action < 0 {
     sell(state, newPrice, printing)
   }
 
