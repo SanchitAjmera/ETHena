@@ -1,16 +1,16 @@
 package main
 
 import (
-        "fmt"
-        "github.com/tealeg/xlsx"
+    //    "fmt"
+
         "strconv"
 )
 
 
 func getNextPrice(currRow int,fileSlice [][][]string ) (float64, float64) {
 
-  currPrice := fileSlice[sheetNum][currRow][priceCol]
-	timeStamp := fileSlice[sheetNum][currRow][timeCol]
+  currPrice := fileSlice[0][currRow][7]
+	timeStamp := fileSlice[0][currRow][0]
 
 	if currPrice == "NaN" {
 		return float64(0), float64(0) // Zero means failed to get price
@@ -31,61 +31,49 @@ func getNextPrice(currRow int,fileSlice [][][]string ) (float64, float64) {
 
 
 
-func tester() {
-  fileSlice, err := xlsx.FileToSlice("recentAPIdata.xlsx")
+func tester(howOften int,offset int,duration int,fileSlice [][][]string) (float64){
+  printEachTrade := false
 
-  if err != nil {
-		panic(err)
-	}
+  inventory := make(map[float64]float64)
 
-  inventory := [][]float64{}
+  trader1 := &state_t{funds : float64(100000), assets: float64(0),
+    inventory : inventory, historicalData : fileSlice, currentDay : howOften}
 
-  for i := 1; i<720; i++ {
+  trader1.metrics.tickerTime = 0
+  trader1.metrics.dataCacheLength = howOften//trader1.currentDay
+  trader1.metrics.offset = float64(offset)
+  trades := duration/trader1.metrics.dataCacheLength
+  for j := 0 ; j < trades; j++ {
 
-    trader1 := &state_t{funds : float64(100000), assets: float64(0),
-      inventory : inventory, historicalData : fileSlice, currentDay : i}
-
-    trader1.metrics.tickerTime = 0
-    trader1.metrics.dataCacheLength = trader1.currentDay
-    trader1.metrics.offset = float64(100)
-
-
-    day := 0
-
-    for j := 0 ; j < 1440; j++ {
-      day +=trader1.metrics.dataCacheLength
-  //    fmt.Println(trader1.currentDay)
-      if day > 1440{
-        break
-      }
-      SMEBot(trader1, false)
-
-    }
-
-/*    fmt.Println(".")
-    fmt.Println(".")
-    fmt.Println(".")
-    fmt.Println(".")
-*/
-    lastPrice, _ := getNextPrice(trader1.currentDay, fileSlice)
-    sell(trader1, lastPrice, false)
-/*
-    fmt.Println(".")
-    fmt.Println(".")
-    fmt.Println(".")
-    fmt.Println(".")
-*/  fmt.Println("----------------------------------------------------------------")
-    fmt.Println(".")
-    fmt.Println("                   currentDay:  ", trader1.currentDay)
-    fmt.Println("                   timePast:    ", trader1.metrics.dataCacheLength)
-    fmt.Println("                   Initial Funds: £ 100000")
-    fmt.Println("                   Final Funds:   £", trader1.funds)
-    fmt.Println(".")
-    fmt.Println(".")
-
-    }
+    SMEBot(trader1, printEachTrade)
+    //fmt.Println(trader1.historicalData[0][trader1.currentDay][0])
 
   }
+
+/*    fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+*/
+  lastPrice, _ := getNextPrice(trader1.currentDay, fileSlice)
+  finalFunds := trader1.funds
+  for key, _:= range trader1.inventory {
+    finalFunds += key * lastPrice
+  }
+/*
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println(".")
+  fmt.Println("----------------------------------------------------------------")
+  fmt.Println(".")
+  fmt.Println("                   Initial Funds: £ 100000")
+  fmt.Println("                   Final Funds:   £", finalFunds)
+  fmt.Println(".")
+  fmt.Println(".")
+*/
+  return finalFunds
+}
 
 
 /*
