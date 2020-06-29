@@ -11,7 +11,7 @@ type ticker func(int) decimal.Decimal
 type state_t struct {
   funds float64
   assets float64
-  inventory [][]float64
+  inventory map[float64]float64
   historicalData [][][]string
   currentDay int
   metrics struct  {
