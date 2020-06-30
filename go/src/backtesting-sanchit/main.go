@@ -1,51 +1,55 @@
 package main
 
-import ("fmt"
-        "github.com/tealeg/xlsx"
-      )
+import (
+	"fmt"
+	"github.com/luno/luno-go/decimal"
+)
 
-//var priceCol int
-//var timeCol int
-//var sheetNum int
+func test(bot *smaBot) {
+	var i int64 = 0
+	for i < bot.numOfDecisions {
+		bot.trade()
+		i++
+	}
+}
 
+func main() {
 
-func main () {
+	startingFunds := decimal.NewFromInt64(int64(100))
 
-  /*initialising global variables
-  priceCol = 7
-  timeCol = 0
-  sheetNum = 0
-*/
-//	var getNextPrice ticker = tickerFunc()
-  fileSlice, err := xlsx.FileToSlice("recentAPIdata.xlsx")
+	parseXlsx()
 
-  if err != nil {
-    panic(err)
-  }
+	periods := [5]int64{5, 15, 30, 60, 240}
+	var bestPeriod int64 = 0
+	var bestOffset int64 = 0
+	var maxProfit decimal.Decimal = decimal.Zero()
+	for _, v := range periods {
+		var tradingPeriod int64 = int64(v)
+		var numOfDecisions int64 = 50000/tradingPeriod
+		days := (numOfDecisions * tradingPeriod) / (60 * 24)
 
+		for j := 5; j < 200; j += 5 {
+			var offset int64 = int64(j)
+			pf := portfolio{startingFunds, decimal.NewFromInt64(int64(0)), tradingPeriod, int64(tradingPeriod), 0}
+			bot := smaBot{pf, decimal.NewFromInt64(offset), numOfDecisions}
+			test(&bot)
 
-  for duration := 1000;  duration< 31000; duration+= 1000 {
-    maxFunds := float64(0)
-    maxMinutes := float64(0)
-    maxOffset := float64(0)
+			currBid := getBid(bot.pf.currRow)
+			portfolioValue := bot.pf.funds.Add(currBid.Mul(bot.pf.stock))
+			profit := portfolioValue.Sub(startingFunds)
 
-    for minutes := 1; minutes < 120; minutes+=1 {
-      for offset := 5;  offset< 200; offset+=5 {
-      //  fmt.Println(".")
-      //  fmt.Println("               ", minutes, offset, duration)
-        result := tester(minutes, offset, duration,fileSlice)
-        if result > maxFunds  {
-          maxFunds = result
-          maxMinutes = float64(minutes)
-          maxOffset = float64(offset)
-        }
-      }
-    }
+			if (profit.Cmp(maxProfit) == 1) {
+				maxProfit = profit
+				bestPeriod = tradingPeriod
+				bestOffset = offset
+			}
 
-    fmt.Println("  Max Funds £",maxFunds," over duration:", duration," with offset",maxOffset, " and minute intervals of", maxMinutes)
-  }
-
-  // MAX seems to be funds: 105397.6732124628  minutes: 330   offset: 85
-  //106683.81605602588 26 20
-
+			fmt.Println("Days: ",days,"  Trading Period: ",tradingPeriod,"  Offset: ",offset)
+			fmt.Println("Profit/Loss:     £", profit)
+			fmt.Println(bot.pf.tradesMade," trades made")
+		}
+	}
+	fmt.Println("Max Profit:    £", maxProfit)
+	fmt.Println("Best Period:    ", bestPeriod)
+	fmt.Println("Best Offset:    ", bestOffset)
 }

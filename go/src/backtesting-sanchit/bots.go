@@ -1,76 +1,70 @@
 package main
 
 import (
-//  "fmt"
+	"fmt"
+
+	"github.com/luno/luno-go/decimal"
 )
 
-
-func buy(state *state_t, newPrice float64, printing bool ){
-  buyableStock := state.funds / newPrice
-
-  if buyableStock != float64(0) {
-    state.inventory[buyableStock] = newPrice
-    state.funds -= buyableStock * newPrice
-  }
-
-  //if printing {
-  //fmt.Println("                   Bought ", buyableStock, " stocks at ",newPrice)
-  //}
-
+func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
+	currFunds := pf.funds
+	if currFunds.Cmp(stock.Mul(price)) == -1 {
+		fmt.Println("Cannot afford to buy ", stock, " stock at ", price, " price")
+	} else {
+		// fmt.Println("Bought ", stock, " stock at ", price, " price")
+		pf.funds = pf.funds.Sub(stock.Mul(price))
+		pf.stock = pf.stock.Add(stock)
+		pf.tradesMade++
+		// fmt.Println("Current funds: ",pf.funds,"\n")
+	}
 }
 
-func sell(state *state_t, newPrice float64, printing bool) {
-  sold := float64(0)
-
-  if len(state.inventory) == 0 {
-    //if printing {
-    //fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
-    //}
-    return
-  }
-
-  for stock, price := range state.inventory {
-    if price <= newPrice{
-      sold += stock
-      state.funds += stock * newPrice
-      delete(state.inventory, stock)
-    }
-  }
-
-  //if printing {
-  //fmt.Println("                   Sold ", sold, " stocks at ",newPrice)
-  //}
-
+func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
+	currStock := pf.stock
+	if currStock.Cmp(stock) == -1{
+		fmt.Println("Not enough stock to sell ", stock, " stock at ", price, " price")
+	} else {
+		// fmt.Println("Sold ", stock, " stock at ", price, " price")
+		pf.funds = pf.funds.Add(stock.Mul(price))
+		pf.stock = pf.stock.Sub(stock)
+		pf.tradesMade++
+		// fmt.Println("Current funds: ",pf.funds,"\n")
+	}
 }
 
-
-//£-3698.61 per day
-func verySimpleBot(nextPrice float64, lastPrice *float64) float64 {
-	returnVal := nextPrice - *lastPrice
-	*lastPrice = nextPrice
-	return returnVal
+type portfolio struct { //Features common to every bot
+	funds         decimal.Decimal
+	stock         decimal.Decimal
+	tradingPeriod int64 //Trading period in minutes
+	currRow       int64
+	tradesMade		int
 }
 
+type smaBot struct { //Wagwan this is that
+	pf             portfolio
+	offset         decimal.Decimal //Offset size
+	numOfDecisions int64           //Length of short moving average as multiple of period
+}
 
+func (b *smaBot) trade() {
+	pastBids := make([]decimal.Decimal, b.pf.tradingPeriod)
 
-func SMEBot(state *state_t, printing bool) {
-  action, newPrice := SME(state, printing)
+	var i int64 = 0
+	currBid := getBid(b.pf.currRow)
 
-  if action == 0 {
-    state.currentDay += state.metrics.dataCacheLength
-    return
-  }
+	for i < b.pf.tradingPeriod {
+		pastBids[i] = getBid(b.pf.currRow - i)
+		i++
+	}
 
-  //if printing {
-//  fmt.Println("                   inventory:     ",state.inventory)
-//  fmt.Println("                   funds:          £",state.funds)
-  //}
+	currAsk := getAsk(b.pf.currRow)
+	mean := sma(pastBids)
+	buyableStock := b.pf.funds.Div(currAsk, 8)
 
-  if action > 0 {
-    buy(state, newPrice, printing)
-  } else if action < 0 {
-    sell(state, newPrice, printing)
-  }
-
-  state.currentDay += state.metrics.dataCacheLength
+	if currBid.Cmp(mean.Add(b.offset)) == 1 && b.pf.stock.Sign() != 0{
+		sell(&b.pf, b.pf.stock, currBid)
+	} else if currBid.Cmp(mean.Sub(b.offset)) == -1 {
+		buy(&b.pf, buyableStock, currAsk)
+	}
+	b.pf.currRow += b.pf.tradingPeriod
 }
