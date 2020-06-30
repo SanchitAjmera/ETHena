@@ -19,7 +19,7 @@ func main() {
 
 	parseXlsx()
 
-	periods := [5]int64{5, 15, 30, 60, 240}
+	periods := [12]int64{5, 15,20,25, 30,35,40,45,50,55, 60, 240}
 	var bestPeriod int64 = 0
 	var bestOffset int64 = 0
 	var maxProfit decimal.Decimal = decimal.Zero()
