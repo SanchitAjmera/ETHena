@@ -12,6 +12,8 @@ type portfolio struct {
 	tradingPeriod int64 					 // How often the bot calculates a result
 	currRow       int64						 // current row within excel spreadsheet
 	tradesMade		int							 // total number of trades executed
+	stopLoss			decimal.Decimal  // variable stop loss
+	stopLossMult 	decimal.Decimal  // multiplier for stop loss
 }
 
 // struct for smaBot
@@ -41,6 +43,10 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Sub(stock.Mul(price))
 		pf.stock = pf.stock.Add(stock)
 		pf.tradesMade++
+		// sets new stop loss to new price if price > current stop loss
+		if pf.stopLoss.Cmp(price) == -1 {
+			pf.stopLoss = price
+		}
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
@@ -48,6 +54,10 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 // function to execute selling of items
 func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	currStock := pf.stock
+	// stops sell if price < stoploss * multiplier
+	if price.Cmp(pf.stopLoss.Mul(pf.stopLossMult)) == -1 {
+		return
+	}
 	//checking if we have enough stock to sell
 	if currStock.Cmp(stock) == -1{
 		fmt.Println("Not enough stock to sell ", stock, " stock at ", price, " price")
@@ -57,6 +67,7 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Add(stock.Mul(price))
 		pf.stock = pf.stock.Sub(stock)
 		pf.tradesMade++
+		pf.stopLoss = decimal.Zero()
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
@@ -117,9 +128,11 @@ func (b *rsiBot) tradeRSI() {
 	if rsi.Cmp(decimal.NewFromInt64(overSold)) == -1 {
 		// buying stock if rsi is less than overSold bound
 		buy(b.pf, buyableStock, currAsk)
+		// printPortFolio(b.pf)
 	} else if rsi.Cmp(decimal.NewFromInt64(overBought)) == 1 {
 		// selling stokc if rsi is greater than overBought bound
 		sell(b.pf, b.pf.stock, currBid)
+		// printPortFolio(b.pf)
 	}
 	// incrementing current row by the trading period
 	b.pf.currRow += b.pf.tradingPeriod
