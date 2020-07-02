@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/luno/luno-go/decimal"
 	"github.com/tealeg/xlsx"
 )
@@ -55,4 +55,11 @@ func getAsk(currRow int64) decimal.Decimal {
 	}
 
 	return currPriceDecimal
+}
+
+func printPortFolio(pf *portfolio) {
+	fmt.Println("trade NO. :   ", pf.tradesMade)
+	fmt.Println("funds : 			£", pf.funds)
+	fmt.Println("stock : 			£", pf.stock)
+	fmt.Println(".")
 }
