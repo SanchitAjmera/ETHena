@@ -6,6 +6,29 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+type portfolio struct { //Features common to every bot
+	funds         decimal.Decimal
+	stock         decimal.Decimal
+	tradingPeriod int64 //Trading period in minutes
+	currRow       int64
+	tradesMade		int
+}
+
+type smaBot struct { //Wagwan this is that
+	pf             *portfolio
+	offset         decimal.Decimal //Offset size
+	numOfDecisions int64           //Length of short moving average as multiple of period
+}
+
+
+type rsiBot struct {
+	pf 						 *portfolio
+	numOfDecisions int64
+	overSold			 decimal.Decimal
+	overBought		 decimal.Decimal
+}
+
+
 func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	currFunds := pf.funds
 	if currFunds.Cmp(stock.Mul(price)) == -1 {
@@ -32,28 +55,8 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	}
 }
 
-type portfolio struct { //Features common to every bot
-	funds         decimal.Decimal
-	stock         decimal.Decimal
-	tradingPeriod int64 //Trading period in minutes
-	currRow       int64
-	tradesMade		int
-}
 
-type smaBot struct { //Wagwan this is that
-	pf             portfolio
-	offset         decimal.Decimal //Offset size
-	numOfDecisions int64           //Length of short moving average as multiple of period
-}
-
-
-type rsiBot struct {
-	pf 						 portfolio
-	numOfDecisions int64
-}
-
-
-func (b *smaBot) trade() {
+func (b *smaBot) tradeSMA() {
 	pastBids := make([]decimal.Decimal, b.pf.tradingPeriod)
 	var currBid decimal.Decimal
 	var currAsk decimal.Decimal
@@ -69,13 +72,48 @@ func (b *smaBot) trade() {
 
 	currAsk = getAsk(b.pf.currRow)
 
-	mean := sma(pastBids)
+
 	buyableStock := b.pf.funds.Div(currAsk, 8)
+	mean := sma(pastBids)
 
 	if currBid.Cmp(mean.Add(b.offset)) == 1 && b.pf.stock.Sign() != 0{
-		sell(&b.pf, b.pf.stock, currBid)
+		sell(b.pf, b.pf.stock, currBid)
 	} else if currBid.Cmp(mean.Sub(b.offset)) == -1 {
-		buy(&b.pf, buyableStock, currAsk)
+		buy(b.pf, buyableStock, currAsk)
 	}
+
+	b.pf.currRow += b.pf.tradingPeriod
+}
+
+
+func (b *rsiBot) tradeRSI() {
+	pastBids := make([]decimal.Decimal, b.pf.tradingPeriod)
+	var currBid decimal.Decimal
+	var currAsk decimal.Decimal
+	overSold := b.overSold
+	overBought := b.overBought
+
+	var i int64 = 0
+
+	currBid = getBid(b.pf.currRow)
+
+	for i < b.pf.tradingPeriod {
+		pastBids[i] = getBid(b.pf.currRow - i)
+		i++
+	}
+
+	currAsk = getAsk(b.pf.currRow)
+
+
+	buyableStock := b.pf.funds.Div(currAsk, 8)
+	rsi := rsi(pastBids)
+	fmt.Println("rsi", rsi)
+
+	if rsi.Cmp(overSold) == -1 {
+		buy(b.pf, buyableStock, currAsk)
+	} else if rsi.Cmp(overBought) == 1 {
+		sell(b.pf, b.pf.stock, currBid)
+	}
+
 	b.pf.currRow += b.pf.tradingPeriod
 }
