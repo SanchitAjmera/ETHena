@@ -1,25 +1,34 @@
 package main
 
 import (
-	// "fmt"
 	"github.com/luno/luno-go/decimal"
 )
 /*Indicators that we can reuse. E.g. SMA*/
 
 func sma(array []decimal.Decimal) decimal.Decimal {
 	sum := decimal.Zero()
+	listCount := 0
+
 	for _, val := range array {
 		sum = sum.Add(val)
+		if val != decimal.NewFromInt64(0) {
+			listCount+=1
+		}
 	}
-	return sum.DivInt64(int64(len(array)))
+
+	if listCount == 0 {
+		return decimal.NewFromInt64(0)
+	}
+
+	return sum.Div(decimal.NewFromInt64(int64(listCount)), 8)
 }
 
 
 func rsi(array []decimal.Decimal) decimal.Decimal {
   n := len(array)
 
-	priceUp := make([]decimal.Decimal, n/2)
-	priceDown := make([]decimal.Decimal, n/2)
+	priceUp := make([]decimal.Decimal,0)
+	priceDown := make([]decimal.Decimal,0)
 
 	for i:=0;i<n-1;i++{
 
@@ -42,11 +51,17 @@ func rsi(array []decimal.Decimal) decimal.Decimal {
 	averagePriceRise := sma(priceUp)
 	averagePriceFall := sma(priceDown)
 
-	rs := averagePriceRise.Div(averagePriceFall,8)
-	rsDen := rs.Add(decimal.NewFromInt64(1))
+	comparison := decimal.NewFromInt64(1).Div(decimal.NewFromInt64(10000000),8)
+	if comparison.Cmp(averagePriceFall) == 1{
+		return decimal.NewFromInt64(100)
 
-	rsi1 := decimal.NewFromInt64(100).Sub(decimal.NewFromInt64(100).Div(rsDen,8))
+	} else{
+		rs := averagePriceRise.Div(averagePriceFall,8)
+		rsDen := rs.Add(decimal.NewFromInt64(1))
+
+		rsi1 := decimal.NewFromInt64(100).Sub(decimal.NewFromInt64(100).Div(rsDen,8))
 
 
-	return rsi1
+		return rsi1
+	}
 }
