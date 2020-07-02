@@ -7,7 +7,7 @@ import (
 // function to calculate the simple moving average of a given set of data
 func sma(array []decimal.Decimal) decimal.Decimal {
 	sum := decimal.Zero()
-
+	listCount := 0
 	// summing elements in the given aray
 	for _, val := range array {
 		sum = sum.Add(val)
