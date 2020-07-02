@@ -2,29 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/luno/luno-go/decimal"
 )
-
-
-type portfolio struct { //Features common to every bot
-	funds         decimal.Decimal
-	stock         decimal.Decimal
-	tradingPeriod int64 //Trading period in minutes
-	currRow       int64
-	tradesMade		int
-}
-
-type smaBot struct { //Wagwan this is that
-	pf             portfolio
-	offset         decimal.Decimal //Offset size
-	numOfDecisions int64           //Length of short moving average as multiple of period
-}
-
-type rsiBot struct {
-	pf 						 portfolio
-	numOfDecisions int64
-}
-
 
 func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	currFunds := pf.funds
@@ -52,19 +32,43 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	}
 }
 
+type portfolio struct { //Features common to every bot
+	funds         decimal.Decimal
+	stock         decimal.Decimal
+	tradingPeriod int64 //Trading period in minutes
+	currRow       int64
+	tradesMade		int
+}
+
+type smaBot struct { //Wagwan this is that
+	pf             portfolio
+	offset         decimal.Decimal //Offset size
+	numOfDecisions int64           //Length of short moving average as multiple of period
+}
+
+
+type rsiBot struct {
+	pf 						 portfolio
+	numOfDecisions int64
+}
+
 
 func (b *smaBot) trade() {
 	pastBids := make([]decimal.Decimal, b.pf.tradingPeriod)
+	var currBid decimal.Decimal
+	var currAsk decimal.Decimal
 
 	var i int64 = 0
-	currBid := getBid(b.pf.currRow)
+
+	currBid = getBid(b.pf.currRow)
 
 	for i < b.pf.tradingPeriod {
 		pastBids[i] = getBid(b.pf.currRow - i)
 		i++
 	}
 
-	currAsk := getAsk(b.pf.currRow)
+	currAsk = getAsk(b.pf.currRow)
+
 	mean := sma(pastBids)
 	buyableStock := b.pf.funds.Div(currAsk, 8)
 

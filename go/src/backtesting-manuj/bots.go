@@ -46,6 +46,13 @@ type smaBot struct { //Wagwan this is that
 	numOfDecisions int64           //Length of short moving average as multiple of period
 }
 
+
+type rsiBot struct {
+	pf 						 portfolio
+	numOfDecisions int64
+}
+
+
 func (b *smaBot) trade() {
 	pastBids := make([]decimal.Decimal, b.pf.tradingPeriod)
 	var currBid decimal.Decimal
