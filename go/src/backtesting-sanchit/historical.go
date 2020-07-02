@@ -11,6 +11,7 @@ TODO:
 - change colNum far ask and bid
 */
 
+//global variable for historicalData
 var historicalData [][][]string
 
 // function to process the csv file and return a 3d array of strings
@@ -23,9 +24,10 @@ func parseXlsx() {
 	historicalData = fileSlice
 }
 
+// function to get the bid price from a given row in the excel spreadsheet
 func getBid(currRow int64) decimal.Decimal {
 	currPrice := historicalData[0][int(currRow)][7] //Change this
-
+	// if data is non applicable skip this row
 	if (currPrice == "NaN") {
 		return getBid(currRow - 1)
 	}
@@ -38,10 +40,10 @@ func getBid(currRow int64) decimal.Decimal {
 	return currPriceDecimal
 }
 
+// function to get the ask price from a given row in the excel spreadsheet
 func getAsk(currRow int64) decimal.Decimal {
-
 	currPrice := historicalData[0][currRow][7] //Change this
-
+	// if data is non applicable skip this row
 	if (currPrice == "NaN") {
 		return getAsk(currRow - 1)
 	}
