@@ -43,6 +43,7 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Sub(stock.Mul(price))
 		pf.stock = pf.stock.Add(stock)
 		pf.tradesMade++
+		printPortFolio(pf)
 		// sets new stop loss to new price if price > current stop loss
 		if pf.stopLoss.Cmp(price) == -1 {
 			pf.stopLoss = price
@@ -68,6 +69,7 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.stock = pf.stock.Sub(stock)
 		pf.tradesMade++
 		pf.stopLoss = decimal.Zero()
+		printPortFolio(pf)
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
