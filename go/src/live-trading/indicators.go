@@ -35,29 +35,27 @@ func rsi(array []decimal.Decimal) decimal.Decimal {
 		if array[i+1].Cmp(array[i]) ==1 {
 			//item is over sold and therefore price is likely to rise and should buy
 			diff:= array[i+1].Sub(array[i])
-			frac := diff.Div(array[i],8)
+			percentageRise := diff.Div(array[i],8) //WHY 8
 			// calculating percentage rise in price
-			perctangeRise := frac.Mul(decimal.NewFromInt64(100))
-			priceUp = append(priceUp, perctangeRise)
+			priceUp = append(priceUp, percentageRise)
 
 		} else if array[i+1].Cmp(array[i]) == -1 {
 			//item is over bought and thus price is likely to fall and should sell
 			diff:= array[i].Sub(array[i+1])
-			frac := diff.Div(array[i],8)
+			percentageFall := diff.Div(array[i],8)
 			// calculating percentage rise in price
-			perctangeFall := frac.Mul(decimal.NewFromInt64(100))
-			priceDown = append(priceDown, perctangeFall)
+			priceDown = append(priceDown, percentageFall)
 		}
 	}
 	// calculating average price change
 	averagePriceRise := sma(priceUp)
 	averagePriceFall := sma(priceDown)
+
+
 	// check to see if average fall price is Zero
 	// in which case return 100 to avoid non-Zero error
-	comparison := decimal.NewFromInt64(1).Div(decimal.NewFromInt64(10000000),8)
-	if comparison.Cmp(averagePriceFall) == 1{
+	if comparison.Sign() == 0 {
 		return decimal.NewFromInt64(100)
-
 	} else {
 		rs := averagePriceRise.Div(averagePriceFall,8)
 		rsDen := rs.Add(decimal.NewFromInt64(1))
