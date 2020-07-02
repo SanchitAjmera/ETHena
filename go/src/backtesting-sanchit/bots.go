@@ -24,8 +24,8 @@ type smaBot struct { //Wagwan this is that
 type rsiBot struct {
 	pf 						 *portfolio
 	numOfDecisions int64
-	overSold			 decimal.Decimal
-	overBought		 decimal.Decimal
+	overSold			 int64
+	overBought		 int64
 }
 
 
@@ -107,11 +107,10 @@ func (b *rsiBot) tradeRSI() {
 
 	buyableStock := b.pf.funds.Div(currAsk, 8)
 	rsi := rsi(pastBids)
-	fmt.Println("rsi", rsi)
 
-	if rsi.Cmp(overSold) == -1 {
+	if rsi.Cmp(decimal.NewFromInt64(overSold)) == -1 {
 		buy(b.pf, buyableStock, currAsk)
-	} else if rsi.Cmp(overBought) == 1 {
+	} else if rsi.Cmp(decimal.NewFromInt64(overBought)) == 1 {
 		sell(b.pf, b.pf.stock, currBid)
 	}
 
