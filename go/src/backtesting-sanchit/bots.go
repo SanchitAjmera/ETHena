@@ -36,6 +36,8 @@ type macdBot struct {
 	numOfDecisions int64
 	SRtradePeriod  int64
 	LRtradePeriod  int64
+	diffs					 []decimal.Decimal
+	prevDiff			 decimal.Decimal
 }
 
 // function to execute buying of items
@@ -50,8 +52,8 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Sub(stock.Mul(price))
 		pf.stock = pf.stock.Add(stock)
 		pf.tradesMade++
-		fmt.Println("buy")
-	  printPortFolio(pf)
+		//fmt.Println("buy")
+	  //printPortFolio(pf)
 		// sets new stop loss to new price if price > current stop loss
 		//if pf.stopLoss.Cmp(price) == -1 {
 		//}
@@ -73,8 +75,8 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.stock = pf.stock.Sub(stock)
 		pf.tradesMade++
 		pf.stopLoss = decimal.Zero()
-		fmt.Println("sell")
-	  printPortFolio(pf)
+		//fmt.Println("sell")
+	  //printPortFolio(pf)
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
@@ -145,9 +147,11 @@ func (b *rsiBot) tradeRSI() {
 	b.pf.currRow += b.pf.tradingPeriod
 }
 
+
+
 func (b *macdBot) tradeMACD(){
-	//currAsk := getAsk(b.pf.currRow)
-	//currBid := getBid(b.pf.currRow)
+	currAsk := getAsk(b.pf.currRow)
+	currBid := getBid(b.pf.currRow)
 	pastBidsSR := make([]decimal.Decimal, b.SRtradePeriod)
 	pastBidsLR := make([]decimal.Decimal, b.LRtradePeriod)
 
@@ -163,9 +167,32 @@ func (b *macdBot) tradeMACD(){
 	smaSR := sma(pastBidsSR)
 
 	diff := smaLR.Sub(smaSR)
+	b.diffs = append(b.diffs, diff)
 
-	if diff == decimal.Zero() {
-		fmt.Println("crossOver")
+	buyableStock := b.pf.funds.Div(currAsk, 8)
+
+	upperBound, err := decimal.NewFromString("0.01")
+	if err != nil { panic(err)}
+	lowerBound, err := decimal.NewFromString("-0.01")
+	if err != nil { panic(err)}
+
+	if diff.Cmp(upperBound) == -1 && diff.Cmp(lowerBound) == 1 {
+
+		if b.prevDiff.Cmp(decimal.Zero()) == 1 {
+			// coming from smaLR > smaSR
+			buy(b.pf, buyableStock, currAsk)
+
+		} else if b.prevDiff.Cmp(decimal.Zero()) == -1 {
+			// coming from smaLR > smaSR
+			sell(b.pf, b.pf.stock, currBid)
+		}
+		//fmt.Println("SR :", smaSR)
+		//fmt.Println("LR :", smaLR)
+		//fmt.Println("\n timestamp: ", b.pf.currRow, "\n")
+		//fmt.Println("crossOver")
 	}
+
+	b.prevDiff = diff
+	b.pf.currRow += b.pf.tradingPeriod
 
 }
