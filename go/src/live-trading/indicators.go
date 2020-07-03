@@ -35,7 +35,7 @@ func rsi(array []decimal.Decimal) decimal.Decimal {
 		if array[i+1].Cmp(array[i]) ==1 {
 			//item is over sold and therefore price is likely to rise and should buy
 			diff:= array[i+1].Sub(array[i])
-			percentageRise := diff.Div(array[i],8) //WHY 8
+			percentageRise := diff.Div(array[i],8)
 			// calculating percentage rise in price
 			priceUp = append(priceUp, percentageRise)
 
@@ -54,7 +54,7 @@ func rsi(array []decimal.Decimal) decimal.Decimal {
 
 	// check to see if average fall price is Zero
 	// in which case return 100 to avoid non-Zero error
-	if comparison.Sign() == 0 {
+	if averagePriceFall.Sign() == 0 {
 		return decimal.NewFromInt64(100)
 	} else {
 		rs := averagePriceRise.Div(averagePriceFall,8)

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
+	"context"
+  luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 )
 
@@ -16,16 +18,19 @@ type rsiBot struct {
 	numOfDecisions 	int64					 					// number of times the bot calculates
 	stopLoss		 	 	decimal.Decimal         // variable stop loss
 	stopLossMult   	decimal.Decimal         // multiplier for stop loss
-	pastBids			 	[]decimal.Decimal			  // cache of historical data from previous trading period
+	pastAsks			 	[]decimal.Decimal			  // cache of historical data from previous trading period
+	prevBid					decimal.Decimal					// previous bid price
 	overSold			 	decimal.Decimal					// bound to tell if the item is over sold
 	overBought		 	decimal.Decimal					// bound to tell if the item is over bought
+	lastOrderId			string									// most recent sell order id
+	readyToBuy			bool										// false means ready to sell
 }
 
 // function to execute buying of items
 func buy(b *rsiBot) {
 	currFunds := getAsset("GBP")
-	price := 0.99 * getCurrAsk()
-	buyableStock := currFunds.Div(price, 64) //WHY WAS THIS 8
+	price := getCurrAsk().Mul(decimal.NewFromFloat64(0.99999,8))
+	buyableStock := currFunds.Div(price, 8)
 	// checking if there are enough funds to buy the given amount of stock
 	if currFunds.Sign() == 0 {
 		fmt.Println("No funds available")
@@ -33,56 +38,107 @@ func buy(b *rsiBot) {
 	} else {
 		//Create limit order
 
-		req, err := PostLimitOrderRequest{
+		req := luno.PostLimitOrderRequest{
 			Pair: pair,
 			Price: price,
 			Type: "BID", //We are putting in a bid to buy at the ask price
 			Volume: buyableStock,
 			//BaseAccountId: --> Not needed until using multiple strategies
 			//CounterAccoundId: --> Same as above
-			PostOnly: true
+			PostOnly: true,
 		}
-
+		res, err := client.PostLimitOrder(context.Background(), &req)
 		if err != nil {panic(err)}
-
+		fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
+		b.readyToBuy = false
 		b.tradesMade++
 		b.stopLoss = price
-		// fmt.Println("Current funds: ",b.funds,"\n")
 	}
 }
 
+func sell(b *rsiBot) {
+	price := getCurrBid().Mul(decimal.NewFromFloat64(1.00001, 8))
+	req := luno.PostLimitOrderRequest{
+		Pair: pair,
+		Price: price,
+		Type: "ASK", //We are putting in a ask to sell at the bid price
+		Volume: getAsset("XBT"),
+		//BaseAccountId: --> Not needed until using multiple strategies
+		//CounterAccoundId: --> Same as above
+		PostOnly: true,
+	}
+	res, err := client.PostLimitOrder(context.Background(), &req)
+	if err != nil {panic(err)}
+
+	if (b.lastOrderId != "") {
+		stopReq := luno.StopOrderRequest{OrderId: b.lastOrderId}
+		stopRes, err := client.StopOrder(context.Background(), &stopReq)
+		if err != nil {panic(err)}
+		if !stopRes.Success {
+			fmt.Println("Failed to cancel order")
+			return
+		}
+		fmt.Println("Previous order successfully cancelled")
+	}
+
+	fmt.Println("SELL - order ", res.OrderId, " placed at ", price)
+	b.lastOrderId = res.OrderId
+	b.readyToBuy = true
+	b.tradesMade++
+
+}
+
 // function to execute trades using the RSI bot
-func (b *rsiBot) trade() {
-	populatePastBids() //This also causes the program to sleep for one trading period
-
+func (b *rsiBot) trade() decimal.Decimal{
 	// calculating RSI usig RSI algorithm
-	rsi := rsi(pastBids)
+	rsi := rsi(b.pastAsks)
 
-	if getAsset("XBT").Sign() == 0 {
+	if b.readyToBuy {
 		if rsi.Cmp(b.overSold) == -1 {
 			// buying stock if we have no stock and rsi is less than overSold bound
-			buy(b)
-			// printPortFolio(b.pf)
+			//Delete from here till next comment
+			currAsk := getCurrAsk()
+			b.readyToBuy = false
+			price := currAsk.Mul(decimal.NewFromFloat64(0.99999,8))
+			b.stopLoss = price
+			fmt.Println("BUYING at ", price)
+			//buy(b)
+			printPortFolio(b)
 		}
 		//Else, do nothing
 	} else {
-		bound := getCurrBid().Mul(b.stopLossMult)
-		if bound.Cmp(b.stopLoss) == 1 {
-			b.tradesMade++
+
+	 	currBid := getCurrBid()
+		bound := currBid.Mul(b.stopLossMult)
+
+		if b.prevBid.Cmp(b.stopLoss) == 1 && currBid.Cmp(b.stopLoss) == -1 {
+			//Delete from here till next comment
+			price := currBid.Mul(decimal.NewFromFloat64(1.00001, 8))
+			fmt.Println("SELLING at ", price)
+			b.readyToBuy = true
+
+			//sell(b)
+			printPortFolio(b)
+		} else if bound.Cmp(b.stopLoss) == 1 {
 			b.stopLoss = bound
-
-			//TODO: Create a stop loss order
-
-			// printPortFolio(b.pf)
-		}
-	}	//Else, do nothing
-
+			fmt.Println("Stoploss: ",b.stopLoss)
+		} //Else, do nothing
+	}
 	b.numOfDecisions++
+
+	time.Sleep(time.Minute)
+
+	var returnVal decimal.Decimal
+	b.prevBid , returnVal = getTicker()
+	b.pastAsks = append(b.pastAsks, returnVal)
+	b.pastAsks = b.pastAsks[1:]
+	//fmt.Println("Current Bid: £", returnVal)
+
+	return returnVal
 }
 
-func printPortFolio(pf *portfolio) {
-	fmt.Println("trade # :   ", pf.tradesMade)
-	fmt.Println("funds : 			£", pf.funds)
-	fmt.Println("stock : 			£", pf.stock)
-	fmt.Println(".")
+func printPortFolio(b *rsiBot) {
+	fmt.Println("trade # :   ", b.tradesMade)
+	fmt.Println("funds : 			£", getAsset("GBP"))
+	fmt.Println("stock : 		BTC", getAsset("XBT"))
 }
