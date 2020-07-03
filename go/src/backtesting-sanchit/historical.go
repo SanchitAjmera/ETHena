@@ -17,7 +17,7 @@ var historicalData [][][]string
 // function to process the csv file and return a 3d array of strings
 // historicalData is of the form: [sheetNum][rowNum][colNum]
 func parseXlsx() {
-	fileSlice, err := xlsx.FileToSlice("recentAPIdata2018v2.xlsx")
+	fileSlice, err := xlsx.FileToSlice("recentAPIdata2019.xlsx")
 	if err != nil {
 		panic(err)
 	}
