@@ -60,7 +60,7 @@ func rsi(array []decimal.Decimal) decimal.Decimal {
 
 	} else {
 		rs := averagePriceRise.Div(averagePriceFall,8)
-		rsDen := rs.Add(decimal.NewFromInt64(1))
+		rsDen := decimal.NewFromInt64(1).Add(rs)
 		// calculating rsi
 		rsi1 := decimal.NewFromInt64(100).Sub(decimal.NewFromInt64(100).Div(rsDen,8))
 		return rsi1

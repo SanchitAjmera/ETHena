@@ -15,12 +15,20 @@ func testSMA(bot *smaBot) {
 	}
 }
 
-
 // test function for the RSI bot
 func testRSI(bot *rsiBot) {
 	var i int64 = 0
 	for i < bot.numOfDecisions {
 		bot.tradeRSI()
+		i++
+	}
+}
+
+
+func testMACD(bot *macdBot) {
+	var i int64 = 0
+	for i < bot.numOfDecisions {
+		bot.tradeMACD()
 		i++
 	}
 }
@@ -46,8 +54,8 @@ func main() {
 	pf := portfolio{startingFunds, decimal.NewFromInt64(int64(0)), tradingPeriod, tradingPeriod, 0, decimal.Zero(), stopLossMultDecimal}
 	// bot := smaBot{&pf, decimal.NewFromInt64(offset), numOfDecisions}
 	// initialising bot
-	bot := rsiBot{&pf, numOfDecisions, int64(30), int64(70)}
-	testRSI(&bot)
+	bot := macdBot{&pf, numOfDecisions, int64(10), int64(60)}
+	testMACD(&bot)
 	// calculating overall profit
 	currBid := getBid(bot.pf.currRow)
 	portfolioValue := bot.pf.funds.Add(currBid.Mul(bot.pf.stock))

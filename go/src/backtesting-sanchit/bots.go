@@ -31,6 +31,13 @@ type rsiBot struct {
 	overBought		 int64					 // bound to tell if the item is over bought
 }
 
+type macdBot struct {
+	pf 						 *portfolio
+	numOfDecisions int64
+	SRtradePeriod  int64
+	LRtradePeriod  int64
+}
+
 // function to execute buying of items
 func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	currFunds := pf.funds
@@ -43,11 +50,11 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Sub(stock.Mul(price))
 		pf.stock = pf.stock.Add(stock)
 		pf.tradesMade++
-		printPortFolio(pf)
+		fmt.Println("buy")
+	  printPortFolio(pf)
 		// sets new stop loss to new price if price > current stop loss
-		if pf.stopLoss.Cmp(price) == -1 {
-			pf.stopLoss = price
-		}
+		//if pf.stopLoss.Cmp(price) == -1 {
+		//}
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
@@ -56,9 +63,6 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	currStock := pf.stock
 	// stops sell if price < stoploss * multiplier
-	if price.Cmp(pf.stopLoss.Mul(pf.stopLossMult)) == -1 {
-		return
-	}
 	//checking if we have enough stock to sell
 	if currStock.Cmp(stock) == -1{
 		fmt.Println("Not enough stock to sell ", stock, " stock at ", price, " price")
@@ -69,7 +73,8 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.stock = pf.stock.Sub(stock)
 		pf.tradesMade++
 		pf.stopLoss = decimal.Zero()
-		printPortFolio(pf)
+		fmt.Println("sell")
+	  printPortFolio(pf)
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
@@ -126,16 +131,41 @@ func (b *rsiBot) tradeRSI() {
 	// calculating RSI usig RSI algorithm
 	buyableStock := b.pf.funds.Div(currAsk, 8)
 	rsi := rsi(pastBids)
+	//fmt.Println("rsi", rsi)
 
-	if rsi.Cmp(decimal.NewFromInt64(overSold)) == -1 {
+  if rsi.Cmp(decimal.NewFromInt64(overSold)) == -1 {
 		// buying stock if rsi is less than overSold bound
 		buy(b.pf, buyableStock, currAsk)
-		// printPortFolio(b.pf)
-	} else if rsi.Cmp(decimal.NewFromInt64(overBought)) == 1 {
-		// selling stokc if rsi is greater than overBought bound
-		sell(b.pf, b.pf.stock, currBid)
-		// printPortFolio(b.pf)
+	} else if rsi.Cmp(decimal.NewFromInt64(overBought))== 1 {
+		sell(b.pf, b.pf.stock,currBid)
 	}
+	b.pf.stopLoss = currAsk
+		// printPortFolio(b.pf)
 	// incrementing current row by the trading period
 	b.pf.currRow += b.pf.tradingPeriod
+}
+
+func (b *macdBot) tradeMACD(){
+	//currAsk := getAsk(b.pf.currRow)
+	//currBid := getBid(b.pf.currRow)
+	pastBidsSR := make([]decimal.Decimal, b.SRtradePeriod)
+	pastBidsLR := make([]decimal.Decimal, b.LRtradePeriod)
+
+	for i := 0;  i < int(b.SRtradePeriod); i++ {
+		pastBidsSR[i] = getBid(b.pf.currRow - int64(i))
+	}
+
+	for i := 0;  i < int(b.LRtradePeriod); i++ {
+		pastBidsLR[i] = getBid(b.pf.currRow - int64(i))
+	}
+
+	smaLR := sma(pastBidsLR)
+	smaSR := sma(pastBidsSR)
+
+	diff := smaLR.Sub(smaSR)
+
+	if diff == decimal.Zero() {
+		fmt.Println("crossOver")
+	}
+
 }
