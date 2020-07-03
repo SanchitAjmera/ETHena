@@ -70,8 +70,8 @@ func main() {
 	maxSRDuration := 0
 	maxLRDuration := 0
 	// iterating through different metrics for the bot
-	for sr := 5 ; sr < 10; sr+=5 {
-		for lr := sr+5;  lr< sr+10; lr+=10 {
+	for sr := 5 ; sr < 6; sr+=5 {
+		for lr := sr+5;  lr< 11; lr+=10 {
 
 			// initialising values within bot portfolio
 			// initialising values within bot portfolio
@@ -83,10 +83,10 @@ func main() {
 			stopLossMultDecimal := stopLossMultiplier.Div(decimal.NewFromInt64(100),8)
 			// var offset int64 = 40
 			// initialising portfolio
-			pf := portfolio{startingFunds, decimal.NewFromInt64(int64(0)), tradingPeriod, int64(300), 0, decimal.Zero(), stopLossMultDecimal}
+			pf := portfolio{startingFunds, decimal.NewFromInt64(int64(0)), tradingPeriod, int64(115), 0, decimal.Zero(), stopLossMultDecimal}
 			// bot := smaBot{&pf, decimal.NewFromInt64(offset), numOfDecisions}
 			// initialising bot
-			bot := macdBot{&pf, numOfDecisions, int64(30), int64(300), results, decimal.Zero()}
+			bot := macdBot{&pf, numOfDecisions, int64(10), int64(115), results, decimal.Zero()}
 			testMACD(&bot)
 			// calculating overall profit
 			currBid := getBid(bot.pf.currRow)
@@ -95,8 +95,8 @@ func main() {
 
 			if profit.Cmp(maxProfit) == 1 {
 				maxProfit = profit
-				maxSRDuration = 30
-				maxLRDuration = 300
+				maxSRDuration = 10
+				maxLRDuration = 95
 				fmt.Println("max Profit" , maxProfit)
 				fmt.Println("max SR" , maxSRDuration)
 				fmt.Println("max LR" , maxLRDuration, "\n")
