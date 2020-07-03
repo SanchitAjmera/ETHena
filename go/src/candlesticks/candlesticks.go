@@ -11,8 +11,10 @@ import (
 )
 
 // Assigning Global Variables
+var ctx context.Context
+var lunoClient *luno.Client
 
-func getInfo(ctx context.Context, lunoClient *luno.Client, tick luno.GetTickerRequest, timeInMins int) (open decimal.Decimal, close decimal.Decimal, high decimal.Decimal, low decimal.Decimal) {
+func getInfo(tick luno.GetTickerRequest, timeInMins int) (decimal.Decimal, decimal.Decimal, decimal.Decimal, decimal.Decimal) {
 
 	timeInSeconds := timeInMins * 60
 	maxAsk := decimal.Zero()
@@ -62,20 +64,39 @@ func getInfo(ctx context.Context, lunoClient *luno.Client, tick luno.GetTickerRe
 	}
 
 	fmt.Println("Open Ask : ", openAsk, "   Highest Ask : ", maxAsk, "  Lowest Ask  : ", minAsk, "  Close Ask : ", closeAsk)
-
 	fmt.Println("Open Bid : ", openBid, "   Highest Bid : ", maxBid, "  Lowest Bid  : ", minBid, "  Close Bid : ", closeBid)
 
 	return openAsk, closeAsk, maxAsk, minAsk
+}
+
+func upDownOrNothing(tick luno.GetTickerRequest, timeInMins int) int {
+	// Returns 1 if prediction buy
+	// Returns 0 if nothing
+	// Returns -1 if prediction sell
+	b1Op, b1Cl, b1Max, b1Min := getInfo(tick, timeInMins)
+	b2Op, b2Cl, b2Max, b2Min := getInfo(tick, timeInMins)
+	b3Op, b3Cl, b3Max, b3Min := getInfo(tick, timeInMins)
+
+	if b2Max.Cmp(b1Max) == 1 && b2Max.Cmp(b3Max) == 1 && b2Min.Cmp(b1Min) == 1 && b2Min.Cmp(b3Min) == 1 {
+		if b1Cl.Cmp(b1Op) == 1 && b3Op.Cmp(b3Cl) == 1 && b2Cl.Cmp(b2Op) == 1 {
+			return -1
+		}
+	} else if b2Max.Cmp(b1Max) == -1 && b2Max.Cmp(b3Max) == -1 && b2Min.Cmp(b1Min) == -1 && b2Min.Cmp(b3Min) == -1 {
+		if b1Cl.Cmp(b1Op) == -1 && b3Op.Cmp(b3Cl) == -1 && b2Cl.Cmp(b2Op) == -1 {
+			return 1
+		}
+	}
+	return 0
 
 }
 
 func main() {
 
-	lunoClient := luno.NewClient()
+	lunoClient = luno.NewClient()
 	lunoClient.SetAuth("gwnarwdxreyag", "ZrCzrPO3IdcMq7t69a5iPUl-JyDAGGxauF0HumJD34s")
-	ctx := context.Background()
+	ctx = context.Background()
 	tick := luno.GetTickerRequest{Pair: "XBTGBP"}
 
-	getInfo(ctx, lunoClient, tick, 1)
+	fmt.Println(upDownOrNothing(tick, 1))
 
 }
