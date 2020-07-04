@@ -12,8 +12,9 @@ type portfolio struct {
 	tradingPeriod int64 					 // How often the bot calculates a result
 	currRow       int64						 // current row within excel spreadsheet
 	tradesMade		int							 // total number of trades executed
-	stopLoss			decimal.Decimal  // variable stop loss
-	stopLossMult 	decimal.Decimal  // multiplier for stop loss
+	stopLoss		 	 decimal.Decimal  // variable stop loss
+	stopLossMult   decimal.Decimal  // multiplier for stop loss
+	readyToBuy		 bool
 }
 
 // struct for smaBot
@@ -29,6 +30,7 @@ type rsiBot struct {
 	numOfDecisions int64					 // number of times the bot calculates
 	overSold			 int64					 // bound to tell if the item is over sold
 	overBought		 int64					 // bound to tell if the item is over bought
+	prevBid				 decimal.Decimal
 }
 
 type macdBot struct {
@@ -52,6 +54,8 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Sub(stock.Mul(price))
 		pf.stock = pf.stock.Add(stock)
 		pf.tradesMade++
+		pf.readyToBuy = false
+		pf.stopLoss = price
 		//fmt.Println("buy")
 	  //printPortFolio(pf)
 		// sets new stop loss to new price if price > current stop loss
@@ -74,7 +78,7 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.funds = pf.funds.Add(stock.Mul(price))
 		pf.stock = pf.stock.Sub(stock)
 		pf.tradesMade++
-		pf.stopLoss = decimal.Zero()
+		pf.readyToBuy = true
 		//fmt.Println("sell")
 	  //printPortFolio(pf)
 		// fmt.Println("Current funds: ",pf.funds,"\n")
@@ -114,37 +118,43 @@ func (b *smaBot) tradeSMA() {
 
 // function to execute trades using the RSI bot
 func (b *rsiBot) tradeRSI() {
-	// initiailising metrics and empty array
-	var currBid decimal.Decimal
-	var currAsk decimal.Decimal
-	var i int64 = 0
-	pastBids := make([]decimal.Decimal, b.pf.tradingPeriod)
-	overSold := b.overSold
-	overBought := b.overBought
-	// getting live bid price
-	currBid = getBid(b.pf.currRow)
-	// getting live ask price
-	currAsk = getAsk(b.pf.currRow)
-	// populating past bids array with bids from the previos trading period
-	for i < b.pf.tradingPeriod {
-		pastBids[i] = getBid(b.pf.currRow - i)
-		i++
-	}
-	// calculating RSI usig RSI algorithm
-	buyableStock := b.pf.funds.Div(currAsk, 8)
-	rsi := rsi(pastBids)
-	//fmt.Println("rsi", rsi)
 
-  if rsi.Cmp(decimal.NewFromInt64(overSold)) == -1 {
-		// buying stock if rsi is less than overSold bound
-		buy(b.pf, buyableStock, currAsk)
-	} else if rsi.Cmp(decimal.NewFromInt64(overBought))== 1 {
-		sell(b.pf, b.pf.stock,currBid)
+	pastAsks:= make([]decimal.Decimal, b.pf.tradingPeriod)
+
+	for i := 0;  i < int(b.pf.tradingPeriod); i++ {
+		pastAsks[i] = getAsk(b.pf.currRow - int64(i))
 	}
-	b.pf.stopLoss = currAsk
-		// printPortFolio(b.pf)
-	// incrementing current row by the trading period
-	b.pf.currRow += b.pf.tradingPeriod
+
+	rsi := rsi(pastAsks)
+
+	if b.pf.readyToBuy {
+		if rsi.Cmp(decimal.NewFromInt64(b.overSold)) == -1 {
+
+			currAsk := getAsk(b.pf.currRow)
+			buyableStock := b.pf.funds.Div(currAsk, 8)
+			buy(b.pf, buyableStock, currAsk)
+			price := currAsk.Mul(decimal.NewFromFloat64(0.99999,8))
+			b.pf.stopLoss = price
+			fmt.Println("BUYING AT £", price)
+			printPortFolio(b.pf)
+		}
+	} else {
+		currBid := getCurrBid()
+		bound := currBid.Mul(b.pf.stopLossMult)
+
+		if b.prevBid.Cmp(b.pf.stopLoss) == 1 && currBid.Cmp(b.pf.stopLoss) == -1 {
+			price := currBid.Mul(decimal.NewFromFloat64(1.00001, 8))
+			sell(b.pf, b.pf.stock, currBid)
+			fmt.Println("SELLING at ", price)
+			b.pf.readyToBuy = true
+			printPortFolio(b.pf)
+
+		} else if bound.Cmp(b.pf.stopLoss) == 1 {
+			b.pf.stopLoss = bound
+			fmt.Println("Stoploss: ",b.pf.stopLoss)
+		}
+	}
+	b.numOfDecisions+= b.pf.tradingPeriod
 }
 
 
