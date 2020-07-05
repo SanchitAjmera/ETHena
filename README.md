@@ -1,5 +1,5 @@
 # TradingHackathon
-Implementation of a trading bot for the luna challenge
+Implementation of a trading bot for the luno challenge
 
 
 TODO LIST 
