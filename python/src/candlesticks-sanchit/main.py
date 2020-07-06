@@ -1,11 +1,7 @@
-import xlrd
+
 import matplotlib.pyplot as plt
 import bots
 import utils
-
-# global variable
-wb = xlrd.open_workbook("recentAPIdata.xlsx")
-sheet = wb.sheet_by_index(0)
 
 
 def test(bot):
@@ -14,13 +10,15 @@ def test(bot):
 
 
 def main():
-    bot = bots.Bot(10, 0, 100, 0, 1)
+    bot = bots.Bot(10, 0, 100, 0, 11)
     test(bot)
     ys = []
-    # for i in range(1, 50000):
-    #    ys.append(float(getAsk(i)))
+    print(bot.sells)
+    print(bot.buys)
+    for i in range(1, 50000):
+        ys.append(utils.getAsk(i))
 
-    # plotGraph(ys)
+    utils.plotGraph(ys, bot)
 
 
 if __name__ == "__main__":
