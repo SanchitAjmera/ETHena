@@ -1,31 +1,16 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	// "context"
-	"time"
+	// "time"
   luno "github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
+	// "github.com/luno/luno-go/decimal"
 )
 
 /*TODO: Change sleep from second to minute*/
 
-func populatePastAsks (b *rsiBot) {
-	//Populating past asks with 1 tradingPeriod worth of data
-	var i int64 = 0
-	for i < b.tradingPeriod {
-		b.pastAsks[i] = getCurrAsk()
 
-		buffer := ""
-		if (i < 9) {buffer = " "}
-
-		fmt.Println("Filling past asks: ",buffer, i+1,"/",b.tradingPeriod,":  £",b.pastAsks[i])
-		i++
-
-		time.Sleep(time.Minute) // Change to minute
-	}
-	fmt.Println("")
-}
 
 // test function for the RSI bot
 func test(b *rsiBot) {
@@ -64,6 +49,7 @@ func main() {
 	//if err != nil {panic(err)}
 
 	// initialising values within bot portfolio
+	/*
 	tradingPeriod := int64(20)
 	stopLossMultDecimal := decimal.NewFromFloat64(0.97, 8)
 
@@ -85,6 +71,20 @@ func main() {
 			readyToBuy:			true,
 	}
 
-	test(&bot)
+	test(&bot)*/
 
+	candle := candleBot{
+		tradingPeriod: 	180, //180 minute candlestick
+		tradesMade: 		0,
+		numOfDecisions: 0,
+		queue: 					[]candlestick{},
+		readyToBuy: 		true,
+    buyPrice:       decimal.Zero()
+	}
+
+	candle.fillQueue(3)
+
+	for {
+		candle.trade()
+	}
 }

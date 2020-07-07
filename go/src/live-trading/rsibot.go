@@ -88,8 +88,25 @@ func sell(b *rsiBot) {
 
 }
 
+func populatePastAsks (b *rsiBot) {
+	//Populating past asks with 1 tradingPeriod worth of data
+	var i int64 = 0
+	for i < b.tradingPeriod {
+		b.pastAsks[i] = getCurrAsk()
+
+		buffer := ""
+		if (i < 9) {buffer = " "}
+
+		fmt.Println("Filling past asks: ",buffer, i+1,"/",b.tradingPeriod,":  £",b.pastAsks[i])
+		i++
+
+		time.Sleep(time.Minute) // Change to minute
+	}
+	fmt.Println("")
+}
+
 // function to execute trades using the RSI bot
-func (b *rsiBot) trade() decimal.Decimal{
+func (b *rsiBot) trade(){
 	// calculating RSI usig RSI algorithm
 	rsi := rsi(b.pastAsks)
 
@@ -129,16 +146,9 @@ func (b *rsiBot) trade() decimal.Decimal{
 	time.Sleep(time.Minute)
 
 	var returnVal decimal.Decimal
-	b.prevBid , returnVal = getTicker()
+	b.prevBid , returnVal, _ = getTicker()
 	b.pastAsks = append(b.pastAsks, returnVal)
 	b.pastAsks = b.pastAsks[1:]
 	//fmt.Println("Current Bid: £", returnVal)
 
-	return returnVal
-}
-
-func printPortFolio(b *rsiBot) {
-	fmt.Println("trade # :   ", b.tradesMade)
-	fmt.Println("funds : 			£", getAsset("GBP"))
-	fmt.Println("stock : 		BTC", getAsset("XBT"))
 }
