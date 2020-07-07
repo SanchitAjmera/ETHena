@@ -62,6 +62,8 @@ func main(){
     f.SetCellValue("Sheet1", "M1", "XBTZAR bid")
     f.SetCellValue("Sheet1", "N1", "XBTZAR ask")
 
+    fmt.Println("Hour: ", hour) // For nohup test (printing to terminal)
+
     row := 2
     for i:=0 ; i< 60; i ++ {
       for index,pair := range pairs {
