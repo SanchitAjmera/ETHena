@@ -3,7 +3,6 @@ Implementation of a trading bot for the luno challenge
 
 
 TODO LIST 
-- Read into AWS Servers. How do you host a program on a server? How do you use AWS credits?
 - Research more indicators, implement them in Go/Python and check they work seperatately
 - Implement the above as trading strategies and then backtest them
   - DEVAM: Candlesticks
