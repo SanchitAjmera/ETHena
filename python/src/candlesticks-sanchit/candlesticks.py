@@ -28,11 +28,11 @@ def calcCandleStick(bot):
         asks.append(utils.getAsk(bot.currRow - i))
         bids.append(utils.getBid(bot.currRow - i))
 
-    bot.candleStickInfo["openAsk"][2] = asks[0]
-    bot.candleStickInfo["openBid"][2] = bids[0]
-    bot.candleStickInfo["closeAsk"][2] = asks[bot.tradingPeriod - 1]
-    bot.candleStickInfo["closeBid"][2] = bids[bot.tradingPeriod - 1]
-    bot.candleStickInfo["maxAsk"][2],
-    bot.candleStickInfo["minAsk"][2],
-    bot.candleStickInfo["maxBid"][2],
-    bot.candleStickInfo["minBid"][2] = calcMaxMin(asks, bids)
+    bot.candleStickInfo["closeAsk"][2] = asks[0]
+    bot.candleStickInfo["closeBid"][2] = bids[0]
+    bot.candleStickInfo["openAsk"][2] = asks[bot.tradingPeriod - 1]
+    bot.candleStickInfo["openBid"][2] = bids[bot.tradingPeriod - 1]
+    (bot.candleStickInfo["maxAsk"][2],
+     bot.candleStickInfo["minAsk"][2],
+     bot.candleStickInfo["maxBid"][2],
+     bot.candleStickInfo["minBid"][2]) = calcMaxMin(asks, bids)
