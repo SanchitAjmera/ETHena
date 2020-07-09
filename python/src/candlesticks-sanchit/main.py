@@ -5,7 +5,7 @@ import utils
 
 
 def test(bot):
-    for i in range(bot.numOfDecisions):
+    for i in range(1, bot.numOfDecisions):
         bot.trade()
 
 
@@ -15,7 +15,7 @@ def main():
     ys = []
     print(bot.sells)
     print(bot.buys)
-    for i in range(1, 50000):
+    for i in range(1, 800):
         ys.append(utils.getAsk(i))
 
     utils.plotGraph(ys, bot)

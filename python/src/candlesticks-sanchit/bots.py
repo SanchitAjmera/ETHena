@@ -10,7 +10,7 @@ class Bot:
 
         self.tradingPeriod = tradingPeriod
         self.tradesMade = tradesMade
-        self.numOfDecisions = int(50000 / tradingPeriod)
+        self.numOfDecisions = int(800 / tradingPeriod)
         self.funds = funds
         self.stock = stock
         self.currRow = currRow
