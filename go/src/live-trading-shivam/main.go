@@ -16,6 +16,7 @@ func populatePastAsks(b *rsiBot) {
 	//Populating past asks with 1 tradingPeriod worth of data
 	var i int64 = 0
 	for i < b.tradingPeriod {
+		time.Sleep(time.Minute)
 		b.pastAsks[i] = getCurrAsk()
 		//delete from here to sleep
 		buffer := ""
@@ -26,7 +27,7 @@ func populatePastAsks(b *rsiBot) {
 		fmt.Println("Filling past asks: ", buffer, i+1, "/", b.tradingPeriod, ":  BTC", b.pastAsks[i])
 		i++
 		//delete up to here
-		time.Sleep(time.Minute)
+
 	}
 }
 

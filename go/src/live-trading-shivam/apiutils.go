@@ -45,3 +45,11 @@ func getAsset(currency string) decimal.Decimal {
 
 	panic("Cannot retrieve account balance")
 }
+
+func getTicker() (decimal.Decimal, decimal.Decimal) {
+	res, err := client.GetTicker(context.Background(), reqPointer)
+	if err != nil {
+		panic(err)
+	}
+	return res.Ask, res.Bid
+}

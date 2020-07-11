@@ -22,10 +22,11 @@ type rsiBot struct {
 }
 
 // function to execute buying of items
-func buy(b *rsiBot) {
+func buy(b *rsiBot, currAsk decimal.Decimal) {
 	currFunds := getAsset("XBT")
-	price := getCurrAsk().Sub(decimal.NewFromFloat64(0.00000001, 8))
+	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
+	buyableStock = buyableStock.ToScale(0)
 	// checking if there are no funds available
 	if currFunds.Sign() == 0 {
 		fmt.Println("No funds available")
@@ -52,6 +53,7 @@ func buy(b *rsiBot) {
 		b.buyPrice = price
 		// wait till order has gone through
 		for {
+			time.Sleep(time.Minute)
 			orderReq := luno.GetOrderRequest{
 				Id: res.OrderId,
 			}
@@ -60,15 +62,15 @@ func buy(b *rsiBot) {
 				panic(err)
 			}
 			if orderRes.State == "COMPLETE" {
-				break
+				fmt.Println("Buy Order is Complete")
+				return
 			}
-			time.Sleep(time.Second * 5)
 		}
 	}
 }
 
-func sell(b *rsiBot) {
-	price := getCurrBid().Add(decimal.NewFromFloat64(0.00000001, 8))
+func sell(b *rsiBot, currBid decimal.Decimal) {
+	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   pair,
 		Price:  price,
@@ -87,6 +89,7 @@ func sell(b *rsiBot) {
 	b.readyToBuy = true
 	b.tradesMade++
 	for {
+		time.Sleep(time.Minute)
 		orderReq := luno.GetOrderRequest{
 			Id: res.OrderId,
 		}
@@ -95,27 +98,28 @@ func sell(b *rsiBot) {
 			panic(err)
 		}
 		if orderRes.State == "COMPLETE" {
-			break
+			return
 		}
-		time.Sleep(time.Second * 5)
 	}
 }
 
 // function to execute trades using the RSI bot
 func (b *rsiBot) trade() {
+
+	time.Sleep(time.Minute)
+	currAsk , currBid := getTicker()
+	b.pastAsks = append(b.pastAsks[1:], currAsk)
 	// calculating RSI using RSI algorithm
 	rsi := rsi(b.pastAsks)
 
+
 	if b.readyToBuy { // check if sell order has gone trough
-		currAsk := getCurrAsk()
 		fmt.Println("Current Ask", currAsk)
 		fmt.Println("RSI", rsi)
 		if rsi.Cmp(b.overSold) == -1 && rsi.Sign() != 0 {
-			buy(b)
+			buy(b, currAsk)
 		}
 	} else {
-
-		currBid := getCurrBid()
 		bound := currBid.Mul(b.stopLossMult)
 
 		fmt.Println("Current Bid", currBid)
@@ -123,7 +127,7 @@ func (b *rsiBot) trade() {
 
 		if (currBid.Cmp(b.buyPrice) == 1 && currBid.Cmp(b.stopLoss) == -1) ||
 			currBid.Cmp(b.buyPrice.Mul(decimal.NewFromFloat64(0.95, 8))) == -1 {
-			sell(b)
+			sell(b, currBid)
 		} else if bound.Cmp(b.stopLoss) == 1 {
 			b.stopLoss = bound
 			fmt.Println("Stoploss changed to: ", b.stopLoss)
@@ -131,9 +135,7 @@ func (b *rsiBot) trade() {
 	}
 	b.numOfDecisions++
 
-	time.Sleep(time.Minute)
 
-	b.pastAsks = append(b.pastAsks[1:], getCurrAsk())
 
 }
 
