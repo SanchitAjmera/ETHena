@@ -1,0 +1,24 @@
+Hour:  0
+Hour:  1
+Hour:  2
+Hour:  3
+Hour:  4
+Hour:  5
+Hour:  6
+Hour:  7
+Hour:  8
+Hour:  9
+Hour:  10
+Hour:  11
+Hour:  12
+Hour:  13
+Hour:  14
+Hour:  15
+panic: Get https://api.luno.com/api/1/ticker?pair=XRPXBT: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
+
+goroutine 1 [running]:
+main.getTicker(0x6ea380, 0xc0005149a0, 0x6, 0xc000510a90, 0x3, 0x6c2e40, 0xc000514980)
+	/home/ubuntu/TradingHackathon/go/src/ticker/tickerInfo.go:32 +0xc8
+main.main()
+	/home/ubuntu/TradingHackathon/go/src/ticker/tickerInfo.go:72 +0x1b6
+exit status 2
