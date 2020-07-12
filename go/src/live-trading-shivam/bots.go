@@ -23,8 +23,8 @@ type rsiBot struct {
 
 // function to execute buying of items
 func buy(b *rsiBot, currAsk decimal.Decimal) {
-	time.Sleep(time.Second*5)
-	currFunds := getAsset("XBT")
+	time.Sleep(time.Second * 5)
+	targetFunds, currFunds := getAssets("XRP", "XBT")
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
@@ -46,7 +46,7 @@ func buy(b *rsiBot, currAsk decimal.Decimal) {
 		res, err := client.PostLimitOrder(context.Background(), &req)
 		for err != nil {
 			fmt.Println(err)
-			time.Sleep(time.Minute)
+			time.Sleep(time.Second * 30)
 			res, err = client.PostLimitOrder(context.Background(), &req)
 		}
 		fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
@@ -56,21 +56,9 @@ func buy(b *rsiBot, currAsk decimal.Decimal) {
 		b.buyPrice = price
 		// wait till order has gone through
 		for {
-			fmt.Println("Order has been sent to Luno")
 			time.Sleep(time.Minute)
-			fmt.Println("We have slept")
-			orderReq := luno.GetOrderRequest{
-				Id: res.OrderId,
-			}
-			fmt.Println("Order request has been made")
-			orderRes, err := client.GetOrder(context.Background(), &orderReq)
-			fmt.Println("Request has been sent. ready to find the result")
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			if orderRes.State == "COMPLETE" {
-				fmt.Println("Buy Order is Complete")
+
+			if targetFunds.Cmp(getAsset("XRP")) == -1 {
 				return
 			}
 		}
@@ -78,13 +66,14 @@ func buy(b *rsiBot, currAsk decimal.Decimal) {
 }
 
 func sell(b *rsiBot, currBid decimal.Decimal) {
-	time.Sleep(time.Second*5)
+	time.Sleep(time.Second * 5)
+	volumeToSell, funds := getAssets("XRP","XBT")
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   pair,
 		Price:  price,
 		Type:   "ASK", //We are putting in a ask to sell at the bid price
-		Volume: getAsset("XRP"),
+		Volume: volumeToSell,
 		//BaseAccountId: --> Not needed until using multiple strategies
 		//CounterAccoundId: --> Same as above
 		PostOnly: true,
@@ -101,15 +90,7 @@ func sell(b *rsiBot, currBid decimal.Decimal) {
 	b.tradesMade++
 	for {
 		time.Sleep(time.Minute)
-		orderReq := luno.GetOrderRequest{
-			Id: res.OrderId,
-		}
-		orderRes, err := client.GetOrder(context.Background(), &orderReq)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		if orderRes.State == "COMPLETE" {
+		if funds.Cmp(getAsset("XBT")) == -1 {
 			return
 		}
 	}
@@ -119,11 +100,10 @@ func sell(b *rsiBot, currBid decimal.Decimal) {
 func (b *rsiBot) trade() {
 
 	time.Sleep(time.Minute)
-	currAsk , currBid := getTicker()
+	currAsk, currBid := getTicker()
 	b.pastAsks = append(b.pastAsks[1:], currAsk)
 	// calculating RSI using RSI algorithm
 	rsi := rsi(b.pastAsks)
-
 
 	if b.readyToBuy { // check if sell order has gone trough
 		fmt.Println("Current Ask", currAsk)
@@ -147,8 +127,6 @@ func (b *rsiBot) trade() {
 
 	}
 	b.numOfDecisions++
-
-
 
 }
 

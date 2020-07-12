@@ -57,3 +57,22 @@ func getTicker() (decimal.Decimal, decimal.Decimal) {
 	}
 	return res.Ask, res.Bid
 }
+
+func getAssets(currency1 string , currency2 string) (decimal.Decimal, decimal.Decimal) {
+	balancesReq := luno.GetBalancesRequest{}
+	balances, err := client.GetBalances(context.Background(), &balancesReq)
+	if err != nil {
+		panic(err)
+	}
+	var return1 decimal.Decimal
+	var return2 decimal.Decimal
+	for _, accBalance := range balances.Balance {
+		if accBalance.Asset == currency1 {
+			return1 = accBalance.Balance
+		}
+		if accBalance.Asset == currency2 {
+			return2 = accBalance.Balance
+		}
+	}
+	return return1, return2
+}
