@@ -8,7 +8,7 @@ import (
 )
 
 type candleBot struct {
-	tradingPeriod		int64										// How often the bot calculates a result
+	tradingPeriod		int64										// How often the bot calculates a result IN MINUTES
 	tradesMade	   	int64						 				// total number of trades executed
 	numOfDecisions 	int64					 					// number of times the bot calculates
 	queue					  []candlestick				  	// previous 3 candlesticks
@@ -44,11 +44,9 @@ func (b *candleBot) getCurrCandlestick() candlestick{
 
   result.openBid, result.openAsk, _ = getTicker()
 
-	callsPerMinute := 6
+  for i := 1; i < 60 * int(b.tradingPeriod); i++ {
 
-  for i := 1; i < callsPerMinute * int(b.tradingPeriod); i++ {
-
-    time.Sleep((60/callsPerMinute) * time.Second)
+    time.Sleep(time.Second) //Gets the information for every second for max min etc
 
     currBid, currAsk, _ := getTicker()
 
@@ -69,7 +67,7 @@ func (b *candleBot) getCurrCandlestick() candlestick{
     }
   }
 
-  time.Sleep(time.Second)
+  time.Sleep(time.Second) // Gets the closing results
 
   result.closeBid, result.closeAsk, result.timestamp = getTicker()
 

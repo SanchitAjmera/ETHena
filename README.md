@@ -1,8 +1,6 @@
 # TradingHackathon
 Implementation of a trading bot for the luno challenge
 
-
-TODO LIST 
 - Research more indicators, implement them in Go/Python and check they work seperatately
 - Implement the above as trading strategies and then backtest them
   - DEVAM: Candlesticks

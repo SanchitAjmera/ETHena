@@ -123,6 +123,7 @@ func upDownOrNothing(tick luno.GetTickerRequest, timeInMins int) int {
 		} else {
 			fmt.Println("Predicting to do nada")
 		}
+
 		fmt.Println("Bar 1 opening : ", b1Op, "  Bar 1 closing : ", b1Cl, "  Bar 1 high : ", b1Max, " Bar 1 low : ", b1Min)
 		fmt.Println("Bar 2 opening : ", b2Op, "  Bar 2 closing : ", b2Cl, "  Bar 2 high : ", b2Max, " Bar 2 low : ", b2Min)
 		fmt.Println("Bar 3 opening : ", b3Op, "  Bar 3 closing : ", b3Cl, "  Bar 3 high : ", b3Max, " Bar 3 low : ", b3Min)
@@ -140,5 +141,4 @@ func main() {
 	tick := luno.GetTickerRequest{Pair: "XBTGBP"}
 
 	upDownOrNothing(tick, 1)
-
 }
