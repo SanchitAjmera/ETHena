@@ -36,7 +36,8 @@ func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		getAsset(currency)
 	}
 
 	for _, accBalance := range balances.Balance {
