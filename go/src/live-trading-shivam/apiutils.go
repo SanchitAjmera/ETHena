@@ -11,7 +11,7 @@ import (
 
 func getTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("b8vuefaayradx", "I7-IM03X1TxuAKbfVv9rYBcywuswyDyENcb2lra8ctA")
+	lunoClient.SetAuth("e354ths3rzks7", "PdhKmE-IGaIqn_Ckb3-pyz7nItCZiRIhk2cBF57meC4")
 
 	return lunoClient, &luno.GetTickerRequest{Pair: pair}
 }
@@ -20,6 +20,9 @@ func getCurrBid() decimal.Decimal {
 	res, err := client.GetTicker(context.Background(), reqPointer)
 	if err != nil {
 		panic(err)
+		// fmt.Println(err)
+		// time.Sleep(time.Minute)
+		// return getCurrBid()
 	}
 	return res.Bid
 }
@@ -28,6 +31,9 @@ func getCurrAsk() decimal.Decimal {
 	res, err := client.GetTicker(context.Background(), reqPointer)
 	if err != nil {
 		panic(err)
+		// fmt.Println(err)
+		// time.Sleep(time.Minute)
+		// return getCurrAsk()
 	}
 	return res.Ask
 }
@@ -36,8 +42,10 @@ func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		fmt.Println(err)
-		getAsset(currency)
+		panic(err)
+		// fmt.Println(err)
+		// time.Sleep(time.Minute)
+		// getAsset(currency)
 	}
 
 	for _, accBalance := range balances.Balance {

@@ -15,10 +15,12 @@ type rsiBot struct {
 	numOfDecisions int64             // number of times the bot calculates
 	stopLoss       decimal.Decimal   // variable stop loss
 	stopLossMult   decimal.Decimal   // multiplier for stop loss
-	pastAsks       []decimal.Decimal // cache of historical data from previous trading period
 	overSold       decimal.Decimal   // bound to tell the bot when to buy
 	readyToBuy     bool              // false means ready to sell
 	buyPrice       decimal.Decimal   // stores most recent price we bought at
+	upEma					 decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
+	downEma 			 decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
+	prevAsk				 decimal.Decimal	 // the previous recorded ask price
 }
 
 // function to execute buying of items
@@ -57,7 +59,7 @@ func buy(b *rsiBot, currAsk decimal.Decimal) {
 		// wait till order has gone through
 		for {
 			time.Sleep(time.Minute)
-
+			fmt.Println("Waiting for buy order to be partially filled")
 			if targetFunds.Cmp(getAsset("XRP")) == -1 {
 				return
 			}
@@ -90,6 +92,7 @@ func sell(b *rsiBot, currBid decimal.Decimal) {
 	b.tradesMade++
 	for {
 		time.Sleep(time.Minute)
+		fmt.Println("Waiting for sell order to be partially filled")
 		if funds.Cmp(getAsset("XBT")) == -1 {
 			return
 		}
@@ -101,13 +104,15 @@ func (b *rsiBot) trade() {
 
 	time.Sleep(time.Minute)
 	currAsk, currBid := getTicker()
-	b.pastAsks = append(b.pastAsks[1:], currAsk)
+
 	// calculating RSI using RSI algorithm
-	rsi := rsi(b.pastAsks)
+	var rsi decimal.Decimal
+	rsi, b.upEma, b.downEma = getRsi(b.prevAsk, currAsk, b.upEma, b.downEma, b.tradingPeriod)
+	b.prevAsk = currAsk
 
 	if b.readyToBuy { // check if sell order has gone trough
 		fmt.Println("Current Ask", currAsk)
-		fmt.Println("RSI", rsi)
+		fmt.Println("RSI", rsi, "U:", b.upEma, "D:", b.downEma)
 		if rsi.Cmp(b.overSold) == -1 && rsi.Sign() != 0 {
 			buy(b, currAsk)
 		}
@@ -118,7 +123,7 @@ func (b *rsiBot) trade() {
 		fmt.Println("Stop Loss", b.stopLoss)
 
 		if (currBid.Cmp(b.buyPrice) == 1 && currBid.Cmp(b.stopLoss) == -1) ||
-			currBid.Cmp(b.buyPrice.Mul(decimal.NewFromFloat64(0.95, 8))) == -1 {
+			currBid.Cmp(b.buyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
 			sell(b, currBid)
 		} else if bound.Cmp(b.stopLoss) == 1 {
 			b.stopLoss = bound
