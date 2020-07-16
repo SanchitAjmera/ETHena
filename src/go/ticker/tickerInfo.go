@@ -45,10 +45,10 @@ func main(){
 
   pairs := []string{"XBTGBP","ETHXBT","XRPXBT","XRPZAR","BCHXBT","LTCXBT","XBTZAR"}
   columns := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}
-  client.SetTimeout(time.Minute)
 
   for index,pair := range pairs {
     client, reqPointer = getTickerRequest(pair)
+    client.SetTimeout(time.Minute)
     for hour:=0 ;hour < 24; hour++{
       f := excelize.NewFile()
       f.SetCellValue("Sheet1", "A1", "XBTGBP bid")
