@@ -11,6 +11,7 @@ import (
 var client *luno.Client
 var reqPointer *luno.GetTickerRequest
 var pair string
+var isLive bool
 
 func getPastAsks(b *rsiBot) []decimal.Decimal {
 	//Populating past asks with 1 tradingPeriod worth of data
@@ -43,7 +44,21 @@ func test(b *rsiBot) {
 	}
 }
 
+type TradeFunc func(b *rsiBot)
+
 func main() {
+
+	isLive = false
+	var TradeFunc trade
+
+	if isLive {
+		trade = tradeLive
+	} else {
+		initialiseFunds()
+		trade = tradeOffline
+	}
+
+	if isLive()
 
 	pair = "XRPXBT"
 	client, reqPointer = getTickerRequest()

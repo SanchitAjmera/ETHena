@@ -25,8 +25,8 @@ func parseXlsx() {
 }
 
 // function to get the bid price from a given row in the excel spreadsheet
-func getBid(currRow int64) decimal.Decimal {
-	currPrice := historicalData[0][int(currRow)][13] //Change this
+func getOfflineBid(currRow int64) decimal.Decimal {
+	currPrice := historicalData[0][int(currRow)][5] //Change this
 	// if data is non applicable skip this row
 	if (currPrice == "NaN") {
 		return getBid(currRow - 1)
@@ -41,8 +41,8 @@ func getBid(currRow int64) decimal.Decimal {
 }
 
 // function to get the ask price from a given row in the excel spreadsheet
-func getAsk(currRow int64) decimal.Decimal {
-	currPrice := historicalData[0][currRow][12] //Change this
+func getOfflineAsk(currRow int64) decimal.Decimal {
+	currPrice := historicalData[0][currRow][4] //Change this
 	// if data is non applicable skip this row
 	if (currPrice == "NaN") {
 		return getAsk(currRow - 1)

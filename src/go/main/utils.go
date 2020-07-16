@@ -22,7 +22,8 @@ func sma(array []decimal.Decimal, length int64) decimal.Decimal {
 
 //function to calculate exponentially smoothed moving average
 func ema(oldVal decimal.Decimal, newData decimal.Decimal, period int64) decimal.Decimal {
-	return ((oldVal.Mul(period.Sub(decimal.NewFromInt64(1))).Add(newData)).Div(period, 16)
+	decimalPeriod := decimal.NewFromInt64(period)
+	return (oldVal.Mul(decimalPeriod.Sub(decimal.NewFromInt64(1))).Add(newData)).Div(decimalPeriod, 16)
 }
 
 // function to calculate the Relative Strength Index

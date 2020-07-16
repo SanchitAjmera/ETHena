@@ -100,7 +100,7 @@ func sell(b *rsiBot, currBid decimal.Decimal) {
 }
 
 // function to execute trades using the RSI bot
-func (b *rsiBot) trade() {
+func tradeLive(b *rsiBot) {
 
 	time.Sleep(time.Minute)
 	currAsk, currBid := getTicker()
@@ -108,11 +108,11 @@ func (b *rsiBot) trade() {
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
 	rsi, b.upEma, b.downEma = getRsi(b.prevAsk, currAsk, b.upEma, b.downEma, b.tradingPeriod)
+	fmt.Println("RSI", rsi, "U:", b.upEma, "D:", b.downEma)
 	b.prevAsk = currAsk
 
 	if b.readyToBuy { // check if sell order has gone trough
 		fmt.Println("Current Ask", currAsk)
-		fmt.Println("RSI", rsi, "U:", b.upEma, "D:", b.downEma)
 		if rsi.Cmp(b.overSold) == -1 && rsi.Sign() != 0 {
 			buy(b, currAsk)
 		}
