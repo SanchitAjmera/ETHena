@@ -1,7 +1,6 @@
 # TradingHackathon
 Implementation of a trading bot for the luno challenge
 
-
 TODO LIST 
 16th:
   - Clean up github repo
