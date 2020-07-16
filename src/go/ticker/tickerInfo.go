@@ -31,7 +31,7 @@ func getTicker() (decimal.Decimal, decimal.Decimal, luno.Time) {
   if err != nil{
     panic(err)
   }
-  return res.Bid, res.Ask, res.Timestamp
+  return res.Ask, res.Bid, res.Timestamp
 }
 
 // Global Variables
@@ -45,6 +45,8 @@ func main(){
 
   pairs := []string{"XBTGBP","ETHXBT","XRPXBT","XRPZAR","BCHXBT","LTCXBT","XBTZAR"}
   columns := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}
+  client, reqPointer = getTickerRequest(pair)
+  client.SetTimeout(time.Minute)
 
   for hour:=0 ;hour < 24; hour++{
     f := excelize.NewFile()
@@ -68,7 +70,6 @@ func main(){
     row := 2
     for i:=0 ; i< 60; i ++ {
       for index,pair := range pairs {
-        client, reqPointer = getTickerRequest(pair)
         ask, bid, _ = getTicker()
         cell1 := columns[index*2] + strconv.Itoa(row)
         cell2 := columns[index*2+1] + strconv.Itoa(row)
