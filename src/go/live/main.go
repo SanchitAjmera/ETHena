@@ -50,7 +50,7 @@ func main() {
 	client.SetTimeout(time.Minute)
 
 	// initialising values within bot portfolio
-	tradingPeriod := int64(15)
+	tradingPeriod := int64(14)
 	stopLossMultDecimal := decimal.NewFromFloat64(0.999, 8)
 	rsiLowerLim := decimal.NewFromInt64(25)
 
