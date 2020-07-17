@@ -1,11 +1,8 @@
-package main
+package backtestingUtils
 
 import (
-	"context"
 	"fmt"
-	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"time"
 )
 
 var xrp decimal.Decimal
@@ -21,7 +18,7 @@ func initialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
 
 // function to execute buying of items
 func buyOffline(b *rsiBot, currAsk decimal.Decimal) {
-	targetFunds, currFunds = xrp, xbt
+	targetFunds, currFunds := xrp, xbt
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
@@ -30,37 +27,36 @@ func buyOffline(b *rsiBot, currAsk decimal.Decimal) {
 		fmt.Println("No funds available")
 		return
 	} else {
-		fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
+		fmt.Println("BUY order placed at", price)
 		b.readyToBuy = false
 		b.tradesMade++
 		b.stopLoss = price
 		b.buyPrice = price
 
 		// update funds
-		xbt -= price
-		xrp += buyableStock
+		xbt = xbt.Sub(price)
+		xrp = xrp.Add(buyableStock)
 	}
 }
 
 func sellOffline(b *rsiBot, currBid decimal.Decimal) {
-	volumeToSell, funds = xrp, xbt
+	volumeToSell, funds := xrp, xbt
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 
-	fmt.Println("SELL - order ", res.OrderId, " placed at ", price)
+	fmt.Println("SELL order placed at", price)
 	b.readyToBuy = true
 	b.tradesMade++
 
 	// update funds
-	xbt += price * volumeToSell
-	xrp -= volumeToSell
-	}
+	xbt = xbt.Add(price.Mul(volumeToSell))
+	xrp = xrp.Sub(volumeToSell)
 }
 
 
 // function to execute trades using historical data
 func tradeOffline(b *rsiBot) {
 	currRow++
-	currAsk, currBid = getOfflineAsk(currRow), getOfflineBid(currRow)
+	currAsk, currBid := getOfflineAsk(currRow), getOfflineBid(currRow)
 
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal

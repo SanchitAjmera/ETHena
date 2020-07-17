@@ -1,4 +1,4 @@
-package main
+package liveUtils
 
 import (
 	"context"
@@ -7,21 +7,6 @@ import (
 	"github.com/luno/luno-go/decimal"
 	"time"
 )
-
-// struct for the rsiBot
-type rsiBot struct {
-	tradingPeriod  int64             // No of past asks used to calculate RSI
-	tradesMade     int64             // total number of trades executed
-	numOfDecisions int64             // number of times the bot calculates
-	stopLoss       decimal.Decimal   // variable stop loss
-	stopLossMult   decimal.Decimal   // multiplier for stop loss
-	overSold       decimal.Decimal   // bound to tell the bot when to buy
-	readyToBuy     bool              // false means ready to sell
-	buyPrice       decimal.Decimal   // stores most recent price we bought at
-	upEma					 decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
-	downEma 			 decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
-	prevAsk				 decimal.Decimal	 // the previous recorded ask price
-}
 
 // function to execute buying of items
 func buy(b *rsiBot, currAsk decimal.Decimal) {
@@ -37,7 +22,7 @@ func buy(b *rsiBot, currAsk decimal.Decimal) {
 	} else {
 		//Create limit order
 		req := luno.PostLimitOrderRequest{
-			Pair:   pair,
+			Pair:   Pair,
 			Price:  price,
 			Type:   "BID", //We are putting in a bid to buy at the ask price
 			Volume: buyableStock,
@@ -45,11 +30,11 @@ func buy(b *rsiBot, currAsk decimal.Decimal) {
 			//CounterAccountId: --> Same as above
 			PostOnly: true,
 		}
-		res, err := client.PostLimitOrder(context.Background(), &req)
+		res, err := Client.PostLimitOrder(context.Background(), &req)
 		for err != nil {
 			fmt.Println(err)
 			time.Sleep(time.Second * 30)
-			res, err = client.PostLimitOrder(context.Background(), &req)
+			res, err = Client.PostLimitOrder(context.Background(), &req)
 		}
 		fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
 		b.readyToBuy = false
@@ -72,7 +57,7 @@ func sell(b *rsiBot, currBid decimal.Decimal) {
 	volumeToSell, funds := getAssets("XRP","XBT")
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
-		Pair:   pair,
+		Pair:   Pair,
 		Price:  price,
 		Type:   "ASK", //We are putting in a ask to sell at the bid price
 		Volume: volumeToSell,
@@ -80,11 +65,11 @@ func sell(b *rsiBot, currBid decimal.Decimal) {
 		//CounterAccoundId: --> Same as above
 		PostOnly: true,
 	}
-	res, err := client.PostLimitOrder(context.Background(), &req)
+	res, err := Client.PostLimitOrder(context.Background(), &req)
 	for err != nil {
 		fmt.Println(err)
 		time.Sleep(time.Minute)
-		res, err = client.PostLimitOrder(context.Background(), &req)
+		res, err = Client.PostLimitOrder(context.Background(), &req)
 	}
 
 	fmt.Println("SELL - order ", res.OrderId, " placed at ", price)

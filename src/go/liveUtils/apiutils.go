@@ -1,4 +1,4 @@
-package main
+package liveUtils
 
 import (
 	// "fmt"
@@ -9,15 +9,20 @@ import (
 	"time"
 )
 
+// Global Variables
+var Client *luno.Client
+var ReqPointer *luno.GetTickerRequest
+var Pair string
+
 func getTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
 	lunoClient := luno.NewClient()
 	lunoClient.SetAuth("e354ths3rzks7", "PdhKmE-IGaIqn_Ckb3-pyz7nItCZiRIhk2cBF57meC4")
 
-	return lunoClient, &luno.GetTickerRequest{Pair: pair}
+	return lunoClient, &luno.GetTickerRequest{Pair: Pair}
 }
 
 func getCurrBid() decimal.Decimal {
-	res, err := client.GetTicker(context.Background(), reqPointer)
+	res, err := Client.GetTicker(context.Background(), ReqPointer)
 	if err != nil {
 		panic(err)
 		// fmt.Println(err)
@@ -28,7 +33,7 @@ func getCurrBid() decimal.Decimal {
 }
 
 func getCurrAsk() decimal.Decimal {
-	res, err := client.GetTicker(context.Background(), reqPointer)
+	res, err := Client.GetTicker(context.Background(), ReqPointer)
 	if err != nil {
 		panic(err)
 		// fmt.Println(err)
@@ -40,7 +45,7 @@ func getCurrAsk() decimal.Decimal {
 
 func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
-	balances, err := client.GetBalances(context.Background(), &balancesReq)
+	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
 		panic(err)
 		// fmt.Println(err)
@@ -58,7 +63,7 @@ func getAsset(currency string) decimal.Decimal {
 }
 
 func getTicker() (decimal.Decimal, decimal.Decimal) {
-	res, err := client.GetTicker(context.Background(), reqPointer)
+	res, err := Client.GetTicker(context.Background(), ReqPointer)
 	if err != nil {
 		fmt.Println(err)
 		time.Sleep(time.Minute)
@@ -69,7 +74,7 @@ func getTicker() (decimal.Decimal, decimal.Decimal) {
 
 func getAssets(currency1 string , currency2 string) (decimal.Decimal, decimal.Decimal) {
 	balancesReq := luno.GetBalancesRequest{}
-	balances, err := client.GetBalances(context.Background(), &balancesReq)
+	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
 		panic(err)
 	}
