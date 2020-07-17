@@ -1,7 +1,7 @@
 package main
 
 import (
-//	"fmt"
+  "fmt"
   luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 	//"github.com/chenjiandongx/go-echarts/charts"
@@ -18,8 +18,8 @@ func main() {
 	// processing historical data within excel spreadsheet
 	parseXlsx()
 
-  tradingPeriodLR := int64(26)
-  tradingPeriodSR := int64(13)
+  tradingPeriodLR := int64(60)
+  tradingPeriodSR := int64(30)
 
 	macdBot := macdBot{
     tradingPeriodLR: 	tradingPeriodLR,
@@ -38,4 +38,5 @@ func main() {
 		macdBot.trade()
 
 	}
+  fmt.Println("\n\n\ntrades made:", macdBot.tradesMade)
 }
