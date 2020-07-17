@@ -132,13 +132,3 @@ func upDownOrNothing(tick luno.GetTickerRequest, timeInMins int) int {
 		stack = append(stack[1:], getInfo(tick, timeInMins))
 	}
 }
-
-func main() {
-
-	lunoClient = luno.NewClient()
-	lunoClient.SetAuth("gwnarwdxreyag", "ZrCzrPO3IdcMq7t69a5iPUl-JyDAGGxauF0HumJD34s")
-	ctx = context.Background()
-	tick := luno.GetTickerRequest{Pair: "XBTGBP"}
-
-	upDownOrNothing(tick, 1)
-}
