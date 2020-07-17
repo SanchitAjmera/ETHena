@@ -3,6 +3,7 @@ package backtestingUtils
 import (
 	"github.com/luno/luno-go/decimal"
 	"github.com/tealeg/xlsx"
+	"os"
 )
 
 /*
@@ -40,11 +41,18 @@ func getOfflineBid(currRow int64) decimal.Decimal {
 }
 
 // function to get the ask price from a given row in the excel spreadsheet
-func getOfflineAsk(currRow int64) decimal.Decimal {
+func GetOfflineAsk(currRow int64) decimal.Decimal {
+	if currRow > 900 {
+		if err := f.SaveAs("output.xlsx"); err != nil {
+			panic(err)
+		}
+		os.Exit(3)
+	}
+
 	currPrice := HistoricalData[0][currRow][4] //Change this
 	// if data is non applicable skip this row
 	if (currPrice == "NaN") {
-		return getOfflineAsk(currRow - 1)
+		return GetOfflineAsk(currRow - 1)
 	}
 
 	currPriceDecimal, err := decimal.NewFromString(currPrice)

@@ -14,7 +14,7 @@ var Client *luno.Client
 var ReqPointer *luno.GetTickerRequest
 var Pair string
 
-func getTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
+func GetTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
 	lunoClient := luno.NewClient()
 	lunoClient.SetAuth("e354ths3rzks7", "PdhKmE-IGaIqn_Ckb3-pyz7nItCZiRIhk2cBF57meC4")
 
@@ -32,13 +32,13 @@ func getCurrBid() decimal.Decimal {
 	return res.Bid
 }
 
-func getCurrAsk() decimal.Decimal {
+func GetCurrAsk() decimal.Decimal {
 	res, err := Client.GetTicker(context.Background(), ReqPointer)
 	if err != nil {
 		panic(err)
 		// fmt.Println(err)
 		// time.Sleep(time.Minute)
-		// return getCurrAsk()
+		// return GetCurrAsk()
 	}
 	return res.Ask
 }

@@ -22,7 +22,7 @@ func getCurrBid() decimal.Decimal{
     return res.Bid
 }
 
-func getCurrAsk() decimal.Decimal{
+func GetCurrAsk() decimal.Decimal{
     res, err := client.GetTicker(context.Background(), reqPointer)
     if err != nil {
       fmt.Errorf("Error in retrieving ask")

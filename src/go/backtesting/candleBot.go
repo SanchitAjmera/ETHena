@@ -8,12 +8,12 @@ import (
 
 
 type candleBot struct {
-	tradingPeriod		int64										// How often the bot calculates a result
-	tradesMade	   	int64						 				// total number of trades executed
-	numOfDecisions 	int64					 					// number of times the bot calculates
+	TradingPeriod		int64										// How often the bot calculates a result
+	TradesMade	   	int64						 				// total number of trades executed
+	NumOfDecisions 	int64					 					// number of times the bot calculates
 	queue					  []candlestick				  	// previous 3 candlesticks
-  readyToBuy      bool                    // holds the state of the bot
-	buyPrice				decimal.Decimal					// price we bought at
+  ReadyToBuy      bool                    // holds the state of the bot
+	BuyPrice				decimal.Decimal					// price we bought at
   currRow         int64
 }
 
@@ -47,7 +47,7 @@ func (b *candleBot) getCurrCandlestick() candlestick{
 
 	callsPerMinute := 1
 
-  for i := 1; i < callsPerMinute * int(b.tradingPeriod)-1; i++ {
+  for i := 1; i < callsPerMinute * int(b.TradingPeriod)-1; i++ {
 
     currBid := getBid(b.currRow)
     currAsk := getAsk(b.currRow)
@@ -71,8 +71,8 @@ func (b *candleBot) getCurrCandlestick() candlestick{
     b.currRow += 1
   }
 
-  result.closeBid = getBid(b.currRow+int64(b.tradingPeriod))
-  result.closeAsk = getAsk(b.currRow+int64(b.tradingPeriod))
+  result.closeBid = getBid(b.currRow+int64(b.TradingPeriod))
+  result.closeAsk = getAsk(b.currRow+int64(b.TradingPeriod))
 
   b.currRow += 1
 
@@ -116,7 +116,7 @@ func (b *candleBot) trade3() {
 		} else {
   //     fmt.Println("HOLD at",b3Cl)
     }
-    b.numOfDecisions++
+    b.NumOfDecisions++
 }
 
 func (b *candleBot) trade() {
@@ -154,9 +154,9 @@ func (b *candleBot) buy() {
     res, err := client.PostLimitOrder(context.Background(), &req)
     if err != nil {panic(err)}*/
     fmt.Println("BUYS at", price, " currRow:", b.currRow)
-    b.readyToBuy = false
-		b.buyPrice = price
-    b.tradesMade++
+    b.ReadyToBuy = false
+		b.BuyPrice = price
+    b.TradesMade++
 
 }
 
@@ -164,7 +164,7 @@ func (b *candleBot) buy() {
 func (b *candleBot) sell() {
 	price := getBid(b.currRow).Mul(decimal.NewFromFloat64(1.00001, 8))
 /*
-	if price < b.buyPrice {
+	if price < b.BuyPrice {
 		fmt.Println("Spread too high to sell")
 		return
 	}
@@ -196,6 +196,6 @@ func (b *candleBot) sell() {
 	fmt.Println("SELL at", price)
 //  fmt.Println("At the time above, ask price was:",currAsk,"\n")
 	//b.lastOrderId = res.OrderId
-	b.readyToBuy = true
-	b.tradesMade++
+	b.ReadyToBuy = true
+	b.TradesMade++
 }

@@ -3,22 +3,30 @@ package backtestingUtils
 import (
 	"fmt"
 	"github.com/luno/luno-go/decimal"
+	. "TradingHackathon/src/go/rsi"
+  "github.com/360EntSecGroup-Skylar/excelize"
+	"strconv"
 )
 
 var xrp decimal.Decimal
 var xbt decimal.Decimal
 var currRow int64
+var f *excelize.File
 
-func initialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
+func InitialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
 	parseXlsx()
 	xrp = xrpStock
 	xbt = xbtFunds
-	currRow = 0
+	currRow = 16
+	f = excelize.NewFile()
+	f.SetCellValue("Sheet1", "A1", "Curr Price")
+	f.SetCellValue("Sheet1", "B1", "RSI")
+	f.SetCellValue("Sheet1", "C1", "Mode (ReadyToBuy?)")
 }
 
 // function to execute buying of items
-func buyOffline(b *rsiBot, currAsk decimal.Decimal) {
-	targetFunds, currFunds := xrp, xbt
+func buyOffline(b *RsiBot, currAsk decimal.Decimal) {
+	currFunds := xbt
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
@@ -28,10 +36,10 @@ func buyOffline(b *rsiBot, currAsk decimal.Decimal) {
 		return
 	} else {
 		fmt.Println("BUY order placed at", price)
-		b.readyToBuy = false
-		b.tradesMade++
-		b.stopLoss = price
-		b.buyPrice = price
+		b.ReadyToBuy = false
+		b.TradesMade++
+		b.StopLoss = price
+		b.BuyPrice = price
 
 		// update funds
 		xbt = xbt.Sub(price)
@@ -39,13 +47,13 @@ func buyOffline(b *rsiBot, currAsk decimal.Decimal) {
 	}
 }
 
-func sellOffline(b *rsiBot, currBid decimal.Decimal) {
-	volumeToSell, funds := xrp, xbt
+func sellOffline(b *RsiBot, currBid decimal.Decimal) {
+	volumeToSell := xrp
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 
 	fmt.Println("SELL order placed at", price)
-	b.readyToBuy = true
-	b.tradesMade++
+	b.ReadyToBuy = true
+	b.TradesMade++
 
 	// update funds
 	xbt = xbt.Add(price.Mul(volumeToSell))
@@ -54,36 +62,43 @@ func sellOffline(b *rsiBot, currBid decimal.Decimal) {
 
 
 // function to execute trades using historical data
-func tradeOffline(b *rsiBot) {
+func TradeOffline(b *RsiBot) {
 	currRow++
-	currAsk, currBid := getOfflineAsk(currRow), getOfflineBid(currRow)
+	currAsk, currBid := GetOfflineAsk(currRow), getOfflineBid(currRow)
 
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
-	rsi, b.upEma, b.downEma = getRsi(b.prevAsk, currAsk, b.upEma, b.downEma, b.tradingPeriod)
-	fmt.Println("RSI", rsi, "U:", b.upEma, "D:", b.downEma)
-	b.prevAsk = currAsk
+	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.TradingPeriod)
+	fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
+	b.PrevAsk = currAsk
 
-	if b.readyToBuy { // check if sell order has gone trough
+	printRow := currRow - 15
+
+	f.SetCellValue("Sheet1", "B"+strconv.FormatInt(printRow, 10), rsi)
+	f.SetCellValue("Sheet1", "C"+strconv.FormatInt(printRow, 10), b.ReadyToBuy)
+
+	if b.ReadyToBuy { // check if sell order has gone trough
+		f.SetCellValue("Sheet1", "A"+strconv.FormatInt(printRow, 10), currAsk)
 		fmt.Println("Current Ask", currAsk)
-		if rsi.Cmp(b.overSold) == -1 && rsi.Sign() != 0 {
+		if rsi.Cmp(b.OverSold) == -1 && rsi.Sign() != 0 {
 			buyOffline(b, currAsk)
 		}
 	} else {
-		bound := currBid.Mul(b.stopLossMult)
+		f.SetCellValue("Sheet1", "A"+strconv.FormatInt(printRow, 10), currBid)
+		bound := currBid.Mul(b.StopLossMult)
 
 		fmt.Println("Current Bid", currBid)
-		fmt.Println("Stop Loss", b.stopLoss)
+		fmt.Println("Stop Loss", b.StopLoss)
 
-		if (currBid.Cmp(b.buyPrice) == 1 && currBid.Cmp(b.stopLoss) == -1) ||
-			currBid.Cmp(b.buyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
+		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
+			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
 			sellOffline(b, currBid)
-		} else if bound.Cmp(b.stopLoss) == 1 {
-			b.stopLoss = bound
-			fmt.Println("Stoploss changed to: ", b.stopLoss)
+		} else if bound.Cmp(b.StopLoss) == 1 {
+			b.StopLoss = bound
+			fmt.Println("Stoploss changed to: ", b.StopLoss)
 		}
 
 	}
-	b.numOfDecisions++
+	b.NumOfDecisions++
 
 }
