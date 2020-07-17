@@ -40,17 +40,22 @@ func sma(array []decimal.Decimal) decimal.Decimal {
 func (b* macdBot) macd() {
   LRsma := sma(b.data)
   SRsma := sma(b.data[b.tradingPeriodSR:b.tradingPeriodLR])
-  fmt.Println("sma LR:", LRsma)
-  fmt.Println("sma SR:", SRsma)
   macdCurr := SRsma.Sub(LRsma)
   macdPrev := b.macdValue
   if macdPrev.Cmp(decimal.Zero()) == -1 && macdCurr.Cmp(decimal.Zero()) == 1 {
     // macd line crossed over 0 line - buy
+  //  fmt.Println("sma LR:", LRsma)
+  //  fmt.Println("sma SR:", SRsma)
     fmt.Println("Buy")
-
+    fmt.Println("Bought at",b.data[b.tradingPeriodLR -1] )
+    b.tradesMade++
   } else if macdPrev.Cmp(decimal.Zero()) == 1 && macdCurr.Cmp(decimal.Zero()) == -1 {
     // macd line crossed under 0 line - sell
+  //  fmt.Println("sma LR:", LRsma)
+  //  fmt.Println("sma SR:", SRsma)
     fmt.Println("Sell")
+    fmt.Println("Sold at",b.data[b.tradingPeriodLR -1] )
+    b.tradesMade++
   }
   b.macdValue = macdCurr
 }
@@ -58,12 +63,13 @@ func (b* macdBot) macd() {
 
 func (b *macdBot) trade() {
   b.macd()
-  fmt.Println("macd:", b.macdValue)
+//  fmt.Println("macd:", b.macdValue)
   for i := int64(0); i < b.tradingPeriodLR - 1; i++ {
       b.data[i] = b.data[i+1]
   }
   b.currRow++
   b.data[b.tradingPeriodLR - 1] = getOfflineBid(b.currRow)
+
 }
 
 func (b *macdBot) initialData() {
