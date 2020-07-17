@@ -8,33 +8,6 @@ import (
 	//"os"
 )
 
-// test function for the SMA bot
-func testSMA(bot *smaBot) {
-	var i int64 = 0
-	for i < bot.numOfDecisions {
-		bot.tradeSMA()
-		i++
-	}
-}
-
-// test function for the RSI bot
-func testRSI(bot *rsiBot) {
-	var i int64 = 0
-	for i < bot.numOfDecisions {
-		bot.tradeRSI()
-		i++
-	}
-}
-
-
-func testMACD(bot *macdBot) {
-	var i int64 = 0
-	for i < bot.numOfDecisions {
-		bot.tradeMACD()
-		i++
-	}
-}
-
 // global variables to retrieve live data
 var client *luno.Client
 var reqPointer *luno.GetTickerRequest
@@ -45,22 +18,24 @@ func main() {
 	// processing historical data within excel spreadsheet
 	parseXlsx()
 
-	tradingPeriod := int64(20)
+  tradingPeriodLR := int64(20)
+  tradingPeriodSR := int64(10)
 
-	candle := candleBot{
-		tradingPeriod: 	tradingPeriod, //180 minute candlestick
-		tradesMade: 		0,
-		numOfDecisions: 0,
-		queue: 					[]candlestick{},
-		readyToBuy: 		true,
-		buyPrice:       decimal.Zero(),
-		currRow:				1,
+	macdBot := macdBot{
+    tradingPeriodLR: 	tradingPeriodLR,
+    tradingPeriodSR: 	tradingPeriodSR,
+		tradesMade: 		  0,
+		numOfDecisions:   0,
+    Eata:             []decimal.Decimal{},
+		buyPrice:         decimal.Zero(),
+		currRow:				  tradingPeriodLR,
+    macdValue:        decimal.Zero(),
 	}
 
-	candle.fillQueue(3)
+  macdBot.initialData()
 
-	for i:= 0; i < int(800/tradingPeriod);i++ {
-		candle.trade()
+	for i:= 0; i < int(800);i++ {
+		macdBot.trade()
 
 	}
 }
