@@ -5,13 +5,27 @@ import (
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 	"time"
+	backtest "TradingHackathon/src/go/backtestingUtils"
+	live "TradingHackathon/src/go/liveUtils"
 )
 
 // Global Variables
-var client *luno.Client
-var reqPointer *luno.GetTickerRequest
-var pair string
 var isLive bool
+
+// struct for the rsiBot
+type rsiBot struct {
+	tradingPeriod  int64             // No of past asks used to calculate RSI
+	tradesMade     int64             // total number of trades executed
+	numOfDecisions int64             // number of times the bot calculates
+	stopLoss       decimal.Decimal   // variable stop loss
+	stopLossMult   decimal.Decimal   // multiplier for stop loss
+	overSold       decimal.Decimal   // bound to tell the bot when to buy
+	readyToBuy     bool              // false means ready to sell
+	buyPrice       decimal.Decimal   // stores most recent price we bought at
+	upEma					 decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
+	downEma 			 decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
+	prevAsk				 decimal.Decimal	 // the previous recorded ask price
+}
 
 func getPastAsks(b *rsiBot) []decimal.Decimal {
 	//Populating past asks with 1 tradingPeriod worth of data
@@ -52,17 +66,17 @@ func main() {
 	var TradeFunc trade
 
 	if isLive {
-		trade = tradeLive
+		trade = live.tradeLive
 	} else {
 		initialiseFunds()
-		trade = tradeOffline
+		trade = backtest.tradeOffline
 	}
 
 	if isLive()
 
-	pair = "XRPXBT"
-	client, reqPointer = getTickerRequest()
-	client.SetTimeout(time.Minute)
+	live.Pair = "XRPXBT"
+	live.Client, live.ReqPointer = getTickerRequest()
+	live.Client.SetTimeout(time.Minute)
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
