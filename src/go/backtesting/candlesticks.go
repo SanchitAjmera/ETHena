@@ -29,7 +29,6 @@ var lunoClient *luno.Client
 func getInfo(tick luno.GetTickerRequest, timeInMins int) Info {
 
 	timeInSeconds := timeInMins * 60
-	// timeInSeconds := timeInMins
 	maxAsk := decimal.Zero()
 	minAsk := decimal.NewFromInt64(1844674407370955200)
 	maxBid := decimal.Zero()

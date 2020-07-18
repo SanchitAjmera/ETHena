@@ -2,44 +2,45 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/luno/luno-go/decimal"
 )
 
 // struct for portfolio which includes features common to every bot
 type portfolio struct {
-	funds         decimal.Decimal  // money bot has to trade with
-	stock         decimal.Decimal  // number of bought and not yet sold items
-	tradingPeriod int64 					 // How often the bot calculates a result
-	currRow       int64						 // current row within excel spreadsheet
-	tradesMade		int							 // total number of trades executed
-	stopLoss		 	 decimal.Decimal  // variable stop loss
-	stopLossMult   decimal.Decimal  // multiplier for stop loss
-	readyToBuy		 bool
+	funds         decimal.Decimal // money bot has to trade with
+	stock         decimal.Decimal // number of bought and not yet sold items
+	tradingPeriod int64           // How often the bot calculates a result
+	currRow       int64           // current row within excel spreadsheet
+	tradesMade    int             // total number of trades executed
+	stopLoss      decimal.Decimal // variable stop loss
+	stopLossMult  decimal.Decimal // multiplier for stop loss
+	readyToBuy    bool
 }
 
 // struct for smaBot
 type smaBot struct {
-	pf             *portfolio			 // portfolio of bot
+	pf             *portfolio      // portfolio of bot
 	offset         decimal.Decimal // Offset size
 	numOfDecisions int64           // number of times the bot calculates
 }
 
 // struct for the rsiBot
 type rsiBot struct {
-	pf 						 *portfolio			 // portfolio of bot
-	numOfDecisions int64					 // number of times the bot calculates
-	overSold			 int64					 // bound to tell if the item is over sold
-	overBought		 int64					 // bound to tell if the item is over bought
-	prevBid				 decimal.Decimal
+	pf             *portfolio // portfolio of bot
+	numOfDecisions int64      // number of times the bot calculates
+	overSold       int64      // bound to tell if the item is over sold
+	overBought     int64      // bound to tell if the item is over bought
+	prevBid        decimal.Decimal
 }
 
 type macdBot struct {
-	pf 						 *portfolio
+	pf             *portfolio
 	numOfDecisions int64
 	SRtradePeriod  int64
 	LRtradePeriod  int64
-	diffs					 []decimal.Decimal
-	prevDiff			 decimal.Decimal
+	diffs          []decimal.Decimal
+	prevDiff       decimal.Decimal
 }
 
 // function to execute buying of items
@@ -57,7 +58,7 @@ func buy(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.readyToBuy = false
 		pf.stopLoss = price
 		//fmt.Println("buy")
-	  //printPortFolio(pf)
+		//printPortFolio(pf)
 		// sets new stop loss to new price if price > current stop loss
 		//if pf.stopLoss.Cmp(price) == -1 {
 		//}
@@ -70,7 +71,7 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 	currStock := pf.stock
 	// stops sell if price < stoploss * multiplier
 	//checking if we have enough stock to sell
-	if currStock.Cmp(stock) == -1{
+	if currStock.Cmp(stock) == -1 {
 		fmt.Println("Not enough stock to sell ", stock, " stock at ", price, " price")
 	} else {
 		// updating portfolio of trader bot
@@ -80,7 +81,7 @@ func sell(pf *portfolio, stock decimal.Decimal, price decimal.Decimal) {
 		pf.tradesMade++
 		pf.readyToBuy = true
 		//fmt.Println("sell")
-	  //printPortFolio(pf)
+		//printPortFolio(pf)
 		// fmt.Println("Current funds: ",pf.funds,"\n")
 	}
 }
@@ -105,7 +106,7 @@ func (b *smaBot) tradeSMA() {
 	buyableStock := b.pf.funds.Div(currAsk, 8)
 	mean := sma(pastBids)
 
-	if currBid.Cmp(mean.Add(b.offset)) == 1 && b.pf.stock.Sign() != 0{
+	if currBid.Cmp(mean.Add(b.offset)) == 1 && b.pf.stock.Sign() != 0 {
 		// selling if bid is greater than mean plus the offset
 		sell(b.pf, b.pf.stock, currBid)
 	} else if currBid.Cmp(mean.Sub(b.offset)) == -1 {
@@ -119,9 +120,9 @@ func (b *smaBot) tradeSMA() {
 // function to execute trades using the RSI bot
 func (b *rsiBot) tradeRSI() {
 
-	pastAsks:= make([]decimal.Decimal, b.pf.tradingPeriod)
+	pastAsks := make([]decimal.Decimal, b.pf.tradingPeriod)
 
-	for i := 0;  i < int(b.pf.tradingPeriod); i++ {
+	for i := 0; i < int(b.pf.tradingPeriod); i++ {
 		pastAsks[i] = getAsk(b.pf.currRow - int64(i))
 	}
 
@@ -133,7 +134,7 @@ func (b *rsiBot) tradeRSI() {
 			currAsk := getAsk(b.pf.currRow)
 			buyableStock := b.pf.funds.Div(currAsk, 8)
 			buy(b.pf, buyableStock, currAsk)
-			price := currAsk.Mul(decimal.NewFromFloat64(0.99999,8))
+			price := currAsk.Mul(decimal.NewFromFloat64(0.99999, 8))
 			b.pf.stopLoss = price
 			fmt.Println("BUYING AT £", price)
 			printPortFolio(b.pf)
@@ -151,25 +152,23 @@ func (b *rsiBot) tradeRSI() {
 
 		} else if bound.Cmp(b.pf.stopLoss) == 1 {
 			b.pf.stopLoss = bound
-			fmt.Println("Stoploss: ",b.pf.stopLoss)
+			fmt.Println("Stoploss: ", b.pf.stopLoss)
 		}
 	}
-	b.numOfDecisions+= b.pf.tradingPeriod
+	b.numOfDecisions += b.pf.tradingPeriod
 }
 
-
-
-func (b *macdBot) tradeMACD(){
+func (b *macdBot) tradeMACD() {
 	currAsk := getAsk(b.pf.currRow)
 	currBid := getBid(b.pf.currRow)
 	pastBidsSR := make([]decimal.Decimal, b.SRtradePeriod)
 	pastBidsLR := make([]decimal.Decimal, b.LRtradePeriod)
 
-	for i := 0;  i < int(b.SRtradePeriod); i++ {
+	for i := 0; i < int(b.SRtradePeriod); i++ {
 		pastBidsSR[i] = getBid(b.pf.currRow - int64(i))
 	}
 
-	for i := 0;  i < int(b.LRtradePeriod); i++ {
+	for i := 0; i < int(b.LRtradePeriod); i++ {
 		pastBidsLR[i] = getBid(b.pf.currRow - int64(i))
 	}
 
@@ -182,9 +181,13 @@ func (b *macdBot) tradeMACD(){
 	buyableStock := b.pf.funds.Div(currAsk, 8)
 
 	upperBound, err := decimal.NewFromString("0.01")
-	if err != nil { panic(err)}
+	if err != nil {
+		panic(err)
+	}
 	lowerBound, err := decimal.NewFromString("-0.01")
-	if err != nil { panic(err)}
+	if err != nil {
+		panic(err)
+	}
 
 	if diff.Cmp(upperBound) == -1 && diff.Cmp(lowerBound) == 1 {
 
