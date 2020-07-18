@@ -63,7 +63,6 @@ func main() {
 		UpEma:					decimal.Zero(),
 		DownEma:				decimal.Zero(),
 		PrevAsk:				decimal.Zero(),
-		PrevOrder:			"",
 	}
 
 	if isLive {
@@ -79,8 +78,19 @@ func main() {
 		}
 	}
 
-	bot.UpEma = Sma(pastAsks, tradingPeriod)
-	bot.DownEma = Sma(pastAsks, tradingPeriod)
+	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
+
+	for i,v := range pastAsks {
+		if i == 0 {continue}
+		if v.Cmp(pastAsks[i-1]) == -1 {
+			pastDowns = append(pastDowns, pastAsks[i-1].Sub(v))
+		} else if v.Cmp(pastAsks[i-1]) == 1 {
+			pastUps = append(pastUps, v.Sub(pastAsks[i-1]))
+		}
+	}
+
+	bot.UpEma = Sma(pastUps, tradingPeriod)
+	bot.DownEma = Sma(pastDowns, tradingPeriod)
 
 	for {
 		trade(&bot)
