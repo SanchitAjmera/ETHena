@@ -17,6 +17,7 @@ type RsiBot struct {
 	UpEma					 decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
 	DownEma 			 decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
 	PrevAsk				 decimal.Decimal	 // the previous recorded ask price
+	PrevOrder			 string						 // stores order ID of most recent order
 }
 
 // function to calculate the Relative Strength Index

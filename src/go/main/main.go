@@ -37,7 +37,7 @@ type TradeFunc func(b *RsiBot)
 
 func main() {
 
-	isLive = false
+	isLive = true
 	var trade TradeFunc
 	var pastAsks []decimal.Decimal
 
@@ -63,6 +63,7 @@ func main() {
 		UpEma:					decimal.Zero(),
 		DownEma:				decimal.Zero(),
 		PrevAsk:				decimal.Zero(),
+		PrevOrder:			"",
 	}
 
 	if isLive {

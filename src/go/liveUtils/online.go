@@ -9,9 +9,26 @@ import (
 	. "TradingHackathon/src/go/rsi"
 )
 
+// function to cancel most recent order
+func cancelPrevOrder (b *RsiBot) {
+		time.Sleep(time.Second * 2)
+		req := luno.StopOrderRequest{OrderId: b.PrevOrder}
+		res, err := Client.StopOrder(context.Background(), &req)
+		if err != nil {
+			panic(err)
+		}
+		if res.Success {
+			fmt.Println("Successfully cancelled previous order")
+		} else {
+			fmt.Println("Failed to cancel previous order")
+			cancelPrevOrder(b)
+		}
+}
+
 // function to execute buying of items
 func buy(b *RsiBot, currAsk decimal.Decimal) {
-	time.Sleep(time.Second * 5)
+	cancelPrevOrder(b)
+	time.Sleep(time.Second * 2)
 	targetFunds, currFunds := getAssets("XRP", "XBT")
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
@@ -38,6 +55,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 			res, err = Client.PostLimitOrder(context.Background(), &req)
 		}
 		fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
+		b.PrevOrder = res.OrderId
 		b.ReadyToBuy = false
 		b.TradesMade++
 		b.StopLoss = price
@@ -54,7 +72,8 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 }
 
 func sell(b *RsiBot, currBid decimal.Decimal) {
-	time.Sleep(time.Second * 5)
+	cancelPrevOrder(b)
+	time.Sleep(time.Second * 2)
 	volumeToSell, funds := getAssets("XRP","XBT")
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
@@ -74,6 +93,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	}
 
 	fmt.Println("SELL - order ", res.OrderId, " placed at ", price)
+	b.PrevOrder = res.OrderId
 	b.ReadyToBuy = true
 	b.TradesMade++
 	for {
