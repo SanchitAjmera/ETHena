@@ -12,17 +12,26 @@ import (
 // function to cancel most recent order
 func cancelPrevOrder (b *RsiBot) {
 		time.Sleep(time.Second * 2)
-		req := luno.StopOrderRequest{OrderId: b.PrevOrder}
-		res, err := Client.StopOrder(context.Background(), &req)
+		checkReq := luno.GetOrderRequest{Id: b.PrevOrder}
+		checkRes, err := Client.GetOrder(context.Background(), &checkReq)
 		if err != nil {
 			panic(err)
 		}
-		if res.Success {
-			fmt.Println("Successfully cancelled previous order")
-		} else {
-			fmt.Println("Failed to cancel previous order")
-			cancelPrevOrder(b)
+		if checkRes.State == "PENDING" {
+			time.Sleep(time.Second * 2)
+			req := luno.StopOrderRequest{OrderId: b.PrevOrder}
+			res, err := Client.StopOrder(context.Background(), &req)
+			if err != nil {
+				panic(err)
+			}
+			if res.Success {
+				fmt.Println("Successfully cancelled previous order")
+			} else {
+				fmt.Println("Failed to cancel previous order")
+				cancelPrevOrder(b)
+			}
 		}
+		fmt.Println("Previous order was filled. No need to cancel.")
 }
 
 // function to execute buying of items
