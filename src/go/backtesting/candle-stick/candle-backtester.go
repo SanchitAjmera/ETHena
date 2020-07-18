@@ -89,9 +89,6 @@ func getInfoFromSpread(startRow int) info {
 }
 
 func upDownOrNothing() {
-	// Returns 1 if prediction buy
-	// Returns 0 if nothing
-	// Returns -1 if prediction sell
 
 	stack := []info{getInfoFromSpread(2), getInfoFromSpread(2 + 30), getInfoFromSpread(2 + 60)}
 
@@ -112,24 +109,20 @@ func upDownOrNothing() {
 		b3Max := stack[2].maxAsk
 		b3Min := stack[2].minAsk
 
-		// fmt.Println("\n------------------ Time Stamp of Bar 3 : ", stack[2].timeStampRow)
+		fmt.Println("\n------------------ Time Stamp of Bar 3 : ", stack[2].timeStampRow)
 
-		if b2Max.Cmp(b1Max) == 1 && b2Max.Cmp(b3Max) == 1 && b2Min.Cmp(b1Min) == 1 && b2Min.Cmp(b3Min) == 1 {
-			if b1Cl.Cmp(b1Op) == 1 && b3Op.Cmp(b3Cl) == 1 && b2Cl.Cmp(b2Op) == 1 {
-				fmt.Println("Predicting to sell")
-			}
-		} else if b2Max.Cmp(b1Max) == -1 && b2Max.Cmp(b3Max) == -1 && b2Min.Cmp(b1Min) == -1 && b2Min.Cmp(b3Min) == -1 {
-			if b1Cl.Cmp(b1Op) == -1 && b3Op.Cmp(b3Cl) == -1 && b2Cl.Cmp(b2Op) == -1 {
-				fmt.Println("Predicting to buy")
-			}
+		if b1Cl.Cmp(b1Op) == -1 && b2Min.Cmp(b1Min) == -1 && b2Min.Cmp(b3Min) == -1 && b3Cl.Cmp(b1Max) == 1 && b3Cl.Cmp(b2Max) == 1 {
+			fmt.Println("Predicting to buy")
+		} else if b1Cl.Cmp(b1Op) == 1 && b2Min.Cmp(b1Min) == 1 && b2Min.Cmp(b3Min) == 1 && b3Cl.Cmp(b1Max) == -1 && b3Cl.Cmp(b2Max) == -1 {
+			fmt.Println("Predicting to sell")
 		} else {
 			fmt.Println("Predicting to do nada")
 		}
 
-		// fmt.Println("Bar 1 opening : ", b1Op, "  Bar 1 closing : ", b1Cl, "  Bar 1 high : ", b1Max, " Bar 1 low : ", b1Min)
-		// fmt.Println("Bar 2 opening : ", b2Op, "  Bar 2 closing : ", b2Cl, "  Bar 2 high : ", b2Max, " Bar 2 low : ", b2Min)
-		// fmt.Println("Bar 3 opening : ", b3Op, "  Bar 3 closing : ", b3Cl, "  Bar 3 high : ", b3Max, " Bar 3 low : ", b3Min)
-		// fmt.Println("------------------")
+		fmt.Println("Bar 1 opening : ", b1Op, "  Bar 1 closing : ", b1Cl, "  Bar 1 high : ", b1Max, " Bar 1 low : ", b1Min)
+		fmt.Println("Bar 2 opening : ", b2Op, "  Bar 2 closing : ", b2Cl, "  Bar 2 high : ", b2Max, " Bar 2 low : ", b2Min)
+		fmt.Println("Bar 3 opening : ", b3Op, "  Bar 3 closing : ", b3Cl, "  Bar 3 high : ", b3Max, " Bar 3 low : ", b3Min)
+		fmt.Println("------------------")
 
 		stack = append(stack[1:], getInfoFromSpread(currentRow))
 	}
