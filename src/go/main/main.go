@@ -2,88 +2,97 @@ package main
 
 import (
 	"fmt"
-	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 	"time"
+	backtest "TradingHackathon/src/go/backtestingUtils"
+	live "TradingHackathon/src/go/liveUtils"
+	. "TradingHackathon/src/go/rsi"
 )
 
 // Global Variables
-var client *luno.Client
-var reqPointer *luno.GetTickerRequest
-var pair string
 var isLive bool
 
-func getPastAsks(b *rsiBot) []decimal.Decimal {
-	//Populating past asks with 1 tradingPeriod worth of data
-	pastAsks := make([]decimal.Decimal, b.tradingPeriod)
+func getPastAsks(b *RsiBot) []decimal.Decimal {
+	//Populating past asks with 1 TradingPeriod worth of data
+	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
 	var i int64 = 0
-	for i < b.tradingPeriod {
+	for i < b.TradingPeriod {
 		time.Sleep(time.Minute)
-		pastAsks[i] = getCurrAsk()
+		pastAsks[i] = live.GetCurrAsk()
 		//delete from here to sleep
 		buffer := ""
 		if i < 9 {
 			buffer = " "
 		}
 
-		fmt.Println("Filling past asks: ", buffer, i+1, "/", b.tradingPeriod, ":  BTC", pastAsks[i])
+		fmt.Println("Filling past asks: ", buffer, i+1, "/", b.TradingPeriod, ":  BTC", pastAsks[i])
 		i++
 		//delete up to here
 	}
-	b.prevAsk = pastAsks[b.tradingPeriod - 1]
+	b.PrevAsk = pastAsks[b.TradingPeriod - 1]
 	return pastAsks
 }
 
-// test function for the RSI bot
-func test(b *rsiBot) {
-	pastAsks := getPastAsks(b)
-	b.upEma = sma(pastAsks, b.tradingPeriod)
-	b.downEma = sma(pastAsks, b.tradingPeriod)
-	for {
-		b.trade()
-	}
-}
-
-type TradeFunc func(b *rsiBot)
+type TradeFunc func(b *RsiBot)
 
 func main() {
 
-	isLive = false
-	var TradeFunc trade
+	isLive = true
+	var trade TradeFunc
+	var pastAsks []decimal.Decimal
 
-	if isLive {
-		trade = tradeLive
-	} else {
-		initialiseFunds()
-		trade = tradeOffline
-	}
-
-	if isLive()
-
-	pair = "XRPXBT"
-	client, reqPointer = getTickerRequest()
-	client.SetTimeout(time.Minute)
+	live.Pair = "XRPXBT"
+	live.Client, live.ReqPointer = live.GetTickerRequest()
+	live.Client.SetTimeout(time.Minute)
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
-	stopLossMultDecimal := decimal.NewFromFloat64(0.999, 8)
+	StopLossMultDecimal := decimal.NewFromFloat64(0.999, 8)
 	rsiLowerLim := decimal.NewFromInt64(25)
 
 	// initialising bot
-	bot := rsiBot{
-		tradingPeriod:  tradingPeriod,
-		tradesMade:     0,
-		numOfDecisions: 0,
-		stopLoss:       decimal.Zero(),
-		stopLossMult:   stopLossMultDecimal,
-		overSold:       rsiLowerLim,
-		readyToBuy:     true,
-		buyPrice:       decimal.Zero(),
-		upEma:					decimal.Zero(),
-		downEma:				decimal.Zero(),
-		prevAsk:				decimal.Zero(),
+	bot := RsiBot{
+		TradingPeriod:  tradingPeriod,
+		TradesMade:     0,
+		NumOfDecisions: 0,
+		StopLoss:       decimal.Zero(),
+		StopLossMult:   StopLossMultDecimal,
+		OverSold:       rsiLowerLim,
+		ReadyToBuy:     true,
+		BuyPrice:       decimal.Zero(),
+		UpEma:					decimal.Zero(),
+		DownEma:				decimal.Zero(),
+		PrevAsk:				decimal.Zero(),
 	}
 
-	test(&bot)
+	if isLive {
+		trade = live.TradeLive
+		pastAsks = getPastAsks(&bot)
+	} else {
+		backtest.InitialiseFunds(decimal.NewFromFloat64(0.014,8), decimal.Zero())
+		trade = backtest.TradeOffline
 
+		var i int64
+		for i = 0; i < tradingPeriod; i++ {
+			pastAsks = append(pastAsks, backtest.GetOfflineAsk(i+1))
+		}
+	}
+
+	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
+
+	for i,v := range pastAsks {
+		if i == 0 {continue}
+		if v.Cmp(pastAsks[i-1]) == -1 {
+			pastDowns = append(pastDowns, pastAsks[i-1].Sub(v))
+		} else if v.Cmp(pastAsks[i-1]) == 1 {
+			pastUps = append(pastUps, v.Sub(pastAsks[i-1]))
+		}
+	}
+
+	bot.UpEma = Sma(pastUps, tradingPeriod)
+	bot.DownEma = Sma(pastDowns, tradingPeriod)
+
+	for {
+		trade(&bot)
+	}
 }
