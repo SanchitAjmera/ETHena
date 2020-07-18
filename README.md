@@ -1,12 +1,16 @@
 # TradingHackathon
 Implementation of a trading bot for the luno challenge
 
-
 TODO LIST 
-- Research more indicators, implement them in Go/Python and check they work seperatately
-- Implement the above as trading strategies and then backtest them
-  - DEVAM: Candlesticks
-- SANCHIT: Sort out the new dataset
-- MANUJ: Refine backtesting, implement new dataset
+16th:
+  - Clean up github repo
+  - Go through ema and fix
+  
+Someday:
+  - Look into MACD
+  - Implement all candlestick strategies
+  - Backtest candlestick strategies
+  - Weight strategies accordingly
 
-DO EVERYTHING ON YOUR OWN BRANCH
+"There's a problem here, a real problem. We should be able to work together"
+                                              - Sanchit 3 weeks into the competition
