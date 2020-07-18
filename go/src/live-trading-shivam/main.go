@@ -44,9 +44,11 @@ func main() {
 	pair = "XRPXBT"
 	client, reqPointer = getTickerRequest()
 
+	client.SetTimeout(time.Minute)
+
 	// initialising values within bot portfolio
 	tradingPeriod := int64(15)
-	stopLossMultDecimal := decimal.NewFromFloat64(0.995, 8)
+	stopLossMultDecimal := decimal.NewFromFloat64(0.999, 8)
 
 	rsiLowerLim := decimal.NewFromInt64(30)
 
