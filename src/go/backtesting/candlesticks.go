@@ -29,7 +29,6 @@ var lunoClient *luno.Client
 func getInfo(tick luno.GetTickerRequest, timeInMins int) Info {
 
 	timeInSeconds := timeInMins * 60
-	// timeInSeconds := timeInMins
 	maxAsk := decimal.Zero()
 	minAsk := decimal.NewFromInt64(1844674407370955200)
 	maxBid := decimal.Zero()
@@ -131,14 +130,4 @@ func upDownOrNothing(tick luno.GetTickerRequest, timeInMins int) int {
 
 		stack = append(stack[1:], getInfo(tick, timeInMins))
 	}
-}
-
-func main() {
-
-	lunoClient = luno.NewClient()
-	lunoClient.SetAuth("gwnarwdxreyag", "ZrCzrPO3IdcMq7t69a5iPUl-JyDAGGxauF0HumJD34s")
-	ctx = context.Background()
-	tick := luno.GetTickerRequest{Pair: "XBTGBP"}
-
-	upDownOrNothing(tick, 1)
 }
