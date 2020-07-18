@@ -11,7 +11,7 @@ import (
 
 // function to cancel most recent order
 func cancelPrevOrder (b *RsiBot) {
-	if b.prevOrder == "" {return}
+	if b.PrevOrder == "" {return}
 	time.Sleep(time.Second * 2)
 	checkReq := luno.GetOrderRequest{Id: b.PrevOrder}
 	checkRes, err := Client.GetOrder(context.Background(), &checkReq)
