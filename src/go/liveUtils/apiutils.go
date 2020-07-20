@@ -16,7 +16,7 @@ var Pair string
 
 func GetTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("e354ths3rzks7", "PdhKmE-IGaIqn_Ckb3-pyz7nItCZiRIhk2cBF57meC4")
+	lunoClient.SetAuth("edc68x4mbdvd", "H-s0uBsnB_QWsHs-xDmhTT0132JIIwXrU5NL9az6pN4")
 
 	return lunoClient, &luno.GetTickerRequest{Pair: Pair}
 }
