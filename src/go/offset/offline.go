@@ -7,7 +7,6 @@ import (
 
 var xrp decimal.Decimal
 var xbt decimal.Decimal
-var currRow int64
 
 
 func initialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
