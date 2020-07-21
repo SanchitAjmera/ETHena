@@ -131,6 +131,7 @@ func TradeLive(b *RsiBot) {
 		fmt.Println("Current Ask", currAsk)
 		if rsi.Cmp(b.OverSold) == -1 && rsi.Sign() != 0 {
 			buy(b, currAsk)
+			Email("BUY", currAsk, rsi)
 		}
 	} else {
 		bound := currBid.Mul(b.StopLossMult)
@@ -141,6 +142,7 @@ func TradeLive(b *RsiBot) {
 		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
 			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
 			sell(b, currBid)
+			Email("SELL", currBid, rsi)
 		} else if bound.Cmp(b.StopLoss) == 1 {
 			b.StopLoss = bound
 			fmt.Println("Stoploss changed to: ", b.StopLoss)

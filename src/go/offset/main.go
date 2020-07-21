@@ -36,6 +36,9 @@ func getPastAsks(b *offsetBot) []decimal.Decimal {
 }
 
 func main() {
+
+  email("START", decimal.Zero(),decimal.Zero())
+
   currRow = 16
   isLive = true
 	var pastAsks []decimal.Decimal
