@@ -37,6 +37,8 @@ type TradeFunc func(b *RsiBot)
 
 func main() {
 
+	live.Email("START", decimal.Zero(), decimal.Zero())
+
 	isLive = true
 	var trade TradeFunc
 	var pastAsks []decimal.Decimal
