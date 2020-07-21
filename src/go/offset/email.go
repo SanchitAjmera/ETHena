@@ -31,16 +31,16 @@ func email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
     switch action{
       case "BUY":
       case "SELL":
-        messageStr = "Congratulation! Your bot made a " + action + " at " + info1.String()
+        messageStr = "Congratulation! Sanchit's bot made a " + action + " at " + info1.String()
       case "START":
-        messageStr = "NEWS! Your bot has begun trading"
+        messageStr = "NEWS! Sanchit's bot has begun trading"
     }
     message := []byte(messageStr)
     // Authentication.
     auth := smtp.PlainAuth("", from, password, smtpServer.host)
     // Sending email.
     err := smtp.SendMail(smtpServer.Address(), auth, from, to, message)
-    
+
     if err != nil {
         fmt.Println(err)
         return
