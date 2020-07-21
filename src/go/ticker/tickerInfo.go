@@ -7,6 +7,7 @@ import (
   "time"
   "github.com/360EntSecGroup-Skylar/excelize"
   "strconv"
+  "fmt"
 )
 
 // currencies:
@@ -40,7 +41,8 @@ var bid decimal.Decimal
 
 func main(){
 
-
+  fmt.Println("Started")
+  
   pairs := []string{"XBTGBP","ETHXBT","XRPXBT","XRPZAR","BCHXBT","LTCXBT","XBTZAR"}
   columns := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}
 
@@ -60,26 +62,37 @@ func main(){
   f.SetCellValue("Sheet1", "M1", "XBTZAR bid")
   f.SetCellValue("Sheet1", "N1", "XBTZAR ask")
 
+
   row := 2
-  for index,pair := range pairs {
+  for i := 0; i < 3600; i++{
+    // To check progress of ticker
+    if i % 60 == 0{
+      fmt.Println("Hour: ", i % 60)
+    }
 
-    client, reqPointer = getTickerRequest(pair)
-    client.SetTimeout(time.Minute)
+    for index,pair := range pairs {
 
-    ask, bid, _ = getTicker()
-    cell1 := columns[index*2] + strconv.Itoa(row)
-    cell2 := columns[index*2+1] + strconv.Itoa(row)
+      client, reqPointer = getTickerRequest(pair)
+      client.SetTimeout(time.Minute)
 
-    f.SetCellValue("Sheet1", cell1, bid.String())
-    f.SetCellValue("Sheet1", cell2, ask.String())
+      ask, bid, _ = getTicker()
+      cell1 := columns[index*2] + strconv.Itoa(row)
+      cell2 := columns[index*2+1] + strconv.Itoa(row)
 
-    time.Sleep(5*time.Second)
+      f.SetCellValue("Sheet1", cell1, bid.String())
+      f.SetCellValue("Sheet1", cell2, ask.String())
+
+      time.Sleep(5*time.Second)
+    }
     row +=1
     time.Sleep(25*time.Second)
   }
 
 
+
   if err := f.SaveAs("tickerData.xlsx"); err != nil {
     println(err.Error())
   }
+  fmt.Println("Ended")
+
 }
