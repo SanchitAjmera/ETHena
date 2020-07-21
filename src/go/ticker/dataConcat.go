@@ -25,8 +25,8 @@ func main(){
   f.SetCellValue("Sheet1", "L1", "LTCXBT ask")
   f.SetCellValue("Sheet1", "M1", "XBTZAR bid")
   f.SetCellValue("Sheet1", "N1", "XBTZAR ask")
-  for file := 0 ; file < 22 ; file++ {
-    g, err := excelize.OpenFile("data_8to9_July/tickerData" + strconv.Itoa(file) + ".xlsx")
+  for file := 0 ; file < 24 ; file++ {
+    g, err := excelize.OpenFile("data_16to17_july/tickerData" + strconv.Itoa(file) + ".xlsx")
     if err != nil {
         fmt.Println(err)
         return
@@ -44,7 +44,7 @@ func main(){
       }
     }
   }
-  if err := f.SaveAs("tickerDataDay2.xlsx"); err != nil {
+  if err := f.SaveAs("tickerData16to17.xlsx"); err != nil {
     println(err.Error())
   }
 }

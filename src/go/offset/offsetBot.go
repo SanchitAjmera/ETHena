@@ -3,19 +3,19 @@ package main
 import (
   "fmt"
   "github.com/luno/luno-go/decimal"
+  "time"
 )
 
 type offsetBot struct {
-	tradingPeriod	int64										// How often the bot calculates a long term result
-  emaAsk				  	  decimal.Decimal         // exponentially smoothed Wilder's MMA for upward change
-  emaBid				  	  decimal.Decimal         // exponentially smoothed Wilder's MMA for upward change
-  currRow         int64                   // current row within excel spreadsheet
+	tradingPeriod  	int64										// How often the bot calculates a long term result
+  ema 			  	  decimal.Decimal         // exponentially smoothed Wilder's MMA for upward change
   offset				  decimal.Decimal         // exponentially smoothed Wilder's MMA for upward changevv
   readyToBuy      bool
   StopLoss        decimal.Decimal
 	StopLossMult    decimal.Decimal   // multiplier for stop loss
   BuyPrice        decimal.Decimal   // stores most recent price we bought at
-  PrevAsk				 decimal.Decimal	 // the previous recorded ask price
+  PrevAsk				  decimal.Decimal	 // the previous recorded ask price
+  PrevOrder			 string						 // stores order ID of most recent order
 }
 
 // function to calculate the simple moving average of a given set of data
@@ -42,18 +42,17 @@ func ema(oldVal decimal.Decimal, newData decimal.Decimal, period int64) decimal.
 	return (oldVal.Mul(decimalPeriod.Sub(decimal.NewFromInt64(1))).Add(newData)).Div(decimalPeriod, 16)
 }
 
-func (b *offsetBot) trade(){
-  currAsk := getOfflineAsk(b.currRow)
-  currBid := getOfflineBid(b.currRow)
-  emaAsk := ema(b.emaAsk, currAsk, b.tradingPeriod)
-  emaBid := ema(b.emaBid, currBid, b.tradingPeriod)
 
-  b.emaAsk = emaAsk
-  b.emaBid = emaBid
+func (b *offsetBot) tradeOffline(){
+  currAsk := getOfflineAsk(currRow)
+  currBid := getOfflineBid(currRow)
+  ema := ema(b.ema, currAsk, b.tradingPeriod)
+
+  b.ema = ema
   b.PrevAsk = currAsk
 
   if b.readyToBuy {
-    if currAsk.Cmp(emaAsk.Sub(b.offset)) == -1 {
+    if currAsk.Cmp(ema.Sub(b.offset)) == -1 {
       price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
       fmt.Println("Buy     | currAsk:", price)
       b.readyToBuy = false
@@ -62,26 +61,50 @@ func (b *offsetBot) trade(){
 
     }
   } else {
-    if currAsk.Cmp(emaAsk.Add(b.offset)) == 1  && currBid.Cmp(b.StopLoss.Mul(b.StopLossMult)) == 1 {
+    if currAsk.Cmp(ema.Add(b.offset)) == 1  && currBid.Cmp(b.StopLoss.Mul(b.StopLossMult)) == 1 {
       price := currAsk.Add(decimal.NewFromFloat64(0.00000001, 8))
-      fmt.Println("Sell    | currAsk:", price, "  currBid:", currBid)
       b.readyToBuy = true
+      fmt.Println("Sell    | currAsk:", price, "  currBid:", currBid)
     }
+    /*
 
-/*
     bound := currBid.Mul(b.StopLossMult)
     if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
 			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
       price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 			fmt.Println("Sell    | currBid:", price)
       b.readyToBuy = true
+      b.funds = (b.stock.Mul(price))
+      b.stock = decimal.Zero()
 		} else if bound.Cmp(b.StopLoss) == 1 {
 			b.StopLoss = bound
 			fmt.Println("Stoploss changed to: ", b.StopLoss)
     }
-  */
+    */
   }
 
-  b.currRow++
-  //fmt.Println("curr Row: ", b.currRow)
+  currRow++
+  //fmt.Println("curr Row: ", currRow)
+}
+
+
+func (b *offsetBot) tradeOnline(){
+
+  time.Sleep(time.Minute)
+	currAsk, currBid := getTicker()
+  ema := ema(b.ema, currAsk, b.tradingPeriod)
+
+  b.ema = ema
+  b.PrevAsk = currAsk
+  fmt.Println("EMA", b.ema, " currAsk:", currAsk, " currBid:", currBid)
+
+  if b.readyToBuy {
+    if currAsk.Cmp(ema.Sub(b.offset)) == -1 {
+      buy(b, currAsk)
+    }
+  } else {
+    if currAsk.Cmp(ema.Add(b.offset)) == 1  && currBid.Cmp(b.StopLoss.Mul(b.StopLossMult)) == 1 {
+    	sell(b, currBid)
+    }
+  }
 }
