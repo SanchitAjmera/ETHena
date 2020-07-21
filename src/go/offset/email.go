@@ -30,6 +30,7 @@ func email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
     // add customised switch cases here
     switch action{
       case "BUY":
+        fallthrough
       case "SELL":
         messageStr = "Congratulation! Sanchit's bot made a " + action + " at " + info1.String()
       case "START":
