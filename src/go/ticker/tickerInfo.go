@@ -7,7 +7,6 @@ import (
   "time"
   "github.com/360EntSecGroup-Skylar/excelize"
   "strconv"
-  "fmt"
 )
 
 // currencies:
@@ -80,7 +79,7 @@ func main(){
   }
 
 
-  if err := f.SaveAs("tickerData"+strconv.Itoa(hour)+".xlsx"); err != nil {
+  if err := f.SaveAs("tickerData.xlsx"); err != nil {
     println(err.Error())
   }
 }
