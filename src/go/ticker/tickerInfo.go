@@ -1,7 +1,6 @@
 package main
 
 import (
-  //"fmt"
   "context"
   luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
@@ -21,7 +20,7 @@ import (
 
 func getTickerRequest(pair string) (*luno.Client, *luno.GetTickerRequest){
   lunoClient := luno.NewClient()
-  lunoClient.SetAuth("g49j5s2ekvpgy", "LSEsuYLxDRhSH5vVhW5Duulknt5oxgXXn6MDLbDtpRI")
+  lunoClient.SetAuth("bgh3q5ss8yvj9", "Q9AqNYS4a4ke-4Yxw_JwtbUbih2mFjITm40luA6Y4M0")
 
   return lunoClient, &luno.GetTickerRequest{Pair: pair}
 }
@@ -64,7 +63,7 @@ func main(){
 
   row := 2
   for index,pair := range pairs {
-    
+
     client, reqPointer = getTickerRequest(pair)
     client.SetTimeout(time.Minute)
 
@@ -83,6 +82,5 @@ func main(){
 
   if err := f.SaveAs("tickerData"+strconv.Itoa(hour)+".xlsx"); err != nil {
     println(err.Error())
-  }
   }
 }
