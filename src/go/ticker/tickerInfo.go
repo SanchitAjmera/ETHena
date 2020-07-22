@@ -42,7 +42,7 @@ var bid decimal.Decimal
 func main(){
 
   fmt.Println("Started")
-  
+
   pairs := []string{"XBTGBP","ETHXBT","XRPXBT","XRPZAR","BCHXBT","LTCXBT","XBTZAR"}
   columns := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}
 
@@ -67,7 +67,7 @@ func main(){
   for i := 0; i < 3600; i++{
     // To check progress of ticker
     if i % 60 == 0{
-      fmt.Println("Hour: ", i % 60)
+      fmt.Println("Hour: ", i / 60)
     }
 
     for index,pair := range pairs {
