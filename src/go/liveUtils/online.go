@@ -9,6 +9,8 @@ import (
 	. "TradingHackathon/src/go/rsi"
 )
 
+var f *excelize.File
+
 // function to cancel most recent order
 func cancelPrevOrder (b *RsiBot) {
 	if b.PrevOrder == "" {return}
@@ -117,7 +119,6 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 
 // function to execute trades using the RSI bot
 func TradeLive(b *RsiBot) {
-
 	time.Sleep(time.Minute)
 	currAsk, currBid := getTicker()
 

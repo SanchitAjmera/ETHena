@@ -7,10 +7,18 @@ import (
 	backtest "TradingHackathon/src/go/backtestingUtils"
 	live "TradingHackathon/src/go/liveUtils"
 	. "TradingHackathon/src/go/rsi"
+	""
 )
 
 // Global Variables
 var isLive bool
+
+func isMarketClosed() bool {
+	start := "01:00"
+	end := "01:05"
+	check := time.Now()
+  return !check.Before(start) && !check.After(end)
+}
 
 func getPastAsks(b *RsiBot) []decimal.Decimal {
 	//Populating past asks with 1 TradingPeriod worth of data
@@ -67,6 +75,7 @@ func main() {
 		PrevAsk:				decimal.Zero(),
 	}
 
+
 	if isLive {
 		trade = live.TradeLive
 		pastAsks = getPastAsks(&bot)
@@ -94,6 +103,13 @@ func main() {
 	bot.UpEma = Sma(pastUps, tradingPeriod)
 	bot.DownEma = Sma(pastDowns, tradingPeriod)
 
+	dataFile = excelize.NewFile()
+
+	dataFile.SetCellValue("Sheet1", "A1", "Curr Price")
+	dataFile.SetCellValue("Sheet1", "B1", "RSI")
+	dataFile.SetCellValue("Sheet1", "C1", "Mode (ReadyToBuy?)")
+	dataFile.SetCellValue("Sheet1", "D1", "BuyPrice")
+	dataFile.SetCellValue("Sheet1", "D1", "SellPrice")
 	for {
 		trade(&bot)
 	}
