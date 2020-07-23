@@ -7,11 +7,19 @@ import (
 	backtest "TradingHackathon/src/go/backtestingUtils"
 	live "TradingHackathon/src/go/liveUtils"
 	. "TradingHackathon/src/go/rsi"
-	""
+	"time"
+	"os/exec"
 )
 
 // Global Variables
 var isLive bool
+var prevDay time.Time
+
+func isNewDay() bool {
+    y1, m1, d1 := prevDay.Date()
+    y2, m2, d2 := time.Now().Date()
+    return y1 == y2 && m1 == m2 && d1 == d2
+}
 
 func isMarketClosed() bool {
 	start := "01:00"
@@ -19,8 +27,6 @@ func isMarketClosed() bool {
 	check := time.Now()
   return !check.Before(start) && !check.After(end)
 }
-
-
 
 func getPastAsks(b *RsiBot) []decimal.Decimal {
 	//Populating past asks with 1 TradingPeriod worth of data
@@ -46,6 +52,8 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 type TradeFunc func(b *RsiBot)
 
 func main() {
+
+	prevDay = time.Now().AddDate(0, 0, -1)
 
 	live.Email("START", decimal.Zero(), decimal.Zero())
 
@@ -105,16 +113,35 @@ func main() {
 	bot.UpEma = Sma(pastUps, tradingPeriod)
 	bot.DownEma = Sma(pastDowns, tradingPeriod)
 
-	dataFile = excelize.NewFile()
-
-	dataFile.SetCellValue("Sheet1", "A1", "Curr Price")
-	dataFile.SetCellValue("Sheet1", "B1", "RSI")
-	dataFile.SetCellValue("Sheet1", "C1", "Mode (ReadyToBuy?)")
-	dataFile.SetCellValue("Sheet1", "D1", "BuyPrice")
-	dataFile.SetCellValue("Sheet1", "D1", "SellPrice")
+	live.SetUpNewFile()
 	for {
-		if isMarketClosed(){
+		if isMarketClosed() && isNewDay(){
+			fileName := time.Now().Format("2006-01-02")
+			live.ClosePrevFile(fileName)
 
+			graphCmd := exec.Command("python3","graphData.py", fileName)
+			err1 := graphCmd.Run()
+
+			if err1 != nil {
+				fmt.Println("ERROR! Failed to graph data:", err)
+			}
+
+			//Emailing
+
+			deletePicCmd := exec.Command("rm", "graph.png")
+			err2 := deletePicCmd.Run()
+
+			if err2 != nil {
+				fmt.Println("ERROR! Failed to delete graph:", err)
+			}
+
+			if err1 == nil && err2 == nil {
+				fmt.Println("Graphed daily data successfully")
+			}
+
+			live.SetUpNewFile()
+			b.NumOfDecisions = 0
+			prevDay = time.Now()
 		}
 		trade(&bot)
 	}

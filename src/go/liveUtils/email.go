@@ -15,7 +15,7 @@ func (s *smtpServer) Address() string {
  return s.host + ":" + s.port
 }
 
-func Email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
+func Email(action string, yield decimal.Decimal) {
     // Sender data.
     from := "profit.profit.profit.icl@gmail.com"
     password := "Password123??"
@@ -29,10 +29,14 @@ func Email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
     var messageStr string
     // add customised switch cases here
     switch action{
-      case "BUY":
-        fallthrough
-      case "SELL":
-        messageStr = "Congratulation! Your bot made a " + action + " at " + info1.String() + " with RSI:" + info2.String()
+      case "GRAPH":
+        messageStr = "Daily update: "
+        if yield.Sign() == 1 {
+          messageStr += "PROFIT! -£"
+        } else {
+          messageStr += "LOSS! -£"
+        }
+        messageStr += yield.String()
       case "START":
         messageStr = "NEWS! Your bot has begun trading"
     }
@@ -46,5 +50,5 @@ func Email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
         fmt.Println(err)
         return
     }
-    fmt.Println("Email Sent!")
+    fmt.Println("Update email sent successfully")
 }

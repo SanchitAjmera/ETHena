@@ -9,8 +9,6 @@ import (
 	. "TradingHackathon/src/go/rsi"
 )
 
-var f *excelize.File
-
 // function to cancel most recent order
 func cancelPrevOrder (b *RsiBot) {
 	if b.PrevOrder == "" {return}
@@ -30,11 +28,11 @@ func cancelPrevOrder (b *RsiBot) {
 		if res.Success {
 			fmt.Println("Successfully cancelled previous order")
 		} else {
-			fmt.Println("Failed to cancel previous order")
+			fmt.Println("ERROR! Failed to cancel previous order")
 			cancelPrevOrder(b)
 		}
 	}
-	fmt.Println("Previous order was filled. No need to cancel.")
+	fmt.Println("Previous order was filled. Cancellation not required.")
 }
 
 // function to execute buying of items
@@ -73,13 +71,14 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 		b.StopLoss = price
 		b.BuyPrice = price
 		// wait till order has gone through
+		fmt.Println("Waiting for buy order to be partially filled")
 		for {
 			time.Sleep(time.Minute)
-			fmt.Println("Waiting for buy order to be partially filled")
 			if targetFunds.Cmp(getAsset("XRP")) == -1 {
 				return
 			}
 		}
+		fmt.Println("Buy order has been partially filled")
 	}
 }
 
@@ -108,13 +107,14 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	b.PrevOrder = res.OrderId
 	b.ReadyToBuy = true
 	b.TradesMade++
+	fmt.Println("Waiting for sell order to be partially filled")
 	for {
 		time.Sleep(time.Minute)
-		fmt.Println("Waiting for sell order to be partially filled")
 		if funds.Cmp(getAsset("XBT")) == -1 {
 			return
 		}
 	}
+	fmt.Println("Sell order has been partially filled")
 }
 
 // function to execute trades using the RSI bot
@@ -128,25 +128,25 @@ func TradeLive(b *RsiBot) {
 	fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
 
+	live.PopulateFile(b, currAsk, currBid, rsi)
+
 	if b.ReadyToBuy { // check if sell order has gone trough
-		fmt.Println("Current Ask", currAsk)
+		// fmt.Println("Current Ask", currAsk)
 		if rsi.Cmp(b.OverSold) == -1 && rsi.Sign() != 0 {
 			buy(b, currAsk)
-			Email("BUY", currAsk, rsi)
 		}
 	} else {
 		bound := currBid.Mul(b.StopLossMult)
 
-		fmt.Println("Current Bid", currBid)
-		fmt.Println("Stop Loss", b.StopLoss)
+		// fmt.Println("Current Bid", currBid)
+		// fmt.Println("Stop Loss", b.StopLoss)
 
 		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
 			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
 			sell(b, currBid)
-			Email("SELL", currBid, rsi)
 		} else if bound.Cmp(b.StopLoss) == 1 {
 			b.StopLoss = bound
-			fmt.Println("Stoploss changed to: ", b.StopLoss)
+			// fmt.Println("Stoploss changed to: ", b.StopLoss)
 		}
 
 	}
