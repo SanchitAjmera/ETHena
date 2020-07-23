@@ -28,6 +28,9 @@ func getTickerRequest(pair string) (*luno.Client, *luno.GetTickerRequest){
 func getTicker() (decimal.Decimal, decimal.Decimal, luno.Time) {
   res, err := client.GetTicker(context.Background(), reqPointer)
   if err != nil{
+    if errs := f.SaveAs("tickerData.xlsx"); err != nil {
+      println(errs.Error())
+    }
     panic(err)
   }
   return res.Ask, res.Bid, res.Timestamp
