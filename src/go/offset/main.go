@@ -37,10 +37,8 @@ func getPastAsks(b *offsetBot) []decimal.Decimal {
 
 func main() {
 
-  email("START", decimal.Zero(),decimal.Zero())
 
-  currRow = 16
-  isLive = true
+  isLive = false
 	var pastAsks []decimal.Decimal
 
   Pair = "XRPXBT"
@@ -49,8 +47,9 @@ func main() {
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
+  currRow = tradingPeriod+2
   StopLossMultDecimal := decimal.NewFromFloat64(1, 8)
-	offset, _ := decimal.NewFromString("0.00000015")
+	offset, _ := decimal.NewFromString("0.00000020")
 
 	// initialising bot
 	offsetBot := offsetBot{
@@ -65,6 +64,7 @@ func main() {
 	}
 
   if isLive {
+    email("START", decimal.Zero(),decimal.Zero())
 		pastAsks = getPastAsks(&offsetBot)
     offsetBot.ema = sma(pastAsks)
     for {
