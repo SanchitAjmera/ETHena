@@ -38,7 +38,7 @@ func getPastAsks(b *offsetBot) []decimal.Decimal {
 func main() {
 
 
-  isLive = false
+  isLive = true
 	var pastAsks []decimal.Decimal
 
   Pair = "XRPXBT"
