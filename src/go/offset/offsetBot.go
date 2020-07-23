@@ -50,11 +50,12 @@ func (b *offsetBot) tradeOffline(){
 
   b.ema = ema
   b.PrevAsk = currAsk
+  fmt.Println("EMA", b.ema, " currAsk:", currAsk, " currBid:", currBid, " CURRASK-(EMA-OFF):", currAsk.Sub(ema.Sub(b.offset)))
 
   if b.readyToBuy {
     if currAsk.Cmp(ema.Sub(b.offset)) == -1 {
       price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
-      fmt.Println("Buy     | currAsk:", price)
+      fmt.Println("Buy     | currAsk:", price, " currRow", currRow )
       b.readyToBuy = false
       b.StopLoss = price
       b.BuyPrice = price
@@ -64,7 +65,7 @@ func (b *offsetBot) tradeOffline(){
     if currAsk.Cmp(ema.Add(b.offset)) == 1  && currBid.Cmp(b.StopLoss.Mul(b.StopLossMult)) == 1 {
       price := currAsk.Add(decimal.NewFromFloat64(0.00000001, 8))
       b.readyToBuy = true
-      fmt.Println("Sell    | currAsk:", price, "  currBid:", currBid)
+      fmt.Println("Sell    | currAsk:", price, "  currBid:", currBid," currRow", currRow )
     }
     /*
 
@@ -96,15 +97,17 @@ func (b *offsetBot) tradeOnline(){
 
   b.ema = ema
   b.PrevAsk = currAsk
-  fmt.Println("EMA", b.ema, " currAsk:", currAsk, " currBid:", currBid)
+  fmt.Println("EMA", b.ema, " currAsk:", currAsk, " currBid:", currBid, " CURRASK-(EMA-OFF):", currAsk.Sub(ema.Sub(b.offset)))
 
   if b.readyToBuy {
     if currAsk.Cmp(ema.Sub(b.offset)) == -1 {
       buy(b, currAsk)
+      email("BOUGHT", currAsk, currAsk.Sub(ema.Sub(b.offset)))
     }
   } else {
     if currAsk.Cmp(ema.Add(b.offset)) == 1  && currBid.Cmp(b.StopLoss.Mul(b.StopLossMult)) == 1 {
     	sell(b, currBid)
+      email("SOLD", currBid, (ema.Add(b.offset)).Sub(currAsk))
     }
   }
 }

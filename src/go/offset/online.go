@@ -36,6 +36,7 @@ func cancelPrevOrder (b *offsetBot) {
 
 // function to execute buying of items
 func buy(b *offsetBot, currAsk decimal.Decimal) {
+	email("BUY", currAsk, currAsk.Sub(b.ema.Sub(b.offset)))
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
 	targetFunds, currFunds := getAssets("XRP", "XBT")
@@ -80,6 +81,7 @@ func buy(b *offsetBot, currAsk decimal.Decimal) {
 }
 
 func sell(b *offsetBot, currBid decimal.Decimal) {
+	email("SELL", currBid, (b.ema.Add(b.offset)).Sub(currBid))
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
 	volumeToSell, funds := getAssets("XRP","XBT")

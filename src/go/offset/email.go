@@ -30,11 +30,15 @@ func email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
     // add customised switch cases here
     switch action{
       case "BUY":
-        fallthrough
+        messageStr = "Congratulation! Sanchit's bot made a " + action + " at " + info1.String()
       case "SELL":
         messageStr = "Congratulation! Sanchit's bot made a " + action + " at " + info1.String()
       case "START":
         messageStr = "NEWS! Sanchit's bot has begun trading"
+      case "BOUGHT":
+        messageStr = "NEWS! Sanchit's bot completed the Buy order at " + info1.String()
+      case "SOLD":
+        messageStr = "NEWS! Sanchit's bot completed the Sell order at " + info1.String()
     }
     message := []byte(messageStr)
     // Authentication.
