@@ -20,6 +20,8 @@ func isMarketClosed() bool {
   return !check.Before(start) && !check.After(end)
 }
 
+
+
 func getPastAsks(b *RsiBot) []decimal.Decimal {
 	//Populating past asks with 1 TradingPeriod worth of data
 	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
@@ -111,6 +113,9 @@ func main() {
 	dataFile.SetCellValue("Sheet1", "D1", "BuyPrice")
 	dataFile.SetCellValue("Sheet1", "D1", "SellPrice")
 	for {
+		if isMarketClosed(){
+
+		}
 		trade(&bot)
 	}
 }
