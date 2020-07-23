@@ -25,7 +25,7 @@ func getTickerRequest(pair string) (*luno.Client, *luno.GetTickerRequest){
   return lunoClient, &luno.GetTickerRequest{Pair: pair}
 }
 
-func getTicker() (decimal.Decimal, decimal.Decimal, luno.Time) {
+func getTicker() (decimal.Decimal, decimal.Decimal, luno.Time, error) {
   res, err := client.GetTicker(context.Background(), reqPointer)
   return res.Ask, res.Bid, res.Timestamp, err
 }
@@ -72,14 +72,14 @@ func main(){
       client, reqPointer = getTickerRequest(pair)
       client.SetTimeout(time.Minute)
 
-      ask, bid, _, error = getTicker()
-      if error != nil{
+      ask, bid, _, err := getTicker()
+      if err != nil{
         if errs := f.SaveAs("tickerData.xlsx"); errs != nil {
           println(errs.Error())
         }
-        panic(error)
+        panic(err)
       }
-      
+
       cell1 := columns[index*2] + strconv.Itoa(row)
       cell2 := columns[index*2+1] + strconv.Itoa(row)
 
