@@ -63,7 +63,7 @@ func main(){
   f.SetCellValue("Sheet1", "M1", "XBTZAR bid")
   f.SetCellValue("Sheet1", "N1", "XBTZAR ask")
 
-  //Save program at end of collection or if an error occurs
+  //Save file at end of data collection or if an error occurs
   defer func(){
     if err := f.SaveAs("tickerData.xlsx"); err != nil {
       println(err.Error())
