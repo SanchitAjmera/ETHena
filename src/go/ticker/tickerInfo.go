@@ -68,7 +68,7 @@ func main(){
   }
 
   row := 2
-  for i := 0; i < 3600; i++{
+  for i := 0; i < 1440; i++{
 
     // To check progress of ticker
     if i % 60 == 0{
