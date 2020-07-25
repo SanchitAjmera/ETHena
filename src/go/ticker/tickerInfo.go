@@ -63,9 +63,13 @@ func main(){
   f.SetCellValue("Sheet1", "M1", "XBTZAR bid")
   f.SetCellValue("Sheet1", "N1", "XBTZAR ask")
 
-  if err := f.SaveAs("tickerData.xlsx"); err != nil {
-    println(err.Error())
-  }
+  //Save program at end of collection or if an error occurs
+  defer func(){
+    if err := f.SaveAs("tickerData.xlsx"); err != nil {
+      println(err.Error())
+    }
+    fmt.Println("Ended")
+  }()
 
   row := 2
   for i := 0; i < 1440; i++{
@@ -92,11 +96,5 @@ func main(){
     }
     row +=1
     time.Sleep(25*time.Second)
-    if err := f.SaveAs("tickerData.xlsx"); err != nil {
-      println(err.Error())
-    }
   }
-
-  fmt.Println("Ended")
-
 }
