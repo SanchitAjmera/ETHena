@@ -125,7 +125,7 @@ func TradeLive(b *RsiBot) {
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
 	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.TradingPeriod)
-	fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
+	// fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
 
 	PopulateFile(b, currAsk, currBid, rsi)
