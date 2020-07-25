@@ -2,6 +2,9 @@ package liveUtils
 
 import (
   "strconv"
+  "github.com/luno/luno-go/decimal"
+  "github.com/360EntSecGroup-Skylar/excelize"
+	. "TradingHackathon/src/go/rsi"
 )
 
 var f *excelize.File
@@ -25,8 +28,8 @@ func SetUpNewFile() {
 	f.SetCellValue("Sheet1", "H1", "Ready To Sell Price")
 }
 
-func PopulateFile(b *rsiBot, ask decimal.Decimal, bid decimal.Decimal, rsi decimal.Decimal){
-	rowNum = b.NumOfDecisions + 1
+func PopulateFile(b *RsiBot, ask decimal.Decimal, bid decimal.Decimal, rsi decimal.Decimal){
+	rowNum := b.NumOfDecisions + 1
 	f.SetCellValue("Sheet1", "A"+strconv.FormatInt(rowNum, 10), b.NumOfDecisions)
 	f.SetCellValue("Sheet1", "B"+strconv.FormatInt(rowNum, 10), ask)
 	f.SetCellValue("Sheet1", "C"+strconv.FormatInt(rowNum, 10), bid)

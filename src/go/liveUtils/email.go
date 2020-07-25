@@ -32,9 +32,9 @@ func Email(action string, yield decimal.Decimal) {
       case "GRAPH":
         messageStr = "Daily update: "
         if yield.Sign() == 1 {
-          messageStr += "PROFIT! -£"
+          messageStr += "PROFIT! £"
         } else {
-          messageStr += "LOSS! -£"
+          messageStr += "LOSS! £"
         }
         messageStr += yield.String()
       case "START":

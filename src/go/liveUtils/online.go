@@ -128,7 +128,7 @@ func TradeLive(b *RsiBot) {
 	fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
 
-	live.PopulateFile(b, currAsk, currBid, rsi)
+	PopulateFile(b, currAsk, currBid, rsi)
 
 	if b.ReadyToBuy { // check if sell order has gone trough
 		// fmt.Println("Current Ask", currAsk)

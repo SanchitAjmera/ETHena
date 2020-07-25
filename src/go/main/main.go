@@ -7,7 +7,6 @@ import (
 	backtest "TradingHackathon/src/go/backtestingUtils"
 	live "TradingHackathon/src/go/liveUtils"
 	. "TradingHackathon/src/go/rsi"
-	"time"
 	"os/exec"
 )
 
@@ -18,14 +17,7 @@ var prevDay time.Time
 func isNewDay() bool {
     y1, m1, d1 := prevDay.Date()
     y2, m2, d2 := time.Now().Date()
-    return y1 == y2 && m1 == m2 && d1 == d2
-}
-
-func isMarketClosed() bool {
-	start := "01:00"
-	end := "01:05"
-	check := time.Now()
-  return !check.Before(start) && !check.After(end)
+    return  d1 != d2 ||  m1 != m2 || y1 != y2
 }
 
 func getPastAsks(b *RsiBot) []decimal.Decimal {
@@ -55,7 +47,7 @@ func main() {
 
 	prevDay = time.Now().AddDate(0, 0, -1)
 
-	live.Email("START", decimal.Zero(), decimal.Zero())
+	live.Email("START", decimal.Zero())
 
 	isLive = true
 	var trade TradeFunc
@@ -68,7 +60,7 @@ func main() {
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
 	StopLossMultDecimal := decimal.NewFromFloat64(0.999, 8)
-	rsiLowerLim := decimal.NewFromInt64(25)
+	rsiLowerLim := decimal.NewFromInt64(20)
 
 	// initialising bot
 	bot := RsiBot{
@@ -115,7 +107,7 @@ func main() {
 
 	live.SetUpNewFile()
 	for {
-		if isMarketClosed() && isNewDay(){
+		if isNewDay(){
 			fileName := time.Now().Format("2006-01-02")
 			live.ClosePrevFile(fileName)
 
@@ -123,7 +115,7 @@ func main() {
 			err1 := graphCmd.Run()
 
 			if err1 != nil {
-				fmt.Println("ERROR! Failed to graph data:", err)
+				fmt.Println("ERROR! Failed to graph data:", err1)
 			}
 
 			//Emailing
@@ -132,7 +124,7 @@ func main() {
 			err2 := deletePicCmd.Run()
 
 			if err2 != nil {
-				fmt.Println("ERROR! Failed to delete graph:", err)
+				fmt.Println("ERROR! Failed to delete graph:", err2)
 			}
 
 			if err1 == nil && err2 == nil {
@@ -140,7 +132,7 @@ func main() {
 			}
 
 			live.SetUpNewFile()
-			b.NumOfDecisions = 0
+			bot.NumOfDecisions = 0
 			prevDay = time.Now()
 		}
 		trade(&bot)
