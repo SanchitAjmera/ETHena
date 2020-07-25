@@ -25,9 +25,12 @@ func getTickerRequest(pair string) (*luno.Client, *luno.GetTickerRequest){
   return lunoClient, &luno.GetTickerRequest{Pair: pair}
 }
 
-func getTicker() (decimal.Decimal, decimal.Decimal, luno.Time, error) {
+func getTicker() (decimal.Decimal, decimal.Decimal, luno.Time) {
   res, err := client.GetTicker(context.Background(), reqPointer)
-  return res.Ask, res.Bid, res.Timestamp, err
+  if err != nil{
+    panic(err)
+  }
+  return res.Ask, res.Bid, res.Timestamp
 }
 
 // Global Variables
@@ -44,6 +47,7 @@ func main(){
   columns := []string{"A","B","C","D","E","F","G","H","I","J","K","L","M","N"}
 
   f := excelize.NewFile()
+
   f.SetCellValue("Sheet1", "A1", "XBTGBP bid")
   f.SetCellValue("Sheet1", "B1", "XBTGBP ask")
   f.SetCellValue("Sheet1", "C1", "ETHXBT bid")
@@ -59,9 +63,15 @@ func main(){
   f.SetCellValue("Sheet1", "M1", "XBTZAR bid")
   f.SetCellValue("Sheet1", "N1", "XBTZAR ask")
 
+  if err := f.SaveAs("tickerData.xlsx"); err != nil {
+    println(err.Error())
+  }
 
   row := 2
-  for i := 0; i < 3600; i++{
+  for i := 0; i < 5; i++{
+    if i == 3 {
+      panic(nil)
+    }
     // To check progress of ticker
     if i % 60 == 0{
       fmt.Println("Hour: ", i / 60)
@@ -72,13 +82,7 @@ func main(){
       client, reqPointer = getTickerRequest(pair)
       client.SetTimeout(time.Minute)
 
-      ask, bid, _, err := getTicker()
-      if err != nil{
-        if errs := f.SaveAs("tickerData.xlsx"); errs != nil {
-          println(errs.Error())
-        }
-        panic(err)
-      }
+      ask, bid, _ = getTicker()
 
       cell1 := columns[index*2] + strconv.Itoa(row)
       cell2 := columns[index*2+1] + strconv.Itoa(row)
@@ -90,12 +94,11 @@ func main(){
     }
     row +=1
     time.Sleep(25*time.Second)
+    if err := f.SaveAs("tickerData.xlsx"); err != nil {
+      println(err.Error())
+    }
   }
 
-
-  if err := f.SaveAs("tickerData.xlsx"); err != nil {
-    println(err.Error())
-  }
   fmt.Println("Ended")
 
 }
