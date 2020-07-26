@@ -46,7 +46,7 @@ type TradeFunc func(b *RsiBot)
 
 func main() {
 
-	prevDay = time.Now().AddDate(0, 0, -1)
+	prevDay = time.Now().AddDate(0, 0, 0)
 
 	live.Email("START", decimal.Zero())
 
