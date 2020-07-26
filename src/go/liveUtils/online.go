@@ -1,17 +1,20 @@
 package liveUtils
 
 import (
+	. "TradingHackathon/src/go/rsi"
 	"context"
 	"fmt"
+	"time"
+
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"time"
-	. "TradingHackathon/src/go/rsi"
 )
 
 // function to cancel most recent order
-func cancelPrevOrder (b *RsiBot) {
-	if b.PrevOrder == "" {return}
+func cancelPrevOrder(b *RsiBot) {
+	if b.PrevOrder == "" {
+		return
+	}
 	time.Sleep(time.Second * 2)
 	checkReq := luno.GetOrderRequest{Id: b.PrevOrder}
 	checkRes, err := Client.GetOrder(context.Background(), &checkReq)
@@ -47,45 +50,44 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	if currFunds.Sign() == 0 {
 		fmt.Println("No funds available")
 		return
-	} else {
-		//Create limit order
-		req := luno.PostLimitOrderRequest{
-			Pair:   Pair,
-			Price:  price,
-			Type:   "BID", //We are putting in a bid to buy at the ask price
-			Volume: buyableStock,
-			//BaseAccountId: --> Not needed until using multiple strategies
-			//CounterAccountId: --> Same as above
-			PostOnly: true,
+	}
+	//Create limit order
+	req := luno.PostLimitOrderRequest{
+		Pair:   Pair,
+		Price:  price,
+		Type:   "BID", //We are putting in a bid to buy at the ask price
+		Volume: buyableStock,
+		//BaseAccountId: --> Not needed until using multiple strategies
+		//CounterAccountId: --> Same as above
+		PostOnly: true,
+	}
+	res, err := Client.PostLimitOrder(context.Background(), &req)
+	for err != nil {
+		fmt.Println(err)
+		time.Sleep(time.Second * 30)
+		res, err = Client.PostLimitOrder(context.Background(), &req)
+	}
+	fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
+	b.PrevOrder = res.OrderId
+	b.ReadyToBuy = false
+	b.TradesMade++
+	b.StopLoss = price
+	b.BuyPrice = price
+	// wait till order has gone through
+	fmt.Println("Waiting for buy order to be partially filled")
+	for {
+		time.Sleep(time.Minute)
+		if targetFunds.Cmp(getAsset("XRP")) == -1 {
+			fmt.Println("Buy order has been partially filled")
+			return
 		}
-		res, err := Client.PostLimitOrder(context.Background(), &req)
-		for err != nil {
-			fmt.Println(err)
-			time.Sleep(time.Second * 30)
-			res, err = Client.PostLimitOrder(context.Background(), &req)
-		}
-		fmt.Println("BUY - order ", res.OrderId, " placed at ", price)
-		b.PrevOrder = res.OrderId
-		b.ReadyToBuy = false
-		b.TradesMade++
-		b.StopLoss = price
-		b.BuyPrice = price
-		// wait till order has gone through
-		fmt.Println("Waiting for buy order to be partially filled")
-		for {
-			time.Sleep(time.Minute)
-			if targetFunds.Cmp(getAsset("XRP")) == -1 {
-				return
-			}
-		}
-		fmt.Println("Buy order has been partially filled")
 	}
 }
 
 func sell(b *RsiBot, currBid decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	volumeToSell, funds := getAssets("XRP","XBT")
+	volumeToSell, funds := getAssets("XRP", "XBT")
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   Pair,
@@ -111,10 +113,10 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	for {
 		time.Sleep(time.Minute)
 		if funds.Cmp(getAsset("XBT")) == -1 {
+			fmt.Println("Sell order has been partially filled")
 			return
 		}
 	}
-	fmt.Println("Sell order has been partially filled")
 }
 
 // function to execute trades using the RSI bot
