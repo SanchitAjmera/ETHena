@@ -13,6 +13,7 @@ import (
 // Global Variables
 var isLive bool
 var prevDay time.Time
+var funds decimal.Decimal
 
 func isNewDay() bool {
     y1, m1, d1 := prevDay.Date()
@@ -49,7 +50,8 @@ func main() {
 
 	live.Email("START", decimal.Zero())
 
-	isLive = true
+	isLive = false
+	funds = decimal.NewFromInt64(100)
 	var trade TradeFunc
 	var pastAsks []decimal.Decimal
 
@@ -117,8 +119,11 @@ func main() {
 			if err1 != nil {
 				fmt.Println("ERROR! Failed to graph data:", err1)
 			}
-
 			//Emailing
+			//newFunds, _ := live.getAssets("XRP","XBT")
+			newFunds := decimal.Zero()
+			live.Email("GRAPH", newFunds.Sub(funds))
+			funds = newFunds
 
 			deletePicCmd := exec.Command("rm", "graph.png")
 			err2 := deletePicCmd.Run()
