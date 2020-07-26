@@ -50,7 +50,7 @@ func main() {
 
 	live.Email("START", decimal.Zero())
 
-	isLive = false
+	isLive = true
 	funds = decimal.NewFromInt64(100)
 	var trade TradeFunc
 	var pastAsks []decimal.Decimal
@@ -121,8 +121,9 @@ func main() {
 			}
 			//Emailing
 			//newFunds, _ := live.getAssets("XRP","XBT")
-			newFunds := decimal.Zero()
-			live.Email("GRAPH", newFunds.Sub(funds))
+			newFunds := decimal.NewFromFloat64(0,2)
+			yield := newFunds.Sub(funds)
+			live.Email("GRAPH", yield)
 			funds = newFunds
 
 			deletePicCmd := exec.Command("rm", "graph.png")
