@@ -92,3 +92,19 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 	}
 	return return1, return2
 }
+
+/* FOR TESTING PURPOSES - DELETE LATER
+func GetBalances() {
+	balancesReq := luno.GetBalancesRequest{}
+	balances, _ := Client.GetBalances(context.Background(), &balancesReq)
+
+	for _, accBalance := range balances.Balance {
+		if accBalance.Asset == "XRP" || accBalance.Asset == "XBT" {
+			fmt.Println(accBalance.Asset, "- ",
+				"Balance:", accBalance.Balance,
+				"Reserved:", accBalance.Reserved,
+				"Unconfirmed:", accBalance.Unconfirmed)
+		}
+	}
+}
+*/
