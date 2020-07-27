@@ -50,7 +50,7 @@ func main() {
 	tradingPeriod := int64(14)
   currRow = tradingPeriod+2
   StopLossMultDecimal := decimal.NewFromFloat64(1, 8)
-	offset, _ := decimal.NewFromString("0.00000015")
+	offset, _ := decimal.NewFromString("0.00000020")
 
 	// initialising bot
 	offsetBot := offsetBot{
