@@ -11,7 +11,7 @@ import (
 
 func GetTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("msdd8k49tf5r3", "NsKGQMiLrbn2vWJWczAd6sSAv9rd1LGu2pg1-uKw_uw")
+	lunoClient.SetAuth("cs7bx7v7m2nz7", "U3fdpeE97kvERaZgvBxnHJEX_usr0r4pgDlltb37yLk")
 
 	return lunoClient, &luno.GetTickerRequest{Pair: Pair}
 }
