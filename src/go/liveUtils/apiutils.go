@@ -4,9 +4,10 @@ import (
 	// "fmt"
 	"context"
 	"fmt"
+	"time"
+
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"time"
 )
 
 // Global Variables
@@ -47,10 +48,9 @@ func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		panic(err)
-		// fmt.Println(err)
-		// time.Sleep(time.Minute)
-		// getAsset(currency)
+		fmt.Println(err)
+		time.Sleep(time.Minute)
+		getAsset(currency)
 	}
 
 	for _, accBalance := range balances.Balance {
@@ -72,11 +72,13 @@ func getTicker() (decimal.Decimal, decimal.Decimal) {
 	return res.Ask, res.Bid
 }
 
-func getAssets(currency1 string , currency2 string) (decimal.Decimal, decimal.Decimal) {
+func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Decimal) {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		time.Sleep(time.Minute)
+		getAssets(currency1, currency2)
 	}
 	var return1 decimal.Decimal
 	var return2 decimal.Decimal
