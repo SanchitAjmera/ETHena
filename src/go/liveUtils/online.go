@@ -47,8 +47,8 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	buyableStock := startFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
 	// checking if there are no funds available
-	if startFunds.Sign() == 0 {
-		fmt.Println("No funds available")
+	if buyableStock.Sign() == 0 {
+		fmt.Println("Not enough funds available")
 		return
 	}
 	//Create limit order
