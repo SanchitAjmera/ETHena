@@ -1,10 +1,11 @@
 package main
 
 import (
- 	"fmt"
-  luno "github.com/luno/luno-go"
+	"fmt"
+	"time"
+
+	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-  "time"
 )
 
 // Global Variables
@@ -31,56 +32,55 @@ func getPastAsks(b *offsetBot) []decimal.Decimal {
 		i++
 		//delete up to here
 	}
-	b.PrevAsk = pastAsks[b.tradingPeriod - 1]
+	b.PrevAsk = pastAsks[b.tradingPeriod-1]
 	return pastAsks
 }
 
 func main() {
 
-
-  isLive = false
+	isLive = false
 	var pastAsks []decimal.Decimal
 
-  Pair = "XRPXBT"
-  Client, ReqPointer = GetTickerRequest()
-  Client.SetTimeout(time.Minute)
+	Pair = "XRPXBT"
+	Client, ReqPointer = GetTickerRequest()
+	Client.SetTimeout(time.Minute)
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
-  currRow = tradingPeriod+2
-  StopLossMultDecimal := decimal.NewFromFloat64(1, 8)
+	currRow = tradingPeriod + 2
+	StopLossMultDecimal := decimal.NewFromFloat64(1, 8)
 	offset, _ := decimal.NewFromString("0.00000020")
 
 	// initialising bot
 	offsetBot := offsetBot{
-		tradingPeriod:	  tradingPeriod,								// How often the bot calculates a long term result
-    ema: 				      decimal.Zero(),         // exponentially smoothed Wilder's MMA for upward change
-		offset:						offset,
-		readyToBuy:				true,
-    StopLoss:         decimal.Zero(),
-    StopLossMult:     StopLossMultDecimal,
-    BuyPrice:         decimal.Zero(),
-    PrevAsk:          decimal.Zero(),
+		tradingPeriod: tradingPeriod,  // How often the bot calculates a long term result
+		ema:           decimal.Zero(), // exponentially smoothed Wilder's MMA for upward change
+		offset:        offset,
+		readyToBuy:    true,
+		StopLoss:      decimal.Zero(),
+		StopLossMult:  StopLossMultDecimal,
+		BuyPrice:      decimal.Zero(),
+		PrevAsk:       decimal.Zero(),
 	}
 
-  if isLive {
-    email("START", decimal.Zero(),decimal.Zero())
+	if isLive {
+		email("START", decimal.Zero(), decimal.Zero())
 		pastAsks = getPastAsks(&offsetBot)
-    offsetBot.ema = sma(pastAsks)
-    for {
-  		offsetBot.tradeOnline()
-  	}
+		offsetBot.ema = sma(pastAsks)
+		for {
+			offsetBot.tradeOnline()
+		}
 
 	} else {
-	  initialiseFunds(decimal.NewFromFloat64(0.014,8), decimal.Zero())
-		for i:= 0; i < int(tradingPeriod); i++ {
+		initialiseFunds(decimal.NewFromFloat64(0.014, 8), decimal.Zero())
+		for i := 0; i < int(tradingPeriod); i++ {
 			pastAsks = append(pastAsks, getOfflineAsk(int64(i+1)))
 		}
-    fmt.Println("\n\n\n OFFSET:",offsetBot.offset, "\n")
-    offsetBot.ema = sma(pastAsks)
-  	for i:= 0; i < 1300; i ++ {
-  		offsetBot.tradeOffline()
-  	}
-  }
+		fmt.Println("\n\n\n OFFSET:", offsetBot.offset, "\n")
+		offsetBot.ema = sma(pastAsks)
+		for i := 0; i < 1300; i++ {
+			offsetBot.tradeOffline()
+		}
+	}
 
 }

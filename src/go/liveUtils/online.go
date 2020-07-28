@@ -42,7 +42,7 @@ func cancelPrevOrder(b *RsiBot) {
 func buy(b *RsiBot, currAsk decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	startStock, startFunds := getAssets("XRP", "XBT")
+	startStock, startFunds := getAssets("ETH", "XBT")
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := startFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
@@ -77,7 +77,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	fmt.Println("Waiting for buy order to be partially filled")
 	for {
 		time.Sleep(2 * time.Second)
-		if startStock.Cmp(getAsset("XRP")) == -1 {
+		if startStock.Cmp(getAsset("ETH")) == -1 {
 			fmt.Println("Buy order has been partially filled")
 			return
 		}
@@ -87,7 +87,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 func sell(b *RsiBot, currBid decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	startStock, startFunds := getAssets("XRP", "XBT")
+	startStock, startFunds := getAssets("ETH", "XBT")
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   Pair,
@@ -101,7 +101,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	res, err := Client.PostLimitOrder(context.Background(), &req)
 	for err != nil {
 		fmt.Println(err)
-		time.Sleep(time.Minute)
+		time.Sleep(2 * time.Second)
 		res, err = Client.PostLimitOrder(context.Background(), &req)
 	}
 
@@ -121,7 +121,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 
 // function to execute trades using the RSI bot
 func TradeLive(b *RsiBot) {
-	time.Sleep(time.Minute)
+	time.Sleep(20 * time.Second)
 	currAsk, currBid := getTicker()
 
 	// calculating RSI using RSI algorithm
@@ -154,10 +154,4 @@ func TradeLive(b *RsiBot) {
 	}
 	b.NumOfDecisions++
 
-}
-
-func printPortFolio(b *RsiBot) {
-	fmt.Println("trade # :   ", b.TradesMade)
-	fmt.Println("funds : 			£", getAsset("GBP"))
-	fmt.Println("stock : 		BTC", getAsset("XBT"))
 }

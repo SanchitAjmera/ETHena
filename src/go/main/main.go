@@ -27,17 +27,8 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
 	var i int64 = 0
 	for i < b.TradingPeriod {
-		time.Sleep(time.Minute)
+		time.Sleep(20 * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
-		//delete from here to sleep
-		buffer := ""
-		if i < 9 {
-			buffer = " "
-		}
-
-		fmt.Println("Filling past asks: ", buffer, i+1, "/", b.TradingPeriod, ":  BTC", pastAsks[i])
-		i++
-		//delete up to here
 	}
 	b.PrevAsk = pastAsks[b.TradingPeriod-1]
 	return pastAsks
@@ -47,7 +38,7 @@ type TradeFunc func(b *RsiBot)
 
 func main() {
 
-	prevDay = time.Now().AddDate(0, 0, 0)
+	prevDay = time.Now()
 
 	// live.Email("START", decimal.Zero())
 
@@ -56,7 +47,7 @@ func main() {
 	var trade TradeFunc
 	var pastAsks []decimal.Decimal
 
-	live.Pair = "XRPXBT"
+	live.Pair = "ETHXBT"
 	live.Client, live.ReqPointer = live.GetTickerRequest()
 	live.Client.SetTimeout(time.Minute)
 
@@ -102,6 +93,7 @@ func main() {
 
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 
+	fmt.Println("Gathering data")
 	for i, v := range pastAsks {
 		if i == 0 {
 			continue
@@ -117,6 +109,7 @@ func main() {
 	bot.DownEma = Sma(pastDowns, tradingPeriod)
 
 	live.SetUpNewFile()
+	fmt.Println("Trading Started")
 	for {
 		if isNewDay() {
 			fileName := time.Now().Format("2006-01-02")

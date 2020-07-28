@@ -49,7 +49,7 @@ func getAsset(currency string) decimal.Decimal {
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
 		fmt.Println(err)
-		time.Sleep(time.Minute)
+		time.Sleep(2 * time.Second)
 		getAsset(currency)
 	}
 
@@ -66,7 +66,7 @@ func getTicker() (decimal.Decimal, decimal.Decimal) {
 	res, err := Client.GetTicker(context.Background(), ReqPointer)
 	if err != nil {
 		fmt.Println(err)
-		time.Sleep(time.Minute)
+		time.Sleep(2 * time.Second)
 		return getTicker()
 	}
 	return res.Ask, res.Bid
@@ -77,7 +77,7 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
 		fmt.Println(err)
-		time.Sleep(time.Minute)
+		time.Sleep(2 * time.Second)
 		getAssets(currency1, currency2)
 	}
 	var return1 decimal.Decimal
