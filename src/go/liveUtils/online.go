@@ -42,13 +42,13 @@ func cancelPrevOrder(b *RsiBot) {
 func buy(b *RsiBot, currAsk decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	targetFunds, currFunds := getAssets("XRP", "XBT")
+	startStock, startFunds := getAssets("XRP", "XBT")
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
-	buyableStock := currFunds.Div(price, 8)
+	buyableStock := startFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
 	// checking if there are no funds available
-	if currFunds.Sign() == 0 {
-		fmt.Println("No funds available")
+	if buyableStock.Sign() == 0 {
+		fmt.Println("Not enough funds available")
 		return
 	}
 	//Create limit order
@@ -76,8 +76,8 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	// wait till order has gone through
 	fmt.Println("Waiting for buy order to be partially filled")
 	for {
-		time.Sleep(time.Minute)
-		if targetFunds.Cmp(getAsset("XRP")) == -1 {
+		time.Sleep(2 * time.Second)
+		if startStock.Cmp(getAsset("XRP")) == -1 {
 			fmt.Println("Buy order has been partially filled")
 			return
 		}
@@ -87,13 +87,13 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 func sell(b *RsiBot, currBid decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	volumeToSell, funds := getAssets("XRP", "XBT")
+	startStock, startFunds := getAssets("XRP", "XBT")
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   Pair,
 		Price:  price,
 		Type:   "ASK", //We are putting in a ask to sell at the bid price
-		Volume: volumeToSell,
+		Volume: startStock,
 		//BaseAccountId: --> Not needed until using multiple strategies
 		//CounterAccoundId: --> Same as above
 		PostOnly: true,
@@ -111,8 +111,8 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	b.TradesMade++
 	fmt.Println("Waiting for sell order to be partially filled")
 	for {
-		time.Sleep(time.Minute)
-		if funds.Cmp(getAsset("XBT")) == -1 {
+		time.Sleep(2 * time.Second)
+		if startFunds.Cmp(getAsset("XBT")) == -1 {
 			fmt.Println("Sell order has been partially filled")
 			return
 		}

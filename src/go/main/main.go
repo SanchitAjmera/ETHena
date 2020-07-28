@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"github.com/luno/luno-go/decimal"
-	"time"
 	backtest "TradingHackathon/src/go/backtestingUtils"
 	live "TradingHackathon/src/go/liveUtils"
 	. "TradingHackathon/src/go/rsi"
+	"fmt"
 	"os/exec"
+	"time"
+
+	"github.com/luno/luno-go/decimal"
 )
 
 // Global Variables
@@ -16,9 +17,9 @@ var prevDay time.Time
 var funds decimal.Decimal
 
 func isNewDay() bool {
-    y1, m1, d1 := prevDay.Date()
-    y2, m2, d2 := time.Now().Date()
-    return  d1 != d2 ||  m1 != m2 || y1 != y2
+	y1, m1, d1 := prevDay.Date()
+	y2, m2, d2 := time.Now().Date()
+	return d1 != d2 || m1 != m2 || y1 != y2
 }
 
 func getPastAsks(b *RsiBot) []decimal.Decimal {
@@ -38,7 +39,7 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 		i++
 		//delete up to here
 	}
-	b.PrevAsk = pastAsks[b.TradingPeriod - 1]
+	b.PrevAsk = pastAsks[b.TradingPeriod-1]
 	return pastAsks
 }
 
@@ -48,7 +49,7 @@ func main() {
 
 	prevDay = time.Now().AddDate(0, 0, 0)
 
-	live.Email("START", decimal.Zero())
+	// live.Email("START", decimal.Zero())
 
 	isLive = true
 	funds = decimal.NewFromInt64(100)
@@ -58,6 +59,13 @@ func main() {
 	live.Pair = "XRPXBT"
 	live.Client, live.ReqPointer = live.GetTickerRequest()
 	live.Client.SetTimeout(time.Minute)
+
+	/* FOR TESTING PURPOSES - DELETE LATER
+	for {
+		time.Sleep(5 * time.Second)
+		live.GetBalances()
+	}
+	*/
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
@@ -74,17 +82,16 @@ func main() {
 		OverSold:       rsiLowerLim,
 		ReadyToBuy:     true,
 		BuyPrice:       decimal.Zero(),
-		UpEma:					decimal.Zero(),
-		DownEma:				decimal.Zero(),
-		PrevAsk:				decimal.Zero(),
+		UpEma:          decimal.Zero(),
+		DownEma:        decimal.Zero(),
+		PrevAsk:        decimal.Zero(),
 	}
-
 
 	if isLive {
 		trade = live.TradeLive
 		pastAsks = getPastAsks(&bot)
 	} else {
-		backtest.InitialiseFunds(decimal.NewFromFloat64(0.014,8), decimal.Zero())
+		backtest.InitialiseFunds(decimal.NewFromFloat64(0.014, 8), decimal.Zero())
 		trade = backtest.TradeOffline
 
 		var i int64
@@ -95,8 +102,10 @@ func main() {
 
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 
-	for i,v := range pastAsks {
-		if i == 0 {continue}
+	for i, v := range pastAsks {
+		if i == 0 {
+			continue
+		}
 		if v.Cmp(pastAsks[i-1]) == -1 {
 			pastDowns = append(pastDowns, pastAsks[i-1].Sub(v))
 		} else if v.Cmp(pastAsks[i-1]) == 1 {
@@ -109,11 +118,11 @@ func main() {
 
 	live.SetUpNewFile()
 	for {
-		if isNewDay(){
+		if isNewDay() {
 			fileName := time.Now().Format("2006-01-02")
 			live.ClosePrevFile(fileName)
 
-			graphCmd := exec.Command("python3","graphData.py", fileName)
+			graphCmd := exec.Command("python3", "graphData.py", fileName)
 			err1 := graphCmd.Run()
 
 			if err1 != nil {
@@ -121,7 +130,7 @@ func main() {
 			}
 			//Emailing
 			//newFunds, _ := live.getAssets("XRP","XBT")
-			newFunds := decimal.NewFromFloat64(0,2)
+			newFunds := decimal.NewFromFloat64(0, 2)
 			yield := newFunds.Sub(funds)
 			live.Email("GRAPH", yield)
 			funds = newFunds

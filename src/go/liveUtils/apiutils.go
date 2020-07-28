@@ -17,7 +17,7 @@ var Pair string
 
 func GetTickerRequest() (*luno.Client, *luno.GetTickerRequest) {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("g8gve3tacy6z5", "BL4y6PtBsWJHrqDZChS7bcEszLPWpt-z82Sls5S_a0g")
+	lunoClient.SetAuth("dc3pmbg6dpb2p", "eVyIusR0vpuyjsTB6wewsTniHjlUst0lJHvFR8RO538")
 
 	return lunoClient, &luno.GetTickerRequest{Pair: Pair}
 }
@@ -92,3 +92,19 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 	}
 	return return1, return2
 }
+
+/* FOR TESTING PURPOSES - DELETE LATER
+func GetBalances() {
+	balancesReq := luno.GetBalancesRequest{}
+	balances, _ := Client.GetBalances(context.Background(), &balancesReq)
+
+	for _, accBalance := range balances.Balance {
+		if accBalance.Asset == "XRP" || accBalance.Asset == "XBT" {
+			fmt.Println(accBalance.Asset, "- ",
+				"Balance:", accBalance.Balance,
+				"Reserved:", accBalance.Reserved,
+				"Unconfirmed:", accBalance.Unconfirmed)
+		}
+	}
+}
+*/
