@@ -38,7 +38,18 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 type tradeFunc func(b *RsiBot)
 
 func main() {
+	go startBot("BCHXBT")
+	go startBot("LTCXBT")
+	go startBot("ETHXBT")
+	go startBot("XRPXBT")
+	for {
+		time.Sleep(time.Hour)
+	}
+}
 
+func startBot(pair string) {
+
+	fmt.Println("Bot started:", pair)
 	prevDay = time.Now().AddDate(0, 0, 0)
 
 	// live.Email("START", decimal.Zero())
@@ -48,10 +59,9 @@ func main() {
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
 
-	live.Pair = "ETHXBT"
-	live.Client, live.ReqPointer = live.GetTickerRequest()
-	live.Client.SetTimeout(time.Minute)
-
+	live.Pair = pair
+	live.Client = live.CreateClient()
+	
 	/* FOR TESTING PURPOSES - DELETE LATER
 	for {
 		time.Sleep(5 * time.Second)
@@ -107,6 +117,8 @@ func main() {
 
 	bot.UpEma = Sma(pastUps, tradingPeriod)
 	bot.DownEma = Sma(pastDowns, tradingPeriod)
+
+	fmt.Println(pair, "bot finished getting past asks")
 
 	live.SetUpNewFile()
 	for {

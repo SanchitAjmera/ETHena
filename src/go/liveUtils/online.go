@@ -42,9 +42,21 @@ func cancelPrevOrder(b *RsiBot) {
 func buy(b *RsiBot, currAsk decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	startStock, startFunds := getAssets("ETH", "XBT")
+	startStock, startFunds := getAssets(Pair[:3], Pair[3:])
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := startFunds.Div(price, 8)
+
+	switch Pair[:3] {
+	case "BCH":
+		buyableStock = buyableStock.Mul(decimal.NewFromFloat64(0.1003, 8))
+	case "ETH":
+		buyableStock = buyableStock.Mul(decimal.NewFromFloat64(0.8013, 8))
+	case "LTC":
+		buyableStock = buyableStock.Mul(decimal.NewFromFloat64(0.0602, 8))
+	case "XRP":
+		buyableStock = buyableStock.Mul(decimal.NewFromFloat64(0.0381, 8))
+	}
+
 	buyableStock = buyableStock.ToScale(0)
 	// checking if there are no funds available
 	if buyableStock.Sign() == 0 {
@@ -77,7 +89,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	fmt.Println("Waiting for buy order to be partially filled")
 	for {
 		time.Sleep(2 * time.Second)
-		if startStock.Cmp(getAsset("ETH")) == -1 {
+		if startStock.Cmp(getAsset(Pair[:3])) == -1 {
 			fmt.Println("Buy order has been partially filled")
 			return
 		}
@@ -87,7 +99,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 func sell(b *RsiBot, currBid decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	startStock, startFunds := getAssets("ETH", "XBT")
+	startStock, startFunds := getAssets(Pair[:3], Pair[3:])
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   Pair,
@@ -112,7 +124,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	fmt.Println("Waiting for sell order to be partially filled")
 	for {
 		time.Sleep(2 * time.Second)
-		if startFunds.Cmp(getAsset("XBT")) == -1 {
+		if startFunds.Cmp(getAsset(Pair[3:])) == -1 {
 			fmt.Println("Sell order has been partially filled")
 			return
 		}
@@ -122,7 +134,8 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 // function to execute trades using the RSI bot
 func TradeLive(b *RsiBot) {
 	time.Sleep(20 * time.Second)
-	currAsk, currBid := getTicker()
+	res := getTickerRes()
+	currAsk, currBid := res.Ask, res.Bid
 
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
