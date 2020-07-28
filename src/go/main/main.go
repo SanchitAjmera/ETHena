@@ -29,22 +29,23 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	for i < b.TradingPeriod {
 		time.Sleep(20 * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
+		//delete up to here
 	}
 	b.PrevAsk = pastAsks[b.TradingPeriod-1]
 	return pastAsks
 }
 
-type TradeFunc func(b *RsiBot)
+type tradeFunc func(b *RsiBot)
 
 func main() {
 
-	prevDay = time.Now()
+	prevDay = time.Now().AddDate(0, 0, 0)
 
 	// live.Email("START", decimal.Zero())
 
 	isLive = true
 	funds = decimal.NewFromInt64(100)
-	var trade TradeFunc
+	var trade tradeFunc
 	var pastAsks []decimal.Decimal
 
 	live.Pair = "ETHXBT"
@@ -93,7 +94,6 @@ func main() {
 
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 
-	fmt.Println("Gathering data")
 	for i, v := range pastAsks {
 		if i == 0 {
 			continue
@@ -109,7 +109,6 @@ func main() {
 	bot.DownEma = Sma(pastDowns, tradingPeriod)
 
 	live.SetUpNewFile()
-	fmt.Println("Trading Started")
 	for {
 		if isNewDay() {
 			fileName := time.Now().Format("2006-01-02")
