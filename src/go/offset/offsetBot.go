@@ -3,6 +3,7 @@ package main
 import (
   "fmt"
   "github.com/luno/luno-go/decimal"
+  backtest "TradingHackathon/src/go/backtestingUtils"
   "time"
 )
 
@@ -44,8 +45,8 @@ func ema(oldVal decimal.Decimal, newData decimal.Decimal, period int64) decimal.
 
 
 func (b *offsetBot) tradeOffline(){
-  currAsk := getOfflineAsk(currRow)
-  currBid := getOfflineBid(currRow)
+  currAsk := backtest.GetOfflineAsk(currRow)
+  currBid := backtest.GetOfflineBid(currRow)
   ema := ema(b.ema, currAsk, b.tradingPeriod)
 
   b.ema = ema

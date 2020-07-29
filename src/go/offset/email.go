@@ -2,7 +2,7 @@ package main
 
 import (
     "fmt"
-    "net/smtp"
+    "gopkg.in/gomail.v2" // perform go get <this> when initialising servers
     "github.com/luno/luno-go/decimal"
 )
 
@@ -16,39 +16,34 @@ func (s *smtpServer) Address() string {
 }
 
 func email(action string, info1 decimal.Decimal, info2 decimal.Decimal) {
-    // Sender data.
-    from := "profit.profit.profit.icl@gmail.com"
-    password := "Password123??"
-    // Receiver email address.
-    to := []string{
-        "profit.profit.profit.icl@gmail.com",
-    }
-    // smtp server configuration.
-    smtpServer := smtpServer{host: "smtp.gmail.com", port: "587"}
-    // Message.
-    var messageStr string
-    // add customised switch cases here
-    switch action{
-      case "BUY":
-        messageStr = "Congratulation! Sanchit's bot made a " + action + " at " + info1.String()
-      case "SELL":
-        messageStr = "Congratulation! Sanchit's bot made a " + action + " at " + info1.String()
-      case "START":
-        messageStr = "NEWS! Sanchit's bot has begun trading"
-      case "BOUGHT":
-        messageStr = "NEWS! Sanchit's bot completed the Buy order at " + info1.String()
-      case "SOLD":
-        messageStr = "NEWS! Sanchit's bot completed the Sell order at " + info1.String()
-    }
-    message := []byte(messageStr)
-    // Authentication.
-    auth := smtp.PlainAuth("", from, password, smtpServer.host)
-    // Sending email.
-    err := smtp.SendMail(smtpServer.Address(), auth, from, to, message)
+  // Sender/Reciever data.
+  m := gomail.NewMessage()
+  m.SetHeader("From", "profit.profit.profit.icl@gmail.com")
+  m.SetHeader("To", "profit.profit.profit.icl@gmail.com") // can add multiple recievers
+  var messageStr string
+  // add customised switch cases here
+  switch action{
+    case "BUY":
+      messageStr = "NEWS! Sanchit's bot placed a" + action + " order at " + info1.String()
+    case "SELL":
+      messageStr = "NEWS! Sanchit's bot placed a" + action + " order at " + info1.String()
+    case "START":
+      messageStr = "NEWS! Sanchit's bot has begun trading"
+    case "BOUGHT":
+      messageStr = "NEWS! Sanchit's bot completed the BUY order at " + info1.String()
+    case "SOLD":
+      messageStr = "NEWS! Sanchit's bot completed the SELL order at " + info1.String()
+  }
 
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
-    fmt.Println("Email Sent!")
+  m.SetHeader("Subject", messageStr)
+  m.SetBody("text/html", "")
+
+  d := gomail.NewDialer("smtp.gmail.com", 587, "profit.profit.profit.icl@gmail.com", "Password123??")
+
+	if err := d.DialAndSend(m); err != nil {
+    fmt.Println("ERROR! Update email NOT successfully sent")
+    return
+	}
+
+  fmt.Println("Update email successfully sent")
 }
