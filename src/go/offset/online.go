@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
+
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"time"
 )
 
 // function to cancel most recent order
-func cancelPrevOrder (b *offsetBot) {
-	if b.PrevOrder == "" {return}
+func cancelPrevOrder(b *offsetBot) {
+	if b.PrevOrder == "" {
+		return
+	}
 	time.Sleep(time.Second * 2)
 	checkReq := luno.GetOrderRequest{Id: b.PrevOrder}
 	checkRes, err := Client.GetOrder(context.Background(), &checkReq)
@@ -39,7 +42,7 @@ func buy(b *offsetBot, currAsk decimal.Decimal) {
 	email("BUY", currAsk, currAsk.Sub(b.ema.Sub(b.offset)))
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	targetFunds, currFunds := getAssets("XRP", "XBT")
+	targetFunds, currFunds := getAssets(Pair[:3], Pair[3:])
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
 	buyableStock = buyableStock.ToScale(0)
@@ -73,7 +76,7 @@ func buy(b *offsetBot, currAsk decimal.Decimal) {
 		for {
 			time.Sleep(time.Minute)
 			fmt.Println("Waiting for buy order to be partially filled")
-			if targetFunds.Cmp(getAsset("XRP")) == -1 {
+			if targetFunds.Cmp(getAsset(Pair[:3])) == -1 {
 				return
 			}
 		}
@@ -84,7 +87,7 @@ func sell(b *offsetBot, currBid decimal.Decimal) {
 	email("SELL", currBid, (b.ema.Add(b.offset)).Sub(currBid))
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	volumeToSell, funds := getAssets("XRP","XBT")
+	volumeToSell, funds := getAssets(Pair[:3], Pair[3:])
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   Pair,
@@ -108,7 +111,7 @@ func sell(b *offsetBot, currBid decimal.Decimal) {
 	for {
 		time.Sleep(time.Minute)
 		fmt.Println("Waiting for sell order to be partially filled")
-		if funds.Cmp(getAsset("XBT")) == -1 {
+		if funds.Cmp(getAsset(Pair[3:])) == -1 {
 			return
 		}
 	}

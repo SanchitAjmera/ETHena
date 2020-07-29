@@ -27,45 +27,35 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
 	var i int64 = 0
 	for i < b.TradingPeriod {
-		time.Sleep(time.Minute)
+		time.Sleep(20 * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
-		//delete from here to sleep
-		buffer := ""
-		if i < 9 {
-			buffer = " "
-		}
-
-		fmt.Println("Filling past asks: ", buffer, i+1, "/", b.TradingPeriod, ":  BTC", pastAsks[i])
-		i++
-		//delete up to here
 	}
 	b.PrevAsk = pastAsks[b.TradingPeriod-1]
 	return pastAsks
 }
 
-type TradeFunc func(b *RsiBot)
+type tradeFunc func(b *RsiBot)
 
 func main() {
+	startBot("ETHXBT")
+}
 
+func startBot(pair string) {
+
+	fmt.Println("Bot started:", pair)
 	prevDay = time.Now().AddDate(0, 0, 0)
 
 	// live.Email("START", decimal.Zero())
 
 	isLive = true
 	funds = decimal.NewFromInt64(100)
-	var trade TradeFunc
+	var trade tradeFunc
 	var pastAsks []decimal.Decimal
 
-	live.Pair = "ETHXBT"
-	live.Client, live.ReqPointer = live.GetTickerRequest()
-	live.Client.SetTimeout(time.Minute)
 
-	/* FOR TESTING PURPOSES - DELETE LATER
-	for {
-		time.Sleep(5 * time.Second)
-		live.GetBalances()
-	}
-	*/
+	live.PairName = pair
+	live.Client = live.CreateClient()
+
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
@@ -87,6 +77,8 @@ func main() {
 		PrevAsk:        decimal.Zero(),
 	}
 
+	fmt.Println("Getting past asks: STARTED")
+
 	if isLive {
 		trade = live.TradeLive
 		pastAsks = getPastAsks(&bot)
@@ -99,6 +91,8 @@ func main() {
 			pastAsks = append(pastAsks, backtest.GetOfflineAsk(i+1))
 		}
 	}
+
+	fmt.Println("Getting past asks: COMPLETE")
 
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 

@@ -1,14 +1,10 @@
-Filling past asks:    1 / 14 :  BTC 0.00002045
-Filling past asks:    2 / 14 :  BTC 0.00002045
-Filling past asks:    3 / 14 :  BTC 0.00002043
-Filling past asks:    4 / 14 :  BTC 0.00002043
-Filling past asks:    5 / 14 :  BTC 0.00002043
-Filling past asks:    6 / 14 :  BTC 0.00002041
-Filling past asks:    7 / 14 :  BTC 0.00002035
-Filling past asks:    8 / 14 :  BTC 0.00002034
-Filling past asks:    9 / 14 :  BTC 0.00002043
-Filling past asks:   10 / 14 :  BTC 0.00002043
-Filling past asks:   11 / 14 :  BTC 0.00002043
-Filling past asks:   12 / 14 :  BTC 0.00002043
-Filling past asks:   13 / 14 :  BTC 0.00002044
-Filling past asks:   14 / 14 :  BTC 0.00002044
+panic: Get "https://api.luno.com/api/1/ticker?pair=ETHXBT": read tcp 192.168.0.32:39168->172.67.5.25:443: read: connection reset by peer
+
+goroutine 1 [running]:
+TradingHackathon/src/go/liveUtils.GetCurrAsk(0x4a817c800, 0x6)
+	/home/manuj/Code/go/src/TradingHackathon/src/go/liveUtils/apiutils.go:39 +0x9b
+main.getPastAsks(0xc00015f040, 0x0, 0xc00000e620, 0x8)
+	/home/manuj/Code/go/src/TradingHackathon/src/go/main/main.go:31 +0x84
+main.main()
+	/home/manuj/Code/go/src/TradingHackathon/src/go/main/main.go:83 +0x4be
+exit status 2
