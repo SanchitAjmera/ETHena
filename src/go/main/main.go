@@ -29,7 +29,6 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	for i < b.TradingPeriod {
 		time.Sleep(20 * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
-		//delete up to here
 	}
 	b.PrevAsk = pastAsks[b.TradingPeriod-1]
 	return pastAsks
@@ -38,13 +37,7 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 type tradeFunc func(b *RsiBot)
 
 func main() {
-	go startBot("BCHXBT")
-	go startBot("LTCXBT")
-	go startBot("ETHXBT")
-	go startBot("XRPXBT")
-	for {
-		time.Sleep(time.Hour)
-	}
+	startBot("ETHXBT")
 }
 
 func startBot(pair string) {
@@ -59,15 +52,8 @@ func startBot(pair string) {
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
 
-	live.Pair = pair
+	live.PairName = pair
 	live.Client = live.CreateClient()
-	
-	/* FOR TESTING PURPOSES - DELETE LATER
-	for {
-		time.Sleep(5 * time.Second)
-		live.GetBalances()
-	}
-	*/
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
@@ -89,6 +75,8 @@ func startBot(pair string) {
 		PrevAsk:        decimal.Zero(),
 	}
 
+	fmt.Println("Getting past asks: STARTED")
+
 	if isLive {
 		trade = live.TradeLive
 		pastAsks = getPastAsks(&bot)
@@ -101,6 +89,8 @@ func startBot(pair string) {
 			pastAsks = append(pastAsks, backtest.GetOfflineAsk(i+1))
 		}
 	}
+
+	fmt.Println("Getting past asks: COMPLETE")
 
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 
@@ -117,8 +107,6 @@ func startBot(pair string) {
 
 	bot.UpEma = Sma(pastUps, tradingPeriod)
 	bot.DownEma = Sma(pastDowns, tradingPeriod)
-
-	fmt.Println(pair, "bot finished getting past asks")
 
 	live.SetUpNewFile()
 	for {

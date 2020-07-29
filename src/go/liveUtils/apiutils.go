@@ -12,7 +12,7 @@ import (
 
 // Global Variables
 var Client *luno.Client
-var Pair string
+var PairName string
 
 func CreateClient() *luno.Client {
 	lunoClient := luno.NewClient()
@@ -44,8 +44,8 @@ func getAsset(currency string) decimal.Decimal {
 }
 
 func getTickerRes() luno.GetTickerResponse {
-	ReqPointer := luno.GetTickerRequest{Pair: Pair}
-	res, err := Client.GetTicker(context.Background(), &ReqPointer)
+	reqPointer := luno.GetTickerRequest{Pair: PairName}
+	res, err := Client.GetTicker(context.Background(), &reqPointer)
 	if err != nil {
 		fmt.Println(err)
 		time.Sleep(2 * time.Second)
