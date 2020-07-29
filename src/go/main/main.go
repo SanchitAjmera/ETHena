@@ -56,7 +56,7 @@ func main() {
 	var trade TradeFunc
 	var pastAsks []decimal.Decimal
 
-	live.Pair = "XRPXBT"
+	live.Pair = "ETHXBT"
 	live.Client, live.ReqPointer = live.GetTickerRequest()
 	live.Client.SetTimeout(time.Minute)
 

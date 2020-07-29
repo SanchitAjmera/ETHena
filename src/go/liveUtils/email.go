@@ -18,7 +18,7 @@ func Email(action string, yield decimal.Decimal) {
 	switch action {
 	// emailing graphed data
 	case "GRAPH":
-		messageStr = "Daily update: "
+		messageStr = "Shivam's daily update: "
 		if yield.Sign() == 1 {
 			messageStr += "PROFIT! £" + yield.String()
 		} else if yield.Sign() == -1 {
@@ -32,7 +32,7 @@ func Email(action string, yield decimal.Decimal) {
 	//m.Attach("../main/" + fileName + ".xlsx")
 	//emailing bot starting status
 	case "START":
-		messageStr = "NEWS! Your bot has begun trading"
+		messageStr = "NEWS! Shivam's bot has begun trading"
 	}
 
 	m.SetHeader("Subject", messageStr)

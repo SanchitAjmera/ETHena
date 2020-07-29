@@ -13,6 +13,7 @@ import (
 // function to cancel most recent order
 func cancelPrevOrder(b *RsiBot) {
 	if b.PrevOrder == "" {
+		fmt.Println("No previous order to cancel")
 		return
 	}
 	time.Sleep(time.Second * 2)
@@ -42,11 +43,17 @@ func cancelPrevOrder(b *RsiBot) {
 func buy(b *RsiBot, currAsk decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	startStock, startFunds := getAssets("XRP", "XBT")
-	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
+	startStock, startFunds := getAssets("ETH", "XBT")
+	fmt.Println("startFunds: ", startFunds)
+	fmt.Println("StartStock: ", startStock)
+	fmt.Println("currAsk: ", currAsk)
+	price := currAsk.Sub(decimal.NewFromFloat64(0.000001, 8))
+	fmt.Println("price: ", price)
 	buyableStock := startFunds.Div(price, 8)
-	buyableStock = buyableStock.ToScale(0)
+	fmt.Println("buyablestock before scale: ", buyableStock)
+	buyableStock = buyableStock.ToScale(2)
 	// checking if there are no funds available
+	fmt.Println("buyablestock after scale: ", buyableStock)
 	if buyableStock.Sign() == 0 {
 		fmt.Println("Not enough funds available")
 		return
@@ -77,7 +84,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	fmt.Println("Waiting for buy order to be partially filled")
 	for {
 		time.Sleep(2 * time.Second)
-		if startStock.Cmp(getAsset("XRP")) == -1 {
+		if startStock.Cmp(getAsset("ETH")) == -1 {
 			fmt.Println("Buy order has been partially filled")
 			return
 		}
@@ -87,8 +94,8 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 func sell(b *RsiBot, currBid decimal.Decimal) {
 	cancelPrevOrder(b)
 	time.Sleep(time.Second * 2)
-	startStock, startFunds := getAssets("XRP", "XBT")
-	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
+	startStock, startFunds := getAssets("ETH", "XBT")
+	price := currBid.Add(decimal.NewFromFloat64(0.000001, 8))
 	req := luno.PostLimitOrderRequest{
 		Pair:   Pair,
 		Price:  price,
@@ -127,28 +134,28 @@ func TradeLive(b *RsiBot) {
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
 	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.TradingPeriod)
-	// fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
 
 	PopulateFile(b, currAsk, currBid, rsi)
 
 	if b.ReadyToBuy { // check if sell order has gone trough
-		// fmt.Println("Current Ask", currAsk)
+		fmt.Println("Current Ask", currAsk)
+		fmt.Println("RSI: ", rsi, "U: ", b.UpEma, "D: ", b.DownEma)
 		if rsi.Cmp(b.OverSold) == -1 && rsi.Sign() != 0 {
 			buy(b, currAsk)
 		}
 	} else {
 		bound := currBid.Mul(b.StopLossMult)
 
-		// fmt.Println("Current Bid", currBid)
-		// fmt.Println("Stop Loss", b.StopLoss)
+		fmt.Println("Current Bid", currBid)
+		fmt.Println("Stop Loss", b.StopLoss)
 
 		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
 			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
 			sell(b, currBid)
 		} else if bound.Cmp(b.StopLoss) == 1 {
 			b.StopLoss = bound
-			// fmt.Println("Stoploss changed to: ", b.StopLoss)
+			fmt.Println("Stoploss changed to: ", b.StopLoss)
 		}
 
 	}
