@@ -64,7 +64,7 @@ func sellOffline(b *RsiBot, currBid decimal.Decimal) {
 // function to execute trades using historical data
 func TradeOffline(b *RsiBot) {
 	currRow++
-	currAsk, currBid := GetOfflineAsk(currRow), getOfflineBid(currRow)
+	currAsk, currBid := GetOfflineAsk(currRow), GetOfflineBid(currRow)
 
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal

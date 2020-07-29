@@ -52,8 +52,10 @@ func startBot(pair string) {
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
 
+
 	live.PairName = pair
 	live.Client = live.CreateClient()
+
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
