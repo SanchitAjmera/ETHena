@@ -1,7 +1,7 @@
 package liveUtils
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/luno/luno-go/decimal"
 	"gopkg.in/gomail.v2" // perform go get <this> when initialising servers
@@ -42,10 +42,10 @@ func Email(action string, yield decimal.Decimal) {
 
 	// function doesn't panic when error occurs
 	if err := d.DialAndSend(m); err != nil {
-		fmt.Println("ERROR! graph.png doesn't exist ", err)
-		fmt.Println("Update email NOT successfully sent")
+		log.Println("ERROR! graph.png doesn't exist ", err)
+		log.Println("Update email NOT successfully sent")
 		return
 	}
 
-	fmt.Println("Update email successfully sent")
+	log.Println("Update email successfully sent")
 }

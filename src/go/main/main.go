@@ -4,7 +4,7 @@ import (
 	backtest "TradingHackathon/src/go/backtestingUtils"
 	live "TradingHackathon/src/go/liveUtils"
 	. "TradingHackathon/src/go/rsi"
-	"fmt"
+	"log"
 	"os/exec"
 	"time"
 
@@ -29,6 +29,7 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	for i < b.TradingPeriod {
 		time.Sleep(20 * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
+		i++
 	}
 	b.PrevAsk = pastAsks[b.TradingPeriod-1]
 	return pastAsks
@@ -41,8 +42,7 @@ func main() {
 }
 
 func startBot(pair string) {
-
-	fmt.Println("Bot started:", pair)
+	log.Println("Bot started:", pair)
 	prevDay = time.Now().AddDate(0, 0, 0)
 
 	// live.Email("START", decimal.Zero())
@@ -52,10 +52,8 @@ func startBot(pair string) {
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
 
-
 	live.PairName = pair
 	live.Client = live.CreateClient()
-
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
@@ -77,7 +75,7 @@ func startBot(pair string) {
 		PrevAsk:        decimal.Zero(),
 	}
 
-	fmt.Println("Getting past asks: STARTED")
+	log.Println("Getting past asks: STARTED")
 
 	if isLive {
 		trade = live.TradeLive
@@ -92,7 +90,7 @@ func startBot(pair string) {
 		}
 	}
 
-	fmt.Println("Getting past asks: COMPLETE")
+	log.Println("Getting past asks: COMPLETE")
 
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 
@@ -120,7 +118,7 @@ func startBot(pair string) {
 			err1 := graphCmd.Run()
 
 			if err1 != nil {
-				fmt.Println("ERROR! Failed to graph data:", err1)
+				log.Println("ERROR! Failed to graph data:", err1)
 			}
 			//Emailing
 			//newFunds, _ := live.getAssets("XRP","XBT")
@@ -133,11 +131,11 @@ func startBot(pair string) {
 			err2 := deletePicCmd.Run()
 
 			if err2 != nil {
-				fmt.Println("ERROR! Failed to delete graph:", err2)
+				log.Println("ERROR! Failed to delete graph:", err2)
 			}
 
 			if err1 == nil && err2 == nil {
-				fmt.Println("Graphed daily data successfully")
+				log.Println("Graphed daily data successfully")
 			}
 
 			live.SetUpNewFile()
