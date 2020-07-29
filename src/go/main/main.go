@@ -57,7 +57,7 @@ func startBot(pair string) {
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
-	StopLossMultDecimal := decimal.NewFromFloat64(0.999, 8)
+	StopLossMultDecimal := decimal.NewFromFloat64(0.9975, 8)
 	rsiLowerLim := decimal.NewFromInt64(20)
 
 	// initialising bot

@@ -100,6 +100,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	time.Sleep(time.Second * 2)
 
 	startStock, startFunds := getAssets("ETH", "XBT")
+	startStock = startStock.ToScale(2)
 	price := currBid.Add(decimal.NewFromFloat64(0.000001, 8))
 
 	req := luno.PostLimitOrderRequest{
@@ -125,7 +126,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	log.Println("Waiting for sell order to be partially filled")
 	for {
 		time.Sleep(2 * time.Second)
-		if startFunds.Cmp(getAsset(PairName[3:])) == -1 {
+		if startFunds.Cmp(getAsset("XBT")) == -1 {
 			log.Println("Sell order has been partially filled")
 			return
 		}
@@ -158,7 +159,7 @@ func TradeLive(b *RsiBot) {
 		log.Println("Stop Loss", b.StopLoss)
 
 		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
-			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.98, 8))) == -1 {
+			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
 			sell(b, currBid)
 		} else if bound.Cmp(b.StopLoss) == 1 {
 			b.StopLoss = bound
