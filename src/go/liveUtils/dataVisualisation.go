@@ -1,19 +1,22 @@
 package liveUtils
 
 import (
-  "strconv"
-  "github.com/luno/luno-go/decimal"
-  "github.com/360EntSecGroup-Skylar/excelize"
 	. "TradingHackathon/src/go/rsi"
+	"strconv"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/luno/luno-go/decimal"
 )
 
 var f *excelize.File
 
 func ClosePrevFile(fileName string) {
-  if f == nil {return}
-  if err := f.SaveAs(fileName+".xlsx"); err != nil {
-    panic(err)
-  }
+	if f == nil {
+		return
+	}
+	if err := f.SaveAs(fileName + ".xlsx"); err != nil {
+		panic(err)
+	}
 }
 
 func SetUpNewFile() {
@@ -28,19 +31,18 @@ func SetUpNewFile() {
 	f.SetCellValue("Sheet1", "H1", "Ready To Sell Price")
 }
 
-func PopulateFile(b *RsiBot, ask decimal.Decimal, bid decimal.Decimal, rsi decimal.Decimal){
-	rowNum := b.NumOfDecisions + 1
+func PopulateFile(b *RsiBot, ask decimal.Decimal, bid decimal.Decimal, rsi decimal.Decimal) {
+	rowNum := b.NumOfDecisions + 2
 	f.SetCellValue("Sheet1", "A"+strconv.FormatInt(rowNum, 10), b.NumOfDecisions)
 	f.SetCellValue("Sheet1", "B"+strconv.FormatInt(rowNum, 10), ask)
 	f.SetCellValue("Sheet1", "C"+strconv.FormatInt(rowNum, 10), bid)
 	f.SetCellValue("Sheet1", "D"+strconv.FormatInt(rowNum, 10), rsi)
 	f.SetCellValue("Sheet1", "E"+strconv.FormatInt(rowNum, 10), b.ReadyToBuy)
-  if b.ReadyToBuy {
-    f.SetCellValue("Sheet1", "G"+strconv.FormatInt(rowNum, 10), ask)
-  } else {
-    f.SetCellValue("Sheet1", "F"+strconv.FormatInt(rowNum, 10), b.StopLoss)
-    f.SetCellValue("Sheet1", "H"+strconv.FormatInt(rowNum, 10), bid)
-  }
-
+	if b.ReadyToBuy {
+		f.SetCellValue("Sheet1", "G"+strconv.FormatInt(rowNum, 10), ask)
+	} else {
+		f.SetCellValue("Sheet1", "F"+strconv.FormatInt(rowNum, 10), b.StopLoss)
+		f.SetCellValue("Sheet1", "H"+strconv.FormatInt(rowNum, 10), bid)
+	}
 
 }
