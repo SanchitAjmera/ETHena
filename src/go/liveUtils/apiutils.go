@@ -25,15 +25,21 @@ func GetCurrAsk() decimal.Decimal {
 }
 
 func getAsset(currency string) decimal.Decimal {
-	balancesReq := luno.GetBalancesRequest{Assets: []string{currency}}
+	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
-	log.Println("Balances retrieved:", balances.Balance)
 	if err != nil {
 		log.Println(err)
 		time.Sleep(2 * time.Second)
 		return getAsset(currency)
 	}
-	return balances.Balance[0].Balance
+
+	for _, accBalance := range balances.Balance {
+		if accBalance.Asset == currency {
+			return accBalance.Balance
+		}
+	}
+
+	panic("Cannot retrieve account balance")
 }
 
 func getTickerRes() luno.GetTickerResponse {
