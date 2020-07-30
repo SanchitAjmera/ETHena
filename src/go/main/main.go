@@ -27,7 +27,7 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
 	var i int64 = 0
 	for i < b.TradingPeriod {
-		time.Sleep(20 * time.Second)
+		time.Sleep(5 * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
 		i++
 	}
@@ -57,16 +57,13 @@ func startBot(pair string) {
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
-	StopLossMultDecimal := decimal.NewFromFloat64(0.9975, 8)
 	rsiLowerLim := decimal.NewFromInt64(20)
 
 	// initialising bot
 	bot := RsiBot{
 		TradingPeriod:  tradingPeriod,
 		TradesMade:     0,
-		NumOfDecisions: 0,
-		StopLoss:       decimal.Zero(),
-		StopLossMult:   StopLossMultDecimal,
+		NumOfDecisions: 0, 
 		OverSold:       rsiLowerLim,
 		ReadyToBuy:     true,
 		BuyPrice:       decimal.Zero(),

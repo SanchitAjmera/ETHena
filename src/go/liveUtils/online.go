@@ -80,7 +80,6 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	b.PrevOrder = res.OrderId
 	b.ReadyToBuy = false
 	b.TradesMade++
-	b.StopLoss = price
 	b.BuyPrice = price
 	// wait till order has gone through
 	log.Println("Waiting for buy order to be partially filled")
@@ -135,7 +134,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 
 // function to execute trades using the RSI bot
 func TradeLive(b *RsiBot) {
-	time.Sleep(20 * time.Second)
+	time.Sleep(5 * time.Second)
 	res := getTickerRes()
 	currAsk, currBid := res.Ask, res.Bid
 
@@ -153,18 +152,14 @@ func TradeLive(b *RsiBot) {
 			buy(b, currAsk)
 		}
 	} else {
-		bound := currBid.Mul(b.StopLossMult)
+
 
 		log.Println("Current Bid", currBid)
-		log.Println("Stop Loss", b.StopLoss)
 
-		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
+		if (currBid.Cmp(b.BuyPrice) == 1) ||
 			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
 			sell(b, currBid)
-		} else if bound.Cmp(b.StopLoss) == 1 {
-			b.StopLoss = bound
-			log.Println("Stoploss changed to: ", b.StopLoss)
-		}
+		} 
 
 	}
 	b.NumOfDecisions++
