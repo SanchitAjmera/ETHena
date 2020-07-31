@@ -59,6 +59,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	log.Println("buyablestock after scale: ", buyableStock)
 	if buyableStock.Sign() == 0 {
 		log.Println("Not enough funds available")
+		b.ReadyToBuy = false
 		return
 	}
 	//Create limit order
@@ -95,6 +96,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 		if counter > 15 {
 			log.Println("Timeout. Retrying buy")
 			time.Sleep(2 * time.Second)
+			b.TradesMade--
 			buy(b, getTickerRes().Ask)
 			return
 		}
@@ -141,6 +143,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 		if counter > 15 {
 			log.Println("Timeout. Retrying sell")
 			time.Sleep(2 * time.Second)
+			b.TradesMade--
 			sell(b, getTickerRes().Bid)
 			return
 		}
