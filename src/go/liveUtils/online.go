@@ -31,6 +31,7 @@ func cancelPrevOrder(b *RsiBot) {
 		}
 		if res.Success {
 			log.Println("Successfully cancelled previous order")
+			return
 		} else {
 			log.Println("ERROR! Failed to cancel previous order")
 			cancelPrevOrder(b)
@@ -83,12 +84,18 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	b.BuyPrice = price
 	// wait till order has gone through
 	log.Println("Waiting for buy order to be partially filled")
+	counter := 0
 	for {
 		time.Sleep(2 * time.Second)
-
 		if startStock.Cmp(getAsset("ETH")) == -1 {
-
 			log.Println("Buy order has been partially filled")
+			return
+		}
+		counter++
+		if counter > 15 {
+			log.Println("Timeout. Retrying buy")
+			time.Sleep(2 * time.Second)
+			buy(b, getTickerRes().Ask)
 			return
 		}
 	}
@@ -123,10 +130,18 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	b.ReadyToBuy = true
 	b.TradesMade++
 	log.Println("Waiting for sell order to be partially filled")
+	counter := 0
 	for {
 		time.Sleep(2 * time.Second)
 		if startFunds.Cmp(getAsset("XBT")) == -1 {
 			log.Println("Sell order has been partially filled")
+			return
+		}
+		counter++
+		if counter > 15 {
+			log.Println("Timeout. Retrying sell")
+			time.Sleep(2 * time.Second)
+			sell(b, getTickerRes().Bid)
 			return
 		}
 	}

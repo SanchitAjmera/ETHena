@@ -15,7 +15,7 @@ var PairName string
 
 func CreateClient() *luno.Client {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("bgh3q5ss8yvj9", "Q9AqNYS4a4ke-4Yxw_JwtbUbih2mFjITm40luA6Y4M0")
+	lunoClient.SetAuth("nhsnff3kt5w4j", "9UaCicXm_OJb7xcUTrfAhmuvCbLapwuYDbDs_Nj13i0")
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
 }
@@ -28,7 +28,7 @@ func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		log.Println(err)
+		log.Println("ERROR in getAsset: ", err)
 		time.Sleep(2 * time.Second)
 		return getAsset(currency)
 	}
