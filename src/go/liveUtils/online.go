@@ -157,7 +157,7 @@ func TradeLive(b *RsiBot) {
 		log.Println("Current Bid", currBid)
 
 		if (currBid.Cmp(b.BuyPrice) == 1) ||
-			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
+			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.9955, 8))) == -1 {
 			sell(b, currBid)
 		} 
 
