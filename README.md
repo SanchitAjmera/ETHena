@@ -2,10 +2,8 @@
 Implementation of a trading bot for the luno challenge
   
 TODO:
-  - Look into MACD
-  - Implement all candlestick strategies
-  - Backtest candlestick strategies
-  - Research into security for api-keys
+  - Clean up repo (make it user friendly)
+  - Prepare submission report, presentation
 
 DONE:
   - Clean up github repo
@@ -13,6 +11,7 @@ DONE:
   - Implement ema-offset bot
   - Set up email notifications
   - Email notifications with graphed data
+  - Research and develop security for api-keys
   
 "There's a problem here, a real problem. We should be able to work together"
                                               - Sanchit 3 weeks into the competition
