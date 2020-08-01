@@ -16,7 +16,7 @@ var PairName string
 var User string
 
 func CreateClient() *luno.Client {
-	myEnv, err := godotenv.Read("../main")
+	myEnv, err := godotenv.Read("../main/.env")
 	if err != nil {
 		log.Println("error:", err)
 	}
