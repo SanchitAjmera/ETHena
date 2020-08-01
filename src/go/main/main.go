@@ -8,8 +8,8 @@ import (
 	"log"
 	"os/exec"
 	"time"
-	"os"
 	"strings"
+	"os"
 
 	"github.com/joho/godotenv" // perform go get <THIS> before running
 	"github.com/luno/luno-go/decimal"
@@ -51,6 +51,12 @@ func startBot(pair string) {
   if err != nil {
     log.Println("Error loading .env file")
   }
+	//
+	// myEnv, err := godotenv.Read("../main/.env")
+	// if err != nil {
+	// 	log.Println("error:", err)
+	// }
+
 
 	prevDay = time.Now().AddDate(0, 0, 0)
 
@@ -62,8 +68,8 @@ func startBot(pair string) {
 	var pastAsks []decimal.Decimal
 
 	live.PairName = pair
-	live.Client = live.CreateClient()
 	live.User = strings.ToUpper(os.Args[1])
+	live.Client = live.CreateClient()
 
 	log.Println("Bot started:", pair, "| USER:",live.User)
 	// initialising values within bot portfolio
