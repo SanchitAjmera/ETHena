@@ -4,10 +4,14 @@ import (
 	backtest "TradingHackathon/src/go/backtestingUtils"
 	live "TradingHackathon/src/go/liveUtils"
 	. "TradingHackathon/src/go/rsi"
+
 	"log"
 	"os/exec"
 	"time"
+	"os"
+	"strings"
 
+	"github.com/joho/godotenv" // perform go get <THIS> before running
 	"github.com/luno/luno-go/decimal"
 )
 
@@ -42,7 +46,12 @@ func main() {
 }
 
 func startBot(pair string) {
-	log.Println("Bot started:", pair)
+
+	err := godotenv.Load()
+  if err != nil {
+    log.Println("Error loading .env file")
+  }
+
 	prevDay = time.Now().AddDate(0, 0, 0)
 
 	// live.Email("START", decimal.Zero())
@@ -54,7 +63,9 @@ func startBot(pair string) {
 
 	live.PairName = pair
 	live.Client = live.CreateClient()
+	live.User = strings.ToUpper(os.Args[1])
 
+	log.Println("Bot started:", pair, "| USER:",live.User)
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
 	rsiLowerLim := decimal.NewFromInt64(20)
@@ -63,7 +74,7 @@ func startBot(pair string) {
 	bot := RsiBot{
 		TradingPeriod:  tradingPeriod,
 		TradesMade:     0,
-		NumOfDecisions: 0, 
+		NumOfDecisions: 0,
 		OverSold:       rsiLowerLim,
 		ReadyToBuy:     true,
 		BuyPrice:       decimal.Zero(),
