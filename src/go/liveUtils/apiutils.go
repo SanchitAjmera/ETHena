@@ -16,7 +16,10 @@ var PairName string
 var User string
 
 func CreateClient() *luno.Client {
-	myEnv, _ := godotenv.Read()
+	myEnv, err := godotenv.Read()
+	if err != nil {
+		log.Println("error:", err)
+	}
 	lunoClient := luno.NewClient()
 	KEY_ID := myEnv[User + "_KEY_ID"]
 	KEY := myEnv[User + "_KEY"]
