@@ -7,15 +7,18 @@ import (
 
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
+	"github.com/joho/godotenv"
 )
 
 // Global Variables
 var Client *luno.Client
 var PairName string
+var User string
 
 func CreateClient() *luno.Client {
+	myEnv, _ := godotenv.Read()
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("nhsnff3kt5w4j", "9UaCicXm_OJb7xcUTrfAhmuvCbLapwuYDbDs_Nj13i0")
+	lunoClient.SetAuth(myEnv[User + "_KEY_ID"], myEnv[User + "_KEY"])
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
 }
@@ -28,7 +31,7 @@ func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		log.Println("ERROR in getAsset: ", err)
+		log.Println(err)
 		time.Sleep(2 * time.Second)
 		return getAsset(currency)
 	}
