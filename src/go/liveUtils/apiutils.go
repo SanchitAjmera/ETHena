@@ -18,6 +18,9 @@ var User string
 func CreateClient() *luno.Client {
 	myEnv, _ := godotenv.Read()
 	lunoClient := luno.NewClient()
+	KEY_ID := myEnv[User + "_KEY_ID"]
+	KEY := myEnv[User + "_KEY"]
+	log.Println("Key:", KEY, " Key_id:", KEY_ID)
 	lunoClient.SetAuth(myEnv[User + "_KEY_ID"], myEnv[User + "_KEY"])
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
