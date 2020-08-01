@@ -27,7 +27,8 @@ func cancelPrevOrder(b *RsiBot) {
 		req := luno.StopOrderRequest{OrderId: b.PrevOrder}
 		res, err := Client.StopOrder(context.Background(), &req)
 		if err != nil {
-			panic(err)
+			log.Println(err)
+			return
 		}
 		if res.Success {
 			log.Println("Successfully cancelled previous order")
@@ -171,13 +172,12 @@ func TradeLive(b *RsiBot) {
 		}
 	} else {
 
-
 		log.Println("Current Bid", currBid)
 
 		if (currBid.Cmp(b.BuyPrice) == 1) ||
 			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.9955, 8))) == -1 {
 			sell(b, currBid)
-		} 
+		}
 
 	}
 	b.NumOfDecisions++
