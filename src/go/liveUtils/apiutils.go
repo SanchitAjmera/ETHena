@@ -7,7 +7,7 @@ import (
 
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"github.com/joho/godotenv"
+	"os"
 )
 
 // Global Variables
@@ -16,15 +16,11 @@ var PairName string
 var User string
 
 func CreateClient() *luno.Client {
-	myEnv, err := godotenv.Read("../main/.env")
-	if err != nil {
-		log.Println("error:", err)
-	}
 	lunoClient := luno.NewClient()
-	KEY_ID := myEnv[User + "_KEY_ID"]
-	KEY := myEnv[User + "_KEY"]
+	KEY_ID := os.Getenv(User + "_KEY_ID")
+	KEY := os.Getenv(User + "_KEY")
 	log.Println("Key:", KEY, " Key_id:", KEY_ID)
-	lunoClient.SetAuth(myEnv[User + "_KEY_ID"], myEnv[User + "_KEY"])
+	lunoClient.SetAuth(KEY_ID, KEY)
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
 }
