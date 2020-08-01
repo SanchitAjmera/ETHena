@@ -2,7 +2,7 @@
 Implementation of a trading bot for the luno challenge
   
 TODO:
-  - Clean up repo (make it user friendly)
+  - Clean up repo 
   - Prepare submission report, presentation
 
 DONE:
