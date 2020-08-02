@@ -1,9 +1,9 @@
 package main
 
 import (
-	backtest "TradingHackathon/src/go/backtestingUtils"
-	live "TradingHackathon/src/go/liveUtils"
-	. "TradingHackathon/src/go/rsi"
+	backtest "../backtestingUtils"
+	live "../liveUtils"
+	. "../rsi"
 	"log"
 	"os/exec"
 	"time"

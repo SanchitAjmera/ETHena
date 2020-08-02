@@ -3,7 +3,7 @@ package backtestingUtils
 import (
 	"fmt"
 	"github.com/luno/luno-go/decimal"
-	. "TradingHackathon/src/go/rsi"
+	. "../rsi"
   "github.com/360EntSecGroup-Skylar/excelize"
 	"strconv"
 )

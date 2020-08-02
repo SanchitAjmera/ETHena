@@ -1,7 +1,7 @@
 package liveUtils
 
 import (
-	. "TradingHackathon/src/go/rsi"
+	. "../rsi"
 	"strconv"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
