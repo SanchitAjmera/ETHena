@@ -15,7 +15,7 @@ var PairName string
 
 func CreateClient() *luno.Client {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("g8gve3tacy6z5", "BL4y6PtBsWJHrqDZChS7bcEszLPWpt-z82Sls5S_a0g")
+	lunoClient.SetAuth("mggh7nx5v5vzn", "DiHrN4Lqu27eCajdCTBEKU4H-oIFAFR4_k1eRlx5Kho")
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
 }
