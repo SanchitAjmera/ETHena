@@ -7,7 +7,6 @@ import (
 
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-	"os"
 )
 
 // Global Variables
@@ -17,10 +16,7 @@ var User string
 
 func CreateClient() *luno.Client {
 	lunoClient := luno.NewClient()
-	KEY_ID := os.Getenv(User + "_KEY_ID")
-	KEY := os.Getenv(User + "_KEY")
-	log.Println("Key:", KEY, " Key_id:", KEY_ID)
-	lunoClient.SetAuth(KEY_ID, KEY)
+	lunoClient.SetAuth("hgbqfa25t4vpe", "FpjLXbn9uWTeX1PActyaRbemuF0_sy3RmrrYiqVyUyc")
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
 }

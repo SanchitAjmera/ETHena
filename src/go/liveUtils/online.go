@@ -111,7 +111,11 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	startStock, startFunds := getAssets("ETH", "XBT")
 	startStock = startStock.ToScale(2)
 	price := currBid.Add(decimal.NewFromFloat64(0.000001, 8))
-
+	if startStock.Sign() == 0 {
+		log.Println("Not enough stock to sell")
+		b.ReadyToBuy = true
+		return
+	}
 	req := luno.PostLimitOrderRequest{
 		Pair:   PairName,
 		Price:  price,
