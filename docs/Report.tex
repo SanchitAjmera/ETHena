@@ -69,16 +69,18 @@
 
 \section{Introduction}
 We are a group of first year students at Imperial College London studying Computing and Mathematics. We all have had an interest in trading and how we can implement algorithms in order to make useful and reliable predictions about the market and because of this we as a group were attracted to this hackathon.
-\\We as individuals took up different roles, where some of the group researched and implemented strategies, back tested the strategies and used the server in order to use the bots for the whole day.
+\\We as individuals took up different roles, where some of the group researched and implemented strategies, back tested the strategies and managed the servers.
 
 \section{Motivation}
-
+Our motivation for entering the competition was to give us the opportunity to challenge ourselves and create a bot which could make as much profit as possible. Some of our team have already been involved in trading and with our programming background, we were very confident in ourselves in being successful.
 \section{Scope and Overview}
-
-\section{Project flow}
+Our bots use a variety of functions from the Luno API. These include issuing post limit orders when the bots would like to buy and sell. Our bots also at the end of each day email a summary report which helps us to keep track of our progress.
+\section{Project Flow}
 We had initially split the project into 4 stages. The first being researching the way the crypto-market works, what affects the market and different approaches we could take. The next stage was implementing the strategies and our research. We then back tested the implementations using historical data to see how much profit we would make if the bot is used to trade live. The last stage was using the bot to live trade and putting the bot on our server to run 24 hours a day.
 \section{Implementation}
-In order to learn, gather as much information as possible and make a good predictive measure we researched numerous strategies and trading rules.
+In order to learn, gather as much information as possible and make a good predictive measure we researched numerous strategies and trading rules. 
+\subsection{Sentiment}
+One such strategy we researched was a sentiment strategy. After seeing other programmers try this strategy without success we decided not to continue further with this strategy.
 \subsection{Moving Average Convergence Divergence}
 This was the first strategy we implemented after reviewing multiple strategies and to familiarise ourselves with the Luno API. The strategy signals to buy when a shorter term moving average crosses over a longer term moving average and signals to sells when the opposite occurs.
 \subsection{Relative Strength Index}
@@ -90,7 +92,7 @@ The Offset strategy buys when the price  significantly drops in comparison to a 
 \subsection{Candlestick Analysis}
 Candlestick Analysis involves finding a variety of patterns based on the open, high, low and close price of a trading period. These include 123 Reversal, Hammer, Inverse Hammer, Three White Slaves and Morningstar trends.
 \subsection{Risk Management}
-After creating bots which traded based on the strategies mentioned we created a confidence marker which determined the volume which we should trade.
+After creating bots which traded based on the strategies mentioned we created a confidence marker which determined the volume which we should trade, however this wasn't successful as would require a longer time frame to be usable.
 \subsection{Summary of Strategies}
 Our strategies were mostly successful however the RSI bot made the most profit, without using the risk management strategy so that became our primary bot.
 
