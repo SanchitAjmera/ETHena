@@ -45,7 +45,7 @@ func main() {
 func startBot(pair string) {
 	log.Println("Bot started:", pair)
 	prevDay = time.Now().AddDate(0, 0, 0)
-
+	live.InitialiseKeys()
 
 	// live.Email("START", decimal.Zero())
 
@@ -55,6 +55,7 @@ func startBot(pair string) {
 	var pastAsks []decimal.Decimal
 
 	live.PairName = pair
+	live.ApiKeys = live.ApiKeys
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
 	live.VOLUME_TIME_PERIOD = 5
@@ -85,6 +86,7 @@ func startBot(pair string) {
 		PrevAsk:        decimal.Zero(),
 	}
 
+	log.Println("User:", live.User)
 	log.Println("Getting past asks: STARTED")
 
 	if isLive {
