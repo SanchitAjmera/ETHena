@@ -10,6 +10,11 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+var TimeDuration time.Duration
+var VOLUME_TIME_PERIOD time.Duration
+var PROFIT_TIME_PERIOD time.Duration
+
+
 // function to cancel most recent order
 func cancelPrevOrder(b *RsiBot) {
 	if b.PrevOrder == "" {
@@ -45,17 +50,12 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	time.Sleep(time.Second * 2)
 
 	startStock, startFunds := getAssets("ETH", "XBT")
-	log.Println("startFunds: ", startFunds)
-	log.Println("StartStock: ", startStock)
-	log.Println("currAsk: ", currAsk)
 	price := currAsk.Sub(decimal.NewFromFloat64(0.000001, 8))
-	log.Println("price: ", price)
 	buyableStock := startFunds.Div(price, 8)
-	log.Println("buyablestock before scale: ", buyableStock)
 	buyableStock = buyableStock.ToScale(2)
 
 	// checking if there are no funds available
-	log.Println("buyablestock after scale: ", buyableStock)
+
 	if buyableStock.Sign() == 0 {
 		log.Println("Not enough funds available")
 		b.ReadyToBuy = false
@@ -158,7 +158,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 
 // function to execute trades using the RSI bot
 func TradeLive(b *RsiBot) {
-	time.Sleep(20 * time.Second)
+	time.Sleep(TimeDuration * time.Second)
 	res := getTickerRes()
 	currAsk, currBid := res.Ask, res.Bid
 
@@ -181,15 +181,23 @@ func TradeLive(b *RsiBot) {
 		log.Println("Current Bid", currBid)
 		log.Println("Stop Loss", b.StopLoss)
 
-		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
-			currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
-			sell(b, currBid)
-		} else if bound.Cmp(b.StopLoss) == 1 {
-			b.StopLoss = bound
-			log.Println("Stoploss changed to: ", b.StopLoss)
+		switch(TimeDuration) {
+			case (VOLUME_TIME_PERIOD):
+				if (currBid.Cmp(b.BuyPrice) == 1) || currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.9955, 8))) == -1 {
+					sell(b, currBid)
+				}
+			case (PROFIT_TIME_PERIOD):
+				if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
+				currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
+					sell(b, currBid)
+				} else if bound.Cmp(b.StopLoss) == 1 {
+					b.StopLoss = bound
+					log.Println("Stoploss changed to: ", b.StopLoss)
+				}
+			default:
+				panic("ERROR: invalid initialisation of time durations")
 		}
 
+		b.NumOfDecisions++
 	}
-	b.NumOfDecisions++
-
 }

@@ -12,6 +12,7 @@ import (
 // Global Variables
 var Client *luno.Client
 var PairName string
+var User string 
 
 func CreateClient() *luno.Client {
 	lunoClient := luno.NewClient()

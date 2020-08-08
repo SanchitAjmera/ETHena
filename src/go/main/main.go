@@ -7,7 +7,8 @@ import (
 	"log"
 	"os/exec"
 	"time"
-
+	"os"
+	"strings"
 	"github.com/luno/luno-go/decimal"
 )
 
@@ -27,7 +28,7 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
 	var i int64 = 0
 	for i < b.TradingPeriod {
-		time.Sleep(20 * time.Second)
+		time.Sleep(live.TimeDuration * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
 		i++
 	}
@@ -45,6 +46,7 @@ func startBot(pair string) {
 	log.Println("Bot started:", pair)
 	prevDay = time.Now().AddDate(0, 0, 0)
 
+
 	// live.Email("START", decimal.Zero())
 
 	isLive = true
@@ -53,7 +55,15 @@ func startBot(pair string) {
 	var pastAsks []decimal.Decimal
 
 	live.PairName = pair
+	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
+	live.VOLUME_TIME_PERIOD = 5
+	live.PROFIT_TIME_PERIOD = 30
+	if (os.Args[2] == "volume") {
+		live.TimeDuration = live.VOLUME_TIME_PERIOD
+	} else if (os.Args[2] == "profit"){
+		live.TimeDuration = live.PROFIT_TIME_PERIOD
+	}
 
 	// initialising values within bot portfolio
 	tradingPeriod := int64(14)
