@@ -94,10 +94,11 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 			return
 		}
 		if counter > 15 {
-			tradesMade--
+			b.TradesMade--
 			log.Println("Buy order timed out. Retrying")
 			buy(b, currAsk)
 			return
+		}
 	}
 }
 
