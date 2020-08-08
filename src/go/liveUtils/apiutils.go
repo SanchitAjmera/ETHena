@@ -12,11 +12,14 @@ import (
 // Global Variables
 var Client *luno.Client
 var PairName string
-var User string 
+var User string
+var ApiKeys map[string]([]string)
 
 func CreateClient() *luno.Client {
 	lunoClient := luno.NewClient()
-	lunoClient.SetAuth("mggh7nx5v5vzn", "DiHrN4Lqu27eCajdCTBEKU4H-oIFAFR4_k1eRlx5Kho")
+	keyID := ApiKeys[User][0]
+	key := ApiKeys[User][1]
+	lunoClient.SetAuth(keyID, key)
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
 }
