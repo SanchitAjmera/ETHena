@@ -58,6 +58,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	log.Println("buyablestock after scale: ", buyableStock)
 	if buyableStock.Sign() == 0 {
 		log.Println("Not enough funds available")
+		b.ReadyToBuy = false
 		return
 	}
 	//Create limit order
@@ -84,14 +85,19 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	b.BuyPrice = price
 	// wait till order has gone through
 	log.Println("Waiting for buy order to be partially filled")
+	counter := 0
 	for {
 		time.Sleep(2 * time.Second)
-
+		counter++
 		if startStock.Cmp(getAsset("ETH")) == -1 {
-
 			log.Println("Buy order has been partially filled")
 			return
 		}
+		if counter > 15 {
+			tradesMade--
+			log.Println("Buy order timed out. Retrying")
+			buy(b, currAsk)
+			return
 	}
 }
 
@@ -101,6 +107,14 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 
 	startStock, startFunds := getAssets("ETH", "XBT")
 	startStock = startStock.ToScale(2)
+
+	// checking if there are no stock available
+	log.Println("startstock after scale: ", startStock)
+	if startStock.Sign() == 0 {
+		log.Println("Not enough stock available")
+		b.ReadyToBuy = true
+		return
+	}
 	price := currBid.Add(decimal.NewFromFloat64(0.000001, 8))
 
 	req := luno.PostLimitOrderRequest{
@@ -124,10 +138,18 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	b.ReadyToBuy = true
 	b.TradesMade++
 	log.Println("Waiting for sell order to be partially filled")
+	counter := 0
 	for {
 		time.Sleep(2 * time.Second)
+		counter++
 		if startFunds.Cmp(getAsset("XBT")) == -1 {
 			log.Println("Sell order has been partially filled")
+			return
+		}
+		if counter > 15 {
+			b.TradesMade--
+			log.Println("Sell order timed out. Retrying")
+			sell(b, currBid)
 			return
 		}
 	}
