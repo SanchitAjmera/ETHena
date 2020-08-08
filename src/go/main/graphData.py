@@ -1,15 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
+from datetime import date
 
 lower_limit = 25
-
-filename = str(sys.argv[1])
-df = pd.read_excel(filename + ".xlsx")
+date = str(date.today())
+df = pd.read_excel(date + ".xlsx")
 
 lower_limit_list = []
 for i in df['Sr No.']:
-    lower_limit_list.append[lower_limit]
+    lower_limit_list.append(lower_limit)
 
 plt.figure()
 plt.subplot(3, 1, (1, 2))
@@ -18,7 +17,7 @@ plt.plot(df['Sr No.'], df['Ready To Sell Price'], color='g', label='Bought')
 plt.grid(b=True, which='both', axis='both')
 plt.legend()
 plt.ylabel('Price')
-plt.title('Summary of ' + filename)
+plt.title('Summary of ' + date)
 
 plt.subplot(3, 1, 3)
 plt.plot(df['Sr No.'], df['RSI'], color='blue', label='RSI')
