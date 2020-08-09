@@ -1,11 +1,12 @@
 package backtestingUtils
 
 import (
-	. "../rsi"
 	"fmt"
+	"strconv"
+
+	. "../rsi"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/luno/luno-go/decimal"
-	"strconv"
 )
 
 var xrp decimal.Decimal
@@ -62,7 +63,7 @@ func sellOffline(b *RsiBot, currBid decimal.Decimal) {
 	xrp = xrp.Sub(volumeToSell)
 }
 
-// function to execute trades using historical data
+// TradeOffline function to execute trades using historical data
 func TradeOffline(b *RsiBot) {
 
 	currAsk, currBid := GetOfflineAsk(currRow+b.RSITradingPeriod), GetOfflineBid(currRow+b.RSITradingPeriod)

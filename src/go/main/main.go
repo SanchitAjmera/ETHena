@@ -1,15 +1,16 @@
 package main
 
 import (
-	backtest "../backtestingUtils"
-	live "../liveUtils"
-	. "../rsi"
-	"github.com/luno/luno-go/decimal"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	backtest "../backtestingUtils"
+	live "../liveUtils"
+	. "../rsi"
+	"github.com/luno/luno-go/decimal"
 )
 
 // Global Variables
@@ -134,8 +135,8 @@ func startBot(pair string) {
 		}
 	}
 
-	bot.UpEma = Sma(pastUps, rsiTradingPeriod)
-	bot.DownEma = Sma(pastDowns, rsiTradingPeriod)
+	bot.UpEma = InitialSma(pastUps, rsiTradingPeriod)
+	bot.DownEma = InitialSma(pastDowns, rsiTradingPeriod)
 
 	live.SetUpNewFile()
 	for {
