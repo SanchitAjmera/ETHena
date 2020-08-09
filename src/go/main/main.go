@@ -133,8 +133,7 @@ func startBot(pair string) {
 				log.Println("ERROR! Failed to graph data:", err1)
 			}
 			//Emailing
-			//newFunds, _ := live.getAssets("XRP","XBT")
-			newFunds := decimal.NewFromFloat64(0, 2)
+			newFunds := live.GetFunds(live.PairName)
 			yield := newFunds.Sub(funds)
 			live.Email("GRAPH", yield)
 			funds = newFunds
