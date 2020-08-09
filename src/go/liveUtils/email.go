@@ -2,7 +2,7 @@ package liveUtils
 
 import (
 	"log"
-
+	"strings"
 	"github.com/luno/luno-go/decimal"
 	"gopkg.in/gomail.v2" // perform go get <this> when initialising servers
 	//  "time"
@@ -14,11 +14,11 @@ func Email(action string, yield decimal.Decimal) {
 	m.SetHeader("From", "profit.profit.profit.icl@gmail.com")
 	m.SetHeader("To", "profit.profit.profit.icl@gmail.com") // can add multiple recievers
 	var messageStr string
-
+	name = User.Title()
 	switch action {
 	// emailing graphed data
 	case "GRAPH":
-		messageStr = "Shivam's daily update: "
+		messageStr = name + "'s daily update: "
 		if yield.Sign() == 1 {
 			messageStr += "PROFIT! £" + yield.String()
 		} else if yield.Sign() == -1 {
@@ -32,7 +32,7 @@ func Email(action string, yield decimal.Decimal) {
 	//m.Attach("../main/" + fileName + ".xlsx")
 	//emailing bot starting status
 	case "START":
-		messageStr = "NEWS! Shivam's bot has begun trading"
+		messageStr = "NEWS! " + name + "'s bot has begun trading"
 	}
 
 	m.SetHeader("Subject", messageStr)
