@@ -78,6 +78,6 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 	return return1, return2
 }
 
-func GetFunds(string currency) decimal.Decimal {
+func GetFunds(currency string) decimal.Decimal {
 	return getAsset(currency)
 }

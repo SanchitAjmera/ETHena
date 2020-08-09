@@ -14,7 +14,7 @@ func Email(action string, yield decimal.Decimal) {
 	m.SetHeader("From", "profit.profit.profit.icl@gmail.com")
 	m.SetHeader("To", "profit.profit.profit.icl@gmail.com") // can add multiple recievers
 	var messageStr string
-	name = User.Title()
+	name := strings.Title(User)
 	switch action {
 	// emailing graphed data
 	case "GRAPH":
