@@ -3,17 +3,15 @@ package liveUtils
 import (
 	. "../rsi"
 	"context"
-	"log"
-	"time"
-
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
+	"log"
+	"time"
 )
 
 var TimeDuration time.Duration
 var VOLUME_TIME_PERIOD time.Duration
 var PROFIT_TIME_PERIOD time.Duration
-
 
 // function to cancel most recent order
 func cancelPrevOrder(b *RsiBot) {
@@ -164,15 +162,27 @@ func TradeLive(b *RsiBot) {
 
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
-	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.TradingPeriod)
+	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
+	b.PastAsks = b.PastAsks[1:]
+	b.PastAsks = append(b.PastAsks, currAsk)
 	b.PrevAsk = currAsk
+
+	b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])))
+	b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])))
+	currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
+	macdScore := decimal.Zero()
+	macdScore = decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
+
+	rsiScore := decimal.NewFromInt64(100).Sub(rsi)
+
+	averageScore := (macdScore.Add(rsiScore)).Div(decimal.NewFromInt64(2), 16)
 
 	PopulateFile(b, currAsk, currBid, rsi)
 
 	if b.ReadyToBuy { // check if sell order has gone trough
-		log.Println("Current Ask", currAsk)
-		log.Println("RSI: ", rsi, "U: ", b.UpEma, "D: ", b.DownEma)
-		if rsi.Cmp(b.OverSold) == -1 && rsi.Sign() != 0 {
+		//log.Println("Current Ask", currAsk)
+		//log.Println("RSI: ", rsi, "U: ", b.UpEma, "D: ", b.DownEma)
+		if averageScore.Cmp(decimal.NewFromInt64(80)) == 1 {
 			buy(b, currAsk)
 		}
 	} else {
@@ -181,21 +191,21 @@ func TradeLive(b *RsiBot) {
 		log.Println("Current Bid", currBid)
 		log.Println("Stop Loss", b.StopLoss)
 
-		switch(TimeDuration) {
-			case (VOLUME_TIME_PERIOD):
-				if (currBid.Cmp(b.BuyPrice) == 1) || currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.9955, 8))) == -1 {
-					sell(b, currBid)
-				}
-			case (PROFIT_TIME_PERIOD):
-				if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
+		switch TimeDuration {
+		case (VOLUME_TIME_PERIOD):
+			if (currBid.Cmp(b.BuyPrice) == 1) || currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.9955, 8))) == -1 {
+				sell(b, currBid)
+			}
+		case (PROFIT_TIME_PERIOD):
+			if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
 				currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
-					sell(b, currBid)
-				} else if bound.Cmp(b.StopLoss) == 1 {
-					b.StopLoss = bound
-					log.Println("Stoploss changed to: ", b.StopLoss)
-				}
-			default:
-				panic("ERROR: invalid initialisation of time durations")
+				sell(b, currBid)
+			} else if bound.Cmp(b.StopLoss) == 1 {
+				b.StopLoss = bound
+				log.Println("Stoploss changed to: ", b.StopLoss)
+			}
+		default:
+			panic("ERROR: invalid initialisation of time durations")
 		}
 
 		b.NumOfDecisions++

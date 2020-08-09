@@ -6,18 +6,24 @@ import (
 
 // struct for the rsiBot
 type RsiBot struct {
-	TradingPeriod  int64             // No of past asks used to calculate RSI
-	TradesMade     int64             // total number of trades executed
-	NumOfDecisions int64             // number of times the bot calculates
-	StopLoss       decimal.Decimal   // variable stop loss
-	StopLossMult   decimal.Decimal   // multiplier for stop loss
-	OverSold       decimal.Decimal   // bound to tell the bot when to buy
-	ReadyToBuy     bool              // false means ready to sell
-	BuyPrice       decimal.Decimal   // stores most recent price we bought at
-	UpEma					 decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
-	DownEma 			 decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
-	PrevAsk				 decimal.Decimal	 // the previous recorded ask price
-	PrevOrder			 string						 // stores order ID of most recent order
+	TradesMade           int64             // total number of trades executed
+	NumOfDecisions       int64             // number of times the bot calculates
+	StopLoss             decimal.Decimal   // variable stop loss
+	StopLossMult         decimal.Decimal   // multiplier for stop loss
+	OverSold             decimal.Decimal   // bound to tell the bot when to buy
+	ReadyToBuy           bool              // false means ready to sell
+	BuyPrice             decimal.Decimal   // stores most recent price we bought at
+	UpEma                decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
+	DownEma              decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
+	PrevAsk              decimal.Decimal   // the previous recorded ask price
+	PrevOrder            string            // stores order ID of most recent order
+	RSITradingPeriod     int64             // No of past asks used to calculate RSI
+	MACDTradingPeriodLR  int64             // Long term MACD period
+	MACDTradingPeriodSR  int64             // Short term MACD period
+	LongestTradingPeriod int64             // Longest of the trading periods
+	MACDlongperiodavg    decimal.Decimal   // MACD long period average
+	PastAsks             []decimal.Decimal // array of previous ask prices
+	MACDshortperiodavg   decimal.Decimal   // MACD short period average
 }
 
 // function to calculate the Relative Strength Index

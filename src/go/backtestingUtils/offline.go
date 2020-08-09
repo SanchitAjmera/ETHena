@@ -1,10 +1,10 @@
 package backtestingUtils
 
 import (
-	"fmt"
-	"github.com/luno/luno-go/decimal"
 	. "../rsi"
-  "github.com/360EntSecGroup-Skylar/excelize"
+	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/luno/luno-go/decimal"
 	"strconv"
 )
 
@@ -12,12 +12,14 @@ var xrp decimal.Decimal
 var xbt decimal.Decimal
 var currRow int64
 var f *excelize.File
+var differencesList []decimal.Decimal
+var prevdifference decimal.Decimal
 
 func InitialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
 	parseXlsx()
 	xrp = xrpStock
 	xbt = xbtFunds
-	currRow = 16
+	currRow = 0
 	f = excelize.NewFile()
 	f.SetCellValue("Sheet1", "A1", "Curr Price")
 	f.SetCellValue("Sheet1", "B1", "RSI")
@@ -60,17 +62,31 @@ func sellOffline(b *RsiBot, currBid decimal.Decimal) {
 	xrp = xrp.Sub(volumeToSell)
 }
 
-
 // function to execute trades using historical data
 func TradeOffline(b *RsiBot) {
-	currRow++
-	currAsk, currBid := GetOfflineAsk(currRow), GetOfflineBid(currRow)
 
+	currAsk, currBid := GetOfflineAsk(currRow+b.RSITradingPeriod), GetOfflineBid(currRow+b.RSITradingPeriod)
+
+	b.PastAsks = b.PastAsks[1:]
+	b.PastAsks = append(b.PastAsks, currAsk)
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
-	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.TradingPeriod)
-	fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
+
+	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
+	//fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
+
+	b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])))
+	b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])))
+	currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
+	macdScore := decimal.Zero()
+	macdScore = decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
+
+	currRow++
+
+	rsiScore := decimal.NewFromInt64(100).Sub(rsi)
+
+	averageScore := (macdScore.Add(rsiScore)).Div(decimal.NewFromInt64(2), 16)
 
 	printRow := currRow - 15
 
@@ -80,7 +96,7 @@ func TradeOffline(b *RsiBot) {
 	if b.ReadyToBuy { // check if sell order has gone trough
 		f.SetCellValue("Sheet1", "A"+strconv.FormatInt(printRow, 10), currAsk)
 		fmt.Println("Current Ask", currAsk)
-		if rsi.Cmp(b.OverSold) == -1 && rsi.Sign() != 0 {
+		if averageScore.Cmp(decimal.NewFromInt64(80)) == 1 {
 			buyOffline(b, currAsk)
 		}
 	} else {

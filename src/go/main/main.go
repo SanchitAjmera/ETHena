@@ -4,12 +4,12 @@ import (
 	backtest "../backtestingUtils"
 	live "../liveUtils"
 	. "../rsi"
-	"log"
-	"os/exec"
-	"time"
-	"os"
-	"strings"
 	"github.com/luno/luno-go/decimal"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
 )
 
 // Global Variables
@@ -24,16 +24,22 @@ func isNewDay() bool {
 }
 
 func getPastAsks(b *RsiBot) []decimal.Decimal {
-	//Populating past asks with 1 TradingPeriod worth of data
-	pastAsks := make([]decimal.Decimal, b.TradingPeriod)
+	//Populating past asks with 1 MACDTradingPeriodLR worth of data
+	pastAsks := make([]decimal.Decimal, b.LongestTradingPeriod)
 	var i int64 = 0
-	for i < b.TradingPeriod {
+	for i < b.LongestTradingPeriod {
 		time.Sleep(live.TimeDuration * time.Second)
 		pastAsks[i] = live.GetCurrAsk()
 		i++
 	}
-	b.PrevAsk = pastAsks[b.TradingPeriod-1]
+	b.PrevAsk = pastAsks[b.LongestTradingPeriod-1]
 	return pastAsks
+}
+func Maxof2int(x, y int64) int64 {
+	if x < y {
+		return y
+	}
+	return x
 }
 
 type tradeFunc func(b *RsiBot)
@@ -49,7 +55,8 @@ func startBot(pair string) {
 
 	// live.Email("START", decimal.Zero())
 
-	isLive = true
+	isLive = false
+
 	funds = decimal.NewFromInt64(100)
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
@@ -60,35 +67,48 @@ func startBot(pair string) {
 	live.Client = live.CreateClient()
 	live.VOLUME_TIME_PERIOD = 5
 	live.PROFIT_TIME_PERIOD = 30
-	if (os.Args[2] == "volume") {
+	if os.Args[2] == "volume" {
 		live.TimeDuration = live.VOLUME_TIME_PERIOD
-	} else if (os.Args[2] == "profit"){
+	} else if os.Args[2] == "profit" {
 		live.TimeDuration = live.PROFIT_TIME_PERIOD
 	}
 
 	// initialising values within bot portfolio
-	tradingPeriod := int64(14)
+	rsiTradingPeriod := int64(14)
+	macdTradingPeriodLR := int64(60)
+	macdTradingPeriodSR := int64(30)
+	longestTradingPeriod := int64(0)
+	longestTradingPeriod = Maxof2int(Maxof2int(rsiTradingPeriod, macdTradingPeriodSR), macdTradingPeriodLR)
 	StopLossMultDecimal := decimal.NewFromFloat64(0.9975, 8)
 	rsiLowerLim := decimal.NewFromInt64(20)
 
+	pastAsks = []decimal.Decimal{}
+
+	log.Println("Getting past asks: COMPLETE")
 	// initialising bot
+
 	bot := RsiBot{
-		TradingPeriod:  tradingPeriod,
-		TradesMade:     0,
-		NumOfDecisions: 0,
-		StopLoss:       decimal.Zero(),
-		StopLossMult:   StopLossMultDecimal,
-		OverSold:       rsiLowerLim,
-		ReadyToBuy:     true,
-		BuyPrice:       decimal.Zero(),
-		UpEma:          decimal.Zero(),
-		DownEma:        decimal.Zero(),
-		PrevAsk:        decimal.Zero(),
+		RSITradingPeriod:     rsiTradingPeriod,
+		MACDTradingPeriodLR:  macdTradingPeriodLR,
+		MACDTradingPeriodSR:  macdTradingPeriodSR,
+		LongestTradingPeriod: longestTradingPeriod,
+		TradesMade:           0,
+		NumOfDecisions:       0,
+		StopLoss:             decimal.Zero(),
+		StopLossMult:         StopLossMultDecimal,
+		OverSold:             rsiLowerLim,
+		ReadyToBuy:           true,
+		BuyPrice:             decimal.Zero(),
+		UpEma:                decimal.Zero(),
+		DownEma:              decimal.Zero(),
+		PrevAsk:              decimal.Zero(),
+		MACDlongperiodavg:    decimal.Zero(),
+		MACDshortperiodavg:   decimal.Zero(),
+		PastAsks:             pastAsks,
 	}
 
 	log.Println("User:", live.User)
 	log.Println("Getting past asks: STARTED")
-
 	if isLive {
 		trade = live.TradeLive
 		pastAsks = getPastAsks(&bot)
@@ -97,16 +117,13 @@ func startBot(pair string) {
 		trade = backtest.TradeOffline
 
 		var i int64
-		for i = 0; i < tradingPeriod; i++ {
+		for i = 0; i < longestTradingPeriod; i++ {
 			pastAsks = append(pastAsks, backtest.GetOfflineAsk(i+1))
 		}
 	}
-
-	log.Println("Getting past asks: COMPLETE")
-
+	bot.PastAsks = pastAsks
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
-
-	for i, v := range pastAsks {
+	for i, v := range pastAsks[longestTradingPeriod-rsiTradingPeriod : longestTradingPeriod] {
 		if i == 0 {
 			continue
 		}
@@ -117,8 +134,8 @@ func startBot(pair string) {
 		}
 	}
 
-	bot.UpEma = Sma(pastUps, tradingPeriod)
-	bot.DownEma = Sma(pastDowns, tradingPeriod)
+	bot.UpEma = Sma(pastUps, rsiTradingPeriod)
+	bot.DownEma = Sma(pastDowns, rsiTradingPeriod)
 
 	live.SetUpNewFile()
 	for {
@@ -126,7 +143,7 @@ func startBot(pair string) {
 			fileName := time.Now().Format("2006-01-02")
 			live.ClosePrevFile(fileName)
 
-			graphCmd := exec.Command("python3", "graphData.py", fileName)
+			graphCmd := exec.Command("python3", "graphData.py")
 			err1 := graphCmd.Run()
 
 			if err1 != nil {
