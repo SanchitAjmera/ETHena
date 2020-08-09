@@ -12,6 +12,9 @@ func InitialiseKeys(){
     },
     "MANUJ" : []string{},
     "LUQMAN" : []string{},
-    "DEVAM" : []string{},
+    "DEVAM" : []string{
+      "mggh7nx5v5vzn",
+      "DiHrN4Lqu27eCajdCTBEKU4H-oIFAFR4_k1eRlx5Kho",
+    },   
   }
 }
