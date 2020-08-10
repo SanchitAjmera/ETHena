@@ -36,6 +36,7 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 	b.PrevAsk = pastAsks[b.LongestTradingPeriod-1]
 	return pastAsks
 }
+
 func Maxof2int(x, y int64) int64 {
 	if x < y {
 		return y
@@ -63,7 +64,6 @@ func startBot(pair string) {
 	var pastAsks []decimal.Decimal
 
 	live.PairName = pair
-	live.ApiKeys = live.ApiKeys
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
 	live.VOLUME_TIME_PERIOD = 5
