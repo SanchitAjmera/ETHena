@@ -1,12 +1,13 @@
 package liveUtils
 
 import (
-	. "../rsi"
 	"context"
-	luno "github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
 	"log"
 	"time"
+
+	. "../rsi"
+	luno "github.com/luno/luno-go"
+	"github.com/luno/luno-go/decimal"
 )
 
 var TimeDuration time.Duration
@@ -154,7 +155,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	}
 }
 
-// function to execute trades using the RSI bot
+// TradeLive function to execute trades using the RSI bot
 func TradeLive(b *RsiBot) {
 	time.Sleep(TimeDuration * time.Second)
 	res := getTickerRes()
@@ -167,8 +168,8 @@ func TradeLive(b *RsiBot) {
 	b.PastAsks = append(b.PastAsks, currAsk)
 	b.PrevAsk = currAsk
 
-	b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])))
-	b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])))
+	b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
+	b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
 	currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
 	macdScore := decimal.Zero()
 	macdScore = decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
@@ -207,7 +208,6 @@ func TradeLive(b *RsiBot) {
 		default:
 			panic("ERROR: invalid initialisation of time durations")
 		}
-
 		b.NumOfDecisions++
 	}
 }
