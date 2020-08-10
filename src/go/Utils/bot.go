@@ -40,6 +40,7 @@ type RsiBot struct {
 	Stack                []Candlestick     //stack of candlesticks
 	Offset               decimal.Decimal   //for offset bot
 	OffsetTraingPeriod   int64             // trading period for offset bot
+	BotString            string            //string to determine which bots are being usde
 }
 
 // function to calculate the Relative Strength Index

@@ -6,7 +6,6 @@ import (
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
 	"log"
-	"os"
 	time "time"
 )
 
@@ -160,17 +159,12 @@ func TradeLive(b *RsiBot) {
 	b.Stack = b.Stack[1:]
 	prevema := Sma(b.PastAsks[b.LongestTradingPeriod-b.OffsetTraingPeriod : b.LongestTradingPeriod-1])
 
-	botstring := ""
-	botstring = os.Args[2]
-	if botstring == "0000" {
-		fmt.Println("No Strategies Chosen. Bot has been stopped")
-
-	}
 	scores := []decimal.Decimal{}
 
 	var rsi decimal.Decimal
 	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
-	if []rune(botstring)[0] == '1' {
+
+	if []rune(b.BotString)[0] == '1' {
 		rsiScore := decimal.NewFromInt64(100).Sub(rsi)
 		scores = append(scores, rsiScore)
 	}
@@ -179,7 +173,7 @@ func TradeLive(b *RsiBot) {
 	b.PastAsks = append(b.PastAsks, currAsk)
 	b.PrevAsk = currAsk
 
-	if []rune(botstring)[1] == '1' {
+	if []rune(b.BotString)[1] == '1' {
 		b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
 		b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
 		currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
@@ -187,14 +181,14 @@ func TradeLive(b *RsiBot) {
 		scores = append(scores, macdScore)
 	}
 
-	if []rune(botstring)[2] == '1' {
+	if []rune(b.BotString)[2] == '1' {
 		if Rev123(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || Hammer(b.Stack[b.LongestTradingPeriod-1]) || InverseHammer(b.Stack[b.LongestTradingPeriod-1]) || WhiteSlaves(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || MorningStar(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) {
 			candlestickscore := decimal.NewFromInt64(100)
 			scores = append(scores, candlestickscore)
 		}
 
 	}
-	if []rune(botstring)[3] == '1' {
+	if []rune(b.BotString)[3] == '1' {
 		ema := ema(prevema, currAsk, b.OffsetTraingPeriod)
 		if currAsk.Cmp(ema.Sub(b.Offset)) == -1 {
 			offsetscore := decimal.NewFromInt64(100)

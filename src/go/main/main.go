@@ -77,15 +77,33 @@ func startBot(pair string) {
 	live.Client = live.CreateClient()
 	timeInterval := int64(30)
 
-	// initialising values within bot portfolio
+	botstring := ""
+	botstring = os.Args[2]
+	if botstring == "0000" {
+		fmt.Println("No Strategies Chosen. Bot has been stopped")
+		return
+	}
 	offset, _ := decimal.NewFromString("0.00000020")
+	tradingperiodsused := []int64{}
 	rsiTradingPeriod := int64(14)
 	macdTradingPeriodLR := int64(60)
 	macdTradingPeriodSR := int64(30)
 	candleTradingPeriod := int64(3)
 	offsetTradingPeriod := int64(14)
-	tradingperiods := []int64{rsiTradingPeriod, macdTradingPeriodLR, macdTradingPeriodSR, candleTradingPeriod, offsetTradingPeriod}
-	longestTradingPeriod := findMax(tradingperiods)
+	if []rune(botstring)[0] == '1' {
+		tradingperiodsused = append(tradingperiodsused, rsiTradingPeriod)
+	}
+	if []rune(botstring)[1] == '1' {
+		tradingperiodsused = append(tradingperiodsused, macdTradingPeriodLR)
+	}
+	if []rune(botstring)[2] == '1' {
+		tradingperiodsused = append(tradingperiodsused, candleTradingPeriod)
+	}
+	if []rune(botstring)[3] == '1' {
+		tradingperiodsused = append(tradingperiodsused, offsetTradingPeriod)
+	}
+
+	longestTradingPeriod := findMax(tradingperiodsused)
 	StopLossMultDecimal := decimal.NewFromFloat64(0.9975, 8)
 	rsiLowerLim := decimal.NewFromInt64(20)
 
@@ -116,6 +134,7 @@ func startBot(pair string) {
 		TimeInterval:         timeInterval,
 		Stack:                stack,
 		Offset:               offset,
+		BotString:            botstring,
 	}
 
 	log.Println("User:", live.User)
