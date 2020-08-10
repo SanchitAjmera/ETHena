@@ -6,11 +6,12 @@ import (
     "net/http"
 )
 
+
 var (
     listen = flag.String("listen", ":8080", "listen address")
     dir    = flag.String("dir", ".", "directory to serve")
 )
-
+// initialises servers
 func main() {
     flag.Parse()
     log.Printf("listening on %q...", *listen)

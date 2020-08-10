@@ -5,6 +5,8 @@ import(
   "strconv"
 )
 
+// command to recompile lib.wasm: GOARCH=wasm GOOS=js go build -o lib.wasm testFile.go
+
 func add(this js.Value, i []js.Value) interface{} {
     value1 := js.Global().Get("document").Call("getElementById", i[0].String()).Get("value").String()
     value2 := js.Global().Get("document").Call("getElementById", i[1].String()).Get("value").String()
