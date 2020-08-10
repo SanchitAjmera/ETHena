@@ -1,7 +1,6 @@
-package liveUtils
+package Utils
 
 import (
-	. "../rsi"
 	"strconv"
 
 	"github.com/360EntSecGroup-Skylar/excelize"

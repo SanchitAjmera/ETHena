@@ -1,4 +1,4 @@
-package rsi
+package Utils
 
 import (
 	"github.com/luno/luno-go/decimal"

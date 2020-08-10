@@ -1,4 +1,4 @@
-package liveUtils
+package Utils
 
 import (
 	"context"
@@ -25,7 +25,7 @@ func CreateClient() *luno.Client {
 }
 
 func GetCurrAsk() decimal.Decimal {
-	return getTickerRes().Ask
+	return GetTickerRes().Ask
 }
 
 func getAsset(currency string) decimal.Decimal {
@@ -46,13 +46,13 @@ func getAsset(currency string) decimal.Decimal {
 	panic("Cannot retrieve account balance")
 }
 
-func getTickerRes() luno.GetTickerResponse {
+func GetTickerRes() luno.GetTickerResponse {
 	reqPointer := luno.GetTickerRequest{Pair: PairName}
 	res, err := Client.GetTicker(context.Background(), &reqPointer)
 	if err != nil {
 		log.Println(err)
 		time.Sleep(2 * time.Second)
-		return getTickerRes()
+		return GetTickerRes()
 	}
 	return *res
 }
@@ -76,4 +76,49 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 		}
 	}
 	return return1, return2
+}
+
+func GetCandleStick(tradinginterval int64) Candlestick {
+	maxAsk := decimal.Zero()
+	minAsk := decimal.NewFromInt64(1844674407370955200)
+	openAsk := decimal.Zero()
+	closeAsk := decimal.Zero()
+	maxBid := decimal.Zero()
+	minBid := decimal.NewFromInt64(1844674407370955200)
+	openBid := decimal.Zero()
+	closeBid := decimal.Zero()
+
+	for i := 0; int64(i) <= tradinginterval; i++ {
+		res := GetTickerRes()
+		currAsk, currBid := res.Ask, res.Bid
+
+		if maxAsk.Cmp(currAsk) == -1 {
+			maxAsk = currAsk
+		}
+
+		if maxBid.Cmp(currBid) == -1 {
+			maxBid = currBid
+		}
+
+		if currAsk.Cmp(minAsk) == -1 {
+			minAsk = currAsk
+		}
+
+		if currBid.Cmp(minBid) == -1 {
+			minBid = currBid
+		}
+
+		if i == 0 {
+			openAsk = currAsk
+			openBid = currBid
+		}
+
+		if int64(i) == tradinginterval {
+			closeAsk = currAsk
+			closeBid = currBid
+		}
+		time.Sleep(time.Second)
+	}
+	stick := Candlestick{openAsk, closeAsk, maxAsk, minAsk, openBid, closeBid, maxBid, minBid}
+	return stick
 }

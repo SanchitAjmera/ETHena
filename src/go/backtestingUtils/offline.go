@@ -1,20 +1,17 @@
 package backtestingUtils
 
 import (
+	live "../Utils"
 	"fmt"
-	"strconv"
-
-	. "../rsi"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/luno/luno-go/decimal"
+	"strconv"
 )
 
 var xrp decimal.Decimal
 var xbt decimal.Decimal
 var currRow int64
 var f *excelize.File
-var differencesList []decimal.Decimal
-var prevdifference decimal.Decimal
 
 func InitialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
 	parseXlsx()
@@ -28,7 +25,7 @@ func InitialiseFunds(xbtFunds decimal.Decimal, xrpStock decimal.Decimal) {
 }
 
 // function to execute buying of items
-func buyOffline(b *RsiBot, currAsk decimal.Decimal) {
+func buyOffline(b *live.RsiBot, currAsk decimal.Decimal) {
 	currFunds := xbt
 	price := currAsk.Sub(decimal.NewFromFloat64(0.00000001, 8))
 	buyableStock := currFunds.Div(price, 8)
@@ -50,7 +47,7 @@ func buyOffline(b *RsiBot, currAsk decimal.Decimal) {
 	}
 }
 
-func sellOffline(b *RsiBot, currBid decimal.Decimal) {
+func sellOffline(b *live.RsiBot, currBid decimal.Decimal) {
 	volumeToSell := xrp
 	price := currBid.Add(decimal.NewFromFloat64(0.00000001, 8))
 
@@ -64,7 +61,7 @@ func sellOffline(b *RsiBot, currBid decimal.Decimal) {
 }
 
 // TradeOffline function to execute trades using historical data
-func TradeOffline(b *RsiBot) {
+func TradeOffline(b *live.RsiBot) {
 
 	currAsk, currBid := GetOfflineAsk(currRow+b.RSITradingPeriod), GetOfflineBid(currRow+b.RSITradingPeriod)
 
@@ -73,12 +70,12 @@ func TradeOffline(b *RsiBot) {
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
 
-	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
+	rsi, b.UpEma, b.DownEma = live.GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
 	//fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
 
-	b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])))
-	b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:], int64(len(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])))
+	b.MACDlongperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
+	b.MACDshortperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
 	currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
 	macdScore := decimal.Zero()
 	macdScore = decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))

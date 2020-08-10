@@ -1,15 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
+	live "../Utils"
 	backtest "../backtestingUtils"
-	live "../liveUtils"
-	. "../rsi"
 	"github.com/luno/luno-go/decimal"
 )
 
@@ -24,27 +25,34 @@ func isNewDay() bool {
 	return d1 != d2 || m1 != m2 || y1 != y2
 }
 
-func getPastAsks(b *RsiBot) []decimal.Decimal {
+func GetCandlesticksandPastAsks(b live.RsiBot) ([]live.Candlestick, []decimal.Decimal) {
 	//Populating past asks with 1 MACDTradingPeriodLR worth of data
-	pastAsks := make([]decimal.Decimal, b.LongestTradingPeriod)
+	var pastAsks []decimal.Decimal
+	var stack []live.Candlestick
 	var i int64 = 0
 	for i < b.LongestTradingPeriod {
-		time.Sleep(live.TimeDuration * time.Second)
-		pastAsks[i] = live.GetCurrAsk()
+		stick := live.GetCandleStick(b.TimeInterval)
+		pastAsks = append(pastAsks, stick.CloseAsk)
+		stack = append(stack, stick)
+		fmt.Println("Candle " + strconv.Itoa(int(i)) + " got")
 		i++
 	}
 	b.PrevAsk = pastAsks[b.LongestTradingPeriod-1]
-	return pastAsks
+	return stack, pastAsks
 }
 
-func Maxof2int(x, y int64) int64 {
-	if x < y {
-		return y
+func findMax(array []int64) (max int64) {
+
+	max = array[0]
+	for _, value := range array {
+		if value > max {
+			max = value
+		}
 	}
-	return x
+	return max
 }
 
-type tradeFunc func(b *RsiBot)
+type tradeFunc func(b *live.RsiBot)
 
 func main() {
 	startBot("ETHXBT")
@@ -57,42 +65,40 @@ func startBot(pair string) {
 
 	// live.Email("START", decimal.Zero())
 
-	isLive = false
+	isLive = true
 
 	funds = decimal.NewFromInt64(100)
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
+	var stack []live.Candlestick
 
 	live.PairName = pair
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
-	live.VOLUME_TIME_PERIOD = 5
-	live.PROFIT_TIME_PERIOD = 30
-	if os.Args[2] == "volume" {
-		live.TimeDuration = live.VOLUME_TIME_PERIOD
-	} else if os.Args[2] == "profit" {
-		live.TimeDuration = live.PROFIT_TIME_PERIOD
-	}
+	timeInterval := int64(30)
 
 	// initialising values within bot portfolio
+	offset, _ := decimal.NewFromString("0.00000020")
 	rsiTradingPeriod := int64(14)
 	macdTradingPeriodLR := int64(60)
 	macdTradingPeriodSR := int64(30)
-	longestTradingPeriod := int64(0)
-	longestTradingPeriod = Maxof2int(Maxof2int(rsiTradingPeriod, macdTradingPeriodSR), macdTradingPeriodLR)
+	candleTradingPeriod := int64(3)
+	offsetTradingPeriod := int64(14)
+	tradingperiods := []int64{rsiTradingPeriod, macdTradingPeriodLR, macdTradingPeriodSR, candleTradingPeriod, offsetTradingPeriod}
+	longestTradingPeriod := findMax(tradingperiods)
 	StopLossMultDecimal := decimal.NewFromFloat64(0.9975, 8)
 	rsiLowerLim := decimal.NewFromInt64(20)
 
 	pastAsks = []decimal.Decimal{}
 
-	log.Println("Getting past asks: COMPLETE")
 	// initialising bot
 
-	bot := RsiBot{
+	bot := live.RsiBot{
 		RSITradingPeriod:     rsiTradingPeriod,
 		MACDTradingPeriodLR:  macdTradingPeriodLR,
 		MACDTradingPeriodSR:  macdTradingPeriodSR,
 		LongestTradingPeriod: longestTradingPeriod,
+		OffsetTraingPeriod:   offsetTradingPeriod,
 		TradesMade:           0,
 		NumOfDecisions:       0,
 		StopLoss:             decimal.Zero(),
@@ -105,38 +111,43 @@ func startBot(pair string) {
 		PrevAsk:              decimal.Zero(),
 		MACDlongperiodavg:    decimal.Zero(),
 		MACDshortperiodavg:   decimal.Zero(),
+		CandleTradingPeriod:  candleTradingPeriod,
 		PastAsks:             pastAsks,
+		TimeInterval:         timeInterval,
+		Stack:                stack,
+		Offset:               offset,
 	}
 
 	log.Println("User:", live.User)
 	log.Println("Getting past asks: STARTED")
 	if isLive {
 		trade = live.TradeLive
-		pastAsks = getPastAsks(&bot)
+		bot.Stack, bot.PastAsks = GetCandlesticksandPastAsks(bot)
+
 	} else {
 		backtest.InitialiseFunds(decimal.NewFromFloat64(0.014, 8), decimal.Zero())
 		trade = backtest.TradeOffline
 
 		var i int64
 		for i = 0; i < longestTradingPeriod; i++ {
-			pastAsks = append(pastAsks, backtest.GetOfflineAsk(i+1))
+			bot.PastAsks = append(bot.PastAsks, backtest.GetOfflineAsk(i+1))
 		}
 	}
-	bot.PastAsks = pastAsks
+	log.Println("Getting past asks: COMPLETE")
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
-	for i, v := range pastAsks[longestTradingPeriod-rsiTradingPeriod : longestTradingPeriod] {
+	for i, v := range bot.PastAsks[bot.LongestTradingPeriod-bot.RSITradingPeriod : bot.LongestTradingPeriod] {
 		if i == 0 {
 			continue
 		}
-		if v.Cmp(pastAsks[i-1]) == -1 {
-			pastDowns = append(pastDowns, pastAsks[i-1].Sub(v))
-		} else if v.Cmp(pastAsks[i-1]) == 1 {
-			pastUps = append(pastUps, v.Sub(pastAsks[i-1]))
+		if v.Cmp(bot.PastAsks[i-1]) == -1 {
+			pastDowns = append(pastDowns, bot.PastAsks[i-1].Sub(v))
+		} else if v.Cmp(bot.PastAsks[i-1]) == 1 {
+			pastUps = append(pastUps, v.Sub(bot.PastAsks[i-1]))
 		}
 	}
 
-	bot.UpEma = InitialSma(pastUps, rsiTradingPeriod)
-	bot.DownEma = InitialSma(pastDowns, rsiTradingPeriod)
+	bot.UpEma = live.InitialSma(pastUps, rsiTradingPeriod)
+	bot.DownEma = live.InitialSma(pastDowns, rsiTradingPeriod)
 
 	live.SetUpNewFile()
 	for {
