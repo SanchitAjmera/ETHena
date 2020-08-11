@@ -4,10 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantrix</title>
     <link rel="stylesheet" href="stylesheet.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
   </head>
 
   <body>
@@ -33,16 +29,33 @@
       );
     </script>
 
-    <section id="moodBoard">
-      <div class="container">
+    <div class="container">
+      <div class= "parallax" id="firstImage"></div>
+      <div class="title">QUANTRIX</div>
+      <div class="fill-info">
+        <div class="form">
+          <div id="formHeading">Get Started</div>
+          <div class="form-style-8">
+            <form>
+              <input type="text" name="field1" placeholder="API key ID" id="keyID"/>
+              <input type="text" name="field2" placeholder="API key" id="key"/>
+              <input type="email" name="field3" placeholder="Email" id="email"/>
+              <div class="btn-group">
+                <input type="button" value="RSI" id="rsi"/>
+                <input type="button" value="MACD" id="macd"/>
+                <input type="button" value="candlesticks" id="candlesticks"/>
+              </div>
+
+              <button Onclick="Run('keyID', 'key', 'email', 'rsi', 'macd', 'candlesticks', 'result');" id="Run">Run</button>
+              <input type="text" id="result"/>
+            </form>
+          </div>
+        </div>
       </div>
-    </section>
+      <div class="parallax" id="secondImage"></div>
+      <div class="info">fill in fo her</div>
+    </div>
 
-
-    <form>
-      <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-      <label for="vehicle1"> I have a bike</label><br>
-    </form>
     <input type="text" id="value1" />
     <input type="text" id="value2" />
 
@@ -57,6 +70,5 @@
       Subtract
     </button>
 
-    <input type="text" id="result" />
   </body>
 </html>
