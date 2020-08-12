@@ -101,7 +101,7 @@ img{
 
 .form-style-8{
   font-family: Impact, Charcoal, sans-serif;
-	width: 500px;
+	min-width: 500px;
 	background: black;
 	margin: 0 auto;
   margin-top:50px;
@@ -141,20 +141,7 @@ img{
 	height: 45px;
 }
 
-.form-style-8 input[type="button"]{
-	-moz-box-shadow: inset 0px 1px 0px 0px #45D6D6;
-	-webkit-box-shadow: inset 0px 1px 0px 0px #45D6D6;
-	box-shadow: inset 0px 1px 0px 0px #45D6D6;
-	display: inline-block;
-	cursor: pointer;
-	color: black;
-  font-family: Impact, Charcoal, sans-serif;
-	font-size: 20px;
-	padding: 8px 18px;
-	text-decoration: none;
-  margin-bottom:100px;
-  margin-top:20px;
-}
+
 
 .form-style-8 input[type="submit"]{
 	-moz-box-shadow: inset 0px 1px 0px 0px #45D6D6;
@@ -172,7 +159,6 @@ img{
 
 .form-style-8 input[type="text"]:hover,
 .form-style-8 input[type="email"]:hover,
-.form-style-8 input[type="button"]:hover,
 .form-style-8 input[type="submit"]:hover {
   color: #f83931;
 

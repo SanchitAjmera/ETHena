@@ -118,7 +118,7 @@
 				return new DataView(this._inst.exports.mem.buffer);
 			}
 
-			const setInt64 = ( r, v) => {
+			const setInt64 = (addr, v) => {
 				mem().setUint32(addr + 0, v, true);
 				mem().setUint32(addr + 4, Math.floor(v / 4294967296), true);
 			}
