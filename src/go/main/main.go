@@ -1,4 +1,4 @@
-package main
+package program
 
 import (
 	backtest "../backtestingUtils"
@@ -39,10 +39,10 @@ func getPastAsks(b *RsiBot) []decimal.Decimal {
 type tradeFunc func(b *RsiBot)
 
 func main() {
-	startBot("ETHXBT")
+	StartBot("ETHXBT")
 }
 
-func startBot(pair string) {
+func StartBot(pair string) {
 	log.Println("Bot started:", pair)
 	prevDay = time.Now().AddDate(0, 0, 0)
 	live.InitialiseKeys()

@@ -3,6 +3,8 @@ package main
 import(
   "syscall/js"
   "fmt"
+//  . "../main"
+  "os/exec"
 )
 
 
@@ -27,6 +29,14 @@ func setUpBot(this js.Value, i []js.Value) interface{} {
       strategies = strategies + "0"
     }
   }
+
+  graphCmd := exec.Command("close()")
+  err1 := graphCmd.Run()
+  if err1 != nil {
+    fmt.Println(err1)
+  }
+
+
 
   fmt.Println(strategies, key, keyID, email)
   return 1
