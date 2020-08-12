@@ -38,7 +38,7 @@ func Sma(array []decimal.Decimal) decimal.Decimal {
 }
 
 //function to calculate exponentially smoothed moving average
-func ema(oldVal decimal.Decimal, newData decimal.Decimal, period int64) decimal.Decimal {
+func Ema(oldVal decimal.Decimal, newData decimal.Decimal, period int64) decimal.Decimal {
 	decimalPeriod := decimal.NewFromInt64(period)
 	return (oldVal.Mul(decimalPeriod.Sub(decimal.NewFromInt64(1))).Add(newData)).Div(decimalPeriod, 16)
 }

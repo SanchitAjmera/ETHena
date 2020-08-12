@@ -63,28 +63,41 @@ func sellOffline(b *live.RsiBot, currBid decimal.Decimal) {
 // TradeOffline function to execute trades using historical data
 func TradeOffline(b *live.RsiBot) {
 
-	currAsk, currBid := GetOfflineAsk(currRow+b.RSITradingPeriod), GetOfflineBid(currRow+b.RSITradingPeriod)
+	currAsk, currBid := GetOfflineAsk(currRow+b.LongestTradingPeriod), GetOfflineBid(currRow+b.LongestTradingPeriod)
 
 	b.PastAsks = b.PastAsks[1:]
 	b.PastAsks = append(b.PastAsks, currAsk)
 	// calculating RSI using RSI algorithm
 	var rsi decimal.Decimal
-
+	scores := []decimal.Decimal{}
+	prevema := live.Sma(b.PastAsks[b.LongestTradingPeriod-b.OffsetTraingPeriod : b.LongestTradingPeriod-1])
 	rsi, b.UpEma, b.DownEma = live.GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
 	//fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
 	b.PrevAsk = currAsk
 
-	b.MACDlongperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
-	b.MACDshortperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
-	currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
-	macdScore := decimal.Zero()
-	macdScore = decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
+	if []rune(b.BotString)[0] == '1' {
+		rsiScore := decimal.NewFromInt64(100).Sub(rsi)
+		scores = append(scores, rsiScore)
+	}
+	if []rune(b.BotString)[1] == '1' {
+		b.MACDlongperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
+		b.MACDshortperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
+		currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
+		macdScore := decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
+		scores = append(scores, macdScore)
+	}
+
+	if []rune(b.BotString)[3] == '1' {
+		ema := live.Ema(prevema, currAsk, b.OffsetTraingPeriod)
+		if currAsk.Cmp(ema.Sub(b.Offset)) == -1 {
+			offsetscore := decimal.NewFromInt64(100)
+			scores = append(scores, offsetscore)
+		}
+	}
 
 	currRow++
 
-	rsiScore := decimal.NewFromInt64(100).Sub(rsi)
-
-	averageScore := (macdScore.Add(rsiScore)).Div(decimal.NewFromInt64(2), 16)
+	averageScore := live.Sma(scores)
 
 	printRow := currRow - 15
 

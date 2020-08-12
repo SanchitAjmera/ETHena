@@ -189,7 +189,7 @@ func TradeLive(b *RsiBot) {
 
 	}
 	if []rune(b.BotString)[3] == '1' {
-		ema := ema(prevema, currAsk, b.OffsetTraingPeriod)
+		ema := Ema(prevema, currAsk, b.OffsetTraingPeriod)
 		if currAsk.Cmp(ema.Sub(b.Offset)) == -1 {
 			offsetscore := decimal.NewFromInt64(100)
 			scores = append(scores, offsetscore)
