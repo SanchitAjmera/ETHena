@@ -62,8 +62,8 @@ func GetRsi(PrevAsk decimal.Decimal, currAsk decimal.Decimal, UpEma decimal.Deci
 		downDiff = decimal.Zero()
 	}
 
-	priceUp := ema(UpEma, upDiff, period)
-	priceDown := ema(DownEma, downDiff, period)
+	priceUp := Ema(UpEma, upDiff, period)
+	priceDown := Ema(DownEma, downDiff, period)
 
 	// check to see if average fall price is zero to avoid div by zero error
 	if priceDown.Sign() == 0 {
