@@ -15,7 +15,6 @@ import (
 )
 
 // Global Variables
-var isLive bool
 var prevDay time.Time
 var funds decimal.Decimal
 
@@ -65,8 +64,6 @@ func startBot(pair string) {
 
 	// live.Email("START", decimal.Zero())
 
-	isLive = true
-
 	funds = decimal.NewFromInt64(100)
 	var trade tradeFunc
 	var pastAsks []decimal.Decimal
@@ -75,7 +72,8 @@ func startBot(pair string) {
 	live.PairName = pair
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
-	timeInterval := int64(30)
+
+	timeInterval, _ := strconv.ParseInt(os.Args[3], 10, 64)
 
 	botstring := ""
 	botstring = os.Args[2]
@@ -86,20 +84,20 @@ func startBot(pair string) {
 	offset, _ := decimal.NewFromString("0.00000020")
 	tradingperiodsused := []int64{}
 	rsiTradingPeriod := int64(14)
-	macdTradingPeriodLR := int64(60)
-	macdTradingPeriodSR := int64(30)
+	macdTradingPeriodLR := int64(10)
+	macdTradingPeriodSR := int64(5)
 	candleTradingPeriod := int64(3)
 	offsetTradingPeriod := int64(14)
-	if []rune(botstring)[0] == '1' {
+	if []rune(botstring)[0] != '0' {
 		tradingperiodsused = append(tradingperiodsused, rsiTradingPeriod)
 	}
-	if []rune(botstring)[1] == '1' {
+	if []rune(botstring)[1] != '0' {
 		tradingperiodsused = append(tradingperiodsused, macdTradingPeriodLR)
 	}
-	if []rune(botstring)[2] == '1' {
+	if []rune(botstring)[2] != '0' {
 		tradingperiodsused = append(tradingperiodsused, candleTradingPeriod)
 	}
-	if []rune(botstring)[3] == '1' {
+	if []rune(botstring)[3] != '0' {
 		tradingperiodsused = append(tradingperiodsused, offsetTradingPeriod)
 	}
 
@@ -139,7 +137,8 @@ func startBot(pair string) {
 
 	log.Println("User:", live.User)
 	log.Println("Getting past asks: STARTED")
-	if isLive {
+	livecommand, _ := strconv.ParseInt(os.Args[4], 10, 64)
+	if livecommand == 1 {
 		trade = live.TradeLive
 		bot.Stack, bot.PastAsks = GetCandlesticksandPastAsks(bot)
 
@@ -174,7 +173,7 @@ func startBot(pair string) {
 			fileName := time.Now().Format("2006-01-02")
 			live.ClosePrevFile(fileName)
 
-			graphCmd := exec.Command("python3", "graphData.py")
+			graphCmd := exec.Command("python3", " graphData.py")
 			err1 := graphCmd.Run()
 
 			if err1 != nil {

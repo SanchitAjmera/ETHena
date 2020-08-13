@@ -65,6 +65,11 @@ func TradeOffline(b *live.RsiBot) {
 
 	currAsk, currBid := GetOfflineAsk(currRow+b.LongestTradingPeriod), GetOfflineBid(currRow+b.LongestTradingPeriod)
 
+	rsiweighting := int(b.BotString[0])
+	MACDweighting := int(b.BotString[1])
+	Candlestickweighting := int(b.BotString[2])
+	Offsetweighting := int(b.BotString[3])
+
 	b.PastAsks = b.PastAsks[1:]
 	b.PastAsks = append(b.PastAsks, currAsk)
 	// calculating RSI using RSI algorithm
@@ -72,26 +77,40 @@ func TradeOffline(b *live.RsiBot) {
 	scores := []decimal.Decimal{}
 	prevema := live.Sma(b.PastAsks[b.LongestTradingPeriod-b.OffsetTraingPeriod : b.LongestTradingPeriod-1])
 	rsi, b.UpEma, b.DownEma = live.GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
-	//fmt.Println("RSI", rsi, "U:", b.UpEma, "D:", b.DownEma)
+	if rsiweighting != '0' {
+		rsiScore := decimal.NewFromInt64(100).Sub(rsi)
+		for i := 0; i < rsiweighting; i++ {
+			scores = append(scores, rsiScore)
+		}
+	}
+
 	b.PrevAsk = currAsk
 
-	if []rune(b.BotString)[0] == '1' {
-		rsiScore := decimal.NewFromInt64(100).Sub(rsi)
-		scores = append(scores, rsiScore)
-	}
-	if []rune(b.BotString)[1] == '1' {
+	if MACDweighting != '0' {
 		b.MACDlongperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
 		b.MACDshortperiodavg = live.Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
 		currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
 		macdScore := decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
-		scores = append(scores, macdScore)
+		for i := 0; i < MACDweighting; i++ {
+			scores = append(scores, macdScore)
+		}
 	}
 
-	if []rune(b.BotString)[3] == '1' {
+	if Candlestickweighting != '0' {
+		if live.Rev123(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || live.Hammer(b.Stack[b.LongestTradingPeriod-1]) || live.InverseHammer(b.Stack[b.LongestTradingPeriod-1]) || live.WhiteSlaves(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || live.MorningStar(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) {
+			candlestickscore := decimal.NewFromInt64(100)
+			for i := 0; i < Candlestickweighting; i++ {
+				scores = append(scores, candlestickscore)
+			}
+		}
+	}
+	if Offsetweighting != '0' {
 		ema := live.Ema(prevema, currAsk, b.OffsetTraingPeriod)
 		if currAsk.Cmp(ema.Sub(b.Offset)) == -1 {
 			offsetscore := decimal.NewFromInt64(100)
-			scores = append(scores, offsetscore)
+			for i := 0; i < Offsetweighting; i++ {
+				scores = append(scores, offsetscore)
+			}
 		}
 	}
 

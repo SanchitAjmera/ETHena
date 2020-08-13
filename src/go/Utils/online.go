@@ -164,37 +164,48 @@ func TradeLive(b *RsiBot) {
 	var rsi decimal.Decimal
 	rsi, b.UpEma, b.DownEma = GetRsi(b.PrevAsk, currAsk, b.UpEma, b.DownEma, b.RSITradingPeriod)
 
-	if []rune(b.BotString)[0] == '1' {
+	rsiweighting := int(b.BotString[0])
+	MACDweighting := int(b.BotString[1])
+	Candlestickweighting := int(b.BotString[2])
+	Offsetweighting := int(b.BotString[3])
+
+	if rsiweighting != '0' {
 		rsiScore := decimal.NewFromInt64(100).Sub(rsi)
-		scores = append(scores, rsiScore)
+		for i := 0; i < rsiweighting; i++ {
+			scores = append(scores, rsiScore)
+		}
 	}
 
 	b.PastAsks = b.PastAsks[1:]
 	b.PastAsks = append(b.PastAsks, currAsk)
 	b.PrevAsk = currAsk
 
-	if []rune(b.BotString)[1] == '1' {
+	if MACDweighting != '0' {
 		b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
 		b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
 		currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
 		macdScore := decimal.NewFromInt64(100).Sub(currdifference.Div(decimal.NewFromFloat64(0.000001, 16), 16))
-		scores = append(scores, macdScore)
+		for i := 0; i < MACDweighting; i++ {
+			scores = append(scores, macdScore)
+		}
 	}
 
-	if []rune(b.BotString)[2] == '1' {
+	if Candlestickweighting != '0' {
 		if Rev123(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || Hammer(b.Stack[b.LongestTradingPeriod-1]) || InverseHammer(b.Stack[b.LongestTradingPeriod-1]) || WhiteSlaves(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || MorningStar(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) {
 			candlestickscore := decimal.NewFromInt64(100)
-			scores = append(scores, candlestickscore)
+			for i := 0; i < Candlestickweighting; i++ {
+				scores = append(scores, candlestickscore)
+			}
 		}
-
 	}
-	if []rune(b.BotString)[3] == '1' {
+	if Offsetweighting != '0' {
 		ema := Ema(prevema, currAsk, b.OffsetTraingPeriod)
 		if currAsk.Cmp(ema.Sub(b.Offset)) == -1 {
 			offsetscore := decimal.NewFromInt64(100)
-			scores = append(scores, offsetscore)
+			for i := 0; i < Offsetweighting; i++ {
+				scores = append(scores, offsetscore)
+			}
 		}
-
 	}
 	averageScore := Sma(scores)
 	fmt.Println("Average Score: ", averageScore)
