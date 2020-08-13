@@ -1,24 +1,19 @@
 import PySimpleGUI as sg
 import os
 
-# initialise the GUI
-
-
 # make it look nice
 sg.change_look_and_feel('Dark Blue 3')
 
 # define the layout of the GUI
 layout = [
-    [sg.Text(
-        'Add Text Here')],
-    [sg.Text('Name', size=(15, 1)), sg.InputText('name')],
-    [sg.Text('Strategies:', size=(15, 1)), sg.Text('Weightings:')],
-    [sg.Text('RSI', size=(15, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
-    [sg.Text('MACD', size=(15, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
-    [sg.Text('Candlestick', size=(15, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
-    [sg.Text('Offset', size=(15, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
-    [sg.Text('TimeInterval(seconds)', size=(15, 1)), sg.InputText('30')],
-    [sg.Text('Trade Live', size=(15, 1)), sg.Checkbox('')],
+    [sg.Text('Name', size=(16, 1)), sg.Spin(['devam','luqman','manuj','sanchit','shivam','name'], initial_value='name')],
+    [sg.Text('Strategies:', size=(16, 1)), sg.Text('Weightings:')],
+    [sg.Text('RSI', size=(16, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
+    [sg.Text('MACD', size=(16, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
+    [sg.Text('Candlestick', size=(16, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
+    [sg.Text('Offset', size=(16, 1)), sg.Slider(range=(0, 9), orientation='h', default_value=0)],
+    [sg.Text('TimeInterval(seconds)', size=(16, 1)), sg.InputText('30')],
+    [sg.Text('Trade Live', size=(16, 1)), sg.Checkbox('')],
     [sg.T('main.go file')],
     [sg.In()],
     [sg.FileBrowse(target=(-1, 0))],
