@@ -213,7 +213,7 @@ func TradeLive(b *RsiBot) {
 
 	if Candlestickweighting != 0 {
 		if Rev123(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || Hammer(b.Stack[b.LongestTradingPeriod-1]) || InverseHammer(b.Stack[b.LongestTradingPeriod-1]) || WhiteSlaves(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || MorningStar(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) {
-			candlestickscore := decimal.NewFromInt64(100)
+			candlestickscore := decimal.NewFromInt64(70)
 			for i := 0; i < Candlestickweighting; i++ {
 				scores = append(scores, candlestickscore)
 			}
