@@ -39,9 +39,11 @@ func LoadScreen(){
 
 func PrintStatus(b *RsiBot, currAsk decimal.Decimal, currBid decimal.Decimal, status string, values []([]decimal.Decimal)){
   clear()
-  fmt.Printf("Date | %v", StartDay.Format("2006-01-02"))
+  fmt.Printf("Date | %v", StartDay.Format("02 Jan 06"))
   fmt.Printf("\n")
-  fmt.Printf("Luno | ETHBTX                     ")
+  fmt.Printf("Time | %v", StartDay.Format("15:04:05 MST"))
+  fmt.Printf("\n")
+  fmt.Printf("Pair | ETHBTX                     ")
   fmt.Printf("Status:")
   fmt.Printf("\n")
   fmt.Printf("User | %v            ", User)
