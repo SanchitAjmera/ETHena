@@ -2,7 +2,6 @@ package Utils
 
 import (
 	"context"
-	"log"
 	"time"
 
 	luno "github.com/luno/luno-go"
@@ -32,7 +31,7 @@ func getAsset(currency string) decimal.Decimal {
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 		time.Sleep(2 * time.Second)
 		return getAsset(currency)
 	}
@@ -50,7 +49,7 @@ func GetTickerRes() luno.GetTickerResponse {
 	reqPointer := luno.GetTickerRequest{Pair: PairName}
 	res, err := Client.GetTicker(context.Background(), &reqPointer)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 		time.Sleep(2 * time.Second)
 		return GetTickerRes()
 	}
@@ -61,7 +60,7 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-		log.Println(err)
+	//	log.Println(err)
 		time.Sleep(2 * time.Second)
 		getAssets(currency1, currency2)
 	}
