@@ -19,7 +19,6 @@ import (
 var prevDay time.Time
 var funds decimal.Decimal
 
-
 func isNewDay() bool {
 	y1, m1, d1 := prevDay.Date()
 	y2, m2, d2 := time.Now().Date()
@@ -34,10 +33,10 @@ func GetCandlesticksandPastAsks(b *live.RsiBot) ([]live.Candlestick, []decimal.D
 	for i < b.LongestTradingPeriod {
 		stick := live.GetCandleStick(b.TimeInterval)
 		pastAsks = append(pastAsks, stick.CloseAsk)
-		status := "GETTING PAST ASKS [" + strconv.FormatInt(i+1, 10) + "/" + strconv.FormatInt((b.LongestTradingPeriod),10) + "]"
-		live.PrintStatus(b, stick.CloseBid, stick.CloseAsk,status, nil)
+		status := "GETTING PAST ASKS [" + strconv.FormatInt(i+1, 10) + "/" + strconv.FormatInt((b.LongestTradingPeriod), 10) + "]"
+		live.PrintStatus(b, stick.CloseBid, stick.CloseAsk, status, nil)
 		stack = append(stack, stick)
-	//	fmt.Println("Candle " + strconv.Itoa(int(i)) + " got")
+		//	fmt.Println("Candle " + strconv.Itoa(int(i)) + " got")
 		i++
 	}
 	b.PrevAsk = pastAsks[b.LongestTradingPeriod-1]
@@ -65,9 +64,7 @@ func startBot(pair string) {
 
 	live.LoadScreen()
 	prevDay = time.Now().AddDate(0, 0, 0)
-	live.StartDay = prevDay
 	live.InitialiseKeys()
-
 
 	funds = decimal.NewFromInt64(100)
 	var trade tradeFunc
@@ -77,7 +74,7 @@ func startBot(pair string) {
 	live.PairName = pair
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
-	live.PrintStatus(nil, decimal.Zero(), decimal.Zero(), "UPDATE EMAIL SENT" ,nil)
+	live.PrintStatus(nil, decimal.Zero(), decimal.Zero(), "UPDATE EMAIL SENT", nil)
 	live.Email("START", decimal.Zero())
 
 	timeIntervalFloat, _ := strconv.ParseFloat(os.Args[3], 64)
@@ -85,7 +82,7 @@ func startBot(pair string) {
 	botstring := ""
 	botstring = os.Args[2]
 	if botstring == "0000" {
-	//	fmt.Println("No Strategies Chosen. Bot has been stopped")
+		//	fmt.Println("No Strategies Chosen. Bot has been stopped")
 		return
 	}
 	offset, _ := decimal.NewFromString("0.00000020")
@@ -129,7 +126,7 @@ func startBot(pair string) {
 		OverSold:             rsiLowerLim,
 		ReadyToBuy:           true,
 		BuyPrice:             decimal.Zero(),
-		SellPrice:             decimal.Zero(),
+		SellPrice:            decimal.Zero(),
 		UpEma:                decimal.Zero(),
 		DownEma:              decimal.Zero(),
 		PrevAsk:              decimal.Zero(),
@@ -159,7 +156,7 @@ func startBot(pair string) {
 			bot.PastAsks = append(bot.PastAsks, backtest.GetOfflineAsk(i+1))
 		}
 	}
-//	log.Println("Getting past asks: COMPLETE")
+	//	log.Println("Getting past asks: COMPLETE")
 	pastUps, pastDowns := []decimal.Decimal{}, []decimal.Decimal{}
 	for i, v := range bot.PastAsks[bot.LongestTradingPeriod-bot.RSITradingPeriod : bot.LongestTradingPeriod] {
 		if i == 0 {
