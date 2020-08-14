@@ -4,9 +4,10 @@ import (
 	"context"
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-//	"log"
+	//	"log"
 	time "time"
 )
+
 // global variables for printing purposes
 var stopLossValues []decimal.Decimal
 var macdValues []decimal.Decimal
@@ -17,7 +18,7 @@ var scoreValues []decimal.Decimal
 func cancelPrevOrder(b *RsiBot) {
 	PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLING PREVIOUS ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 	if b.PrevOrder == "" {
-	//	log.Println("No previous order to cancel")
+		//	log.Println("No previous order to cancel")
 		return
 	}
 	time.Sleep(time.Second * 2)
@@ -34,11 +35,11 @@ func cancelPrevOrder(b *RsiBot) {
 			panic(err)
 		}
 		if res.Success {
-		//	log.Println("Successfully cancelled previous order")
+			//	log.Println("Successfully cancelled previous order")
 			PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLED PREVIOUS ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 
 		} else {
-		//	log.Println("ERROR! Failed to cancel previous order")
+			//	log.Println("ERROR! Failed to cancel previous order")
 			cancelPrevOrder(b)
 		}
 	}
@@ -58,7 +59,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	// checking if there are no funds available
 
 	if buyableStock.Sign() == 0 {
-			PrintStatus(b, decimal.Zero(), currAsk, "NO FUND AVAILABLE", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+		PrintStatus(b, decimal.Zero(), currAsk, "NO FUND AVAILABLE", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 		b.ReadyToBuy = false
 		return
 	}
@@ -137,7 +138,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 		res, err = Client.PostLimitOrder(context.Background(), &req)
 	}
 
-//	info := "SELL ORDER " + res.OrderId +  " PLACED AT " + price.String()[:6]
+	//	info := "SELL ORDER " + res.OrderId +  " PLACED AT " + price.String()[:6]
 	PrintStatus(b, price, decimal.Zero(), "SELL ORDER PLACED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 	b.PrevOrder = res.OrderId
 	b.ReadyToBuy = true
@@ -169,7 +170,7 @@ func TradeLive(b *RsiBot) {
 	currAsk, currBid := stick.CloseAsk, stick.CloseBid
 	//printing
 	var status string
-	if (b.ReadyToBuy){
+	if b.ReadyToBuy {
 		status = "READY TO BUY"
 	} else {
 		status = "READY TO SELL"
@@ -190,15 +191,14 @@ func TradeLive(b *RsiBot) {
 	Candlestickweighting := int(b.BotString[2])
 	Offsetweighting := int(b.BotString[3])
 
-	if rsiweighting != '0' && rsi != decimal.Zero(){
+	if rsiweighting != 0 && rsi.Cmp(decimal.NewFromInt64(100)) != 0 {
 		rsiScore := decimal.NewFromInt64(100).Sub(rsi)
 		for i := 0; i < rsiweighting; i++ {
 			scores = append(scores, rsiScore)
 		}
 	}
 
-
-	if MACDweighting != '0' {
+	if MACDweighting != 0 {
 		b.MACDlongperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodLR:])
 		b.MACDshortperiodavg = Sma(b.PastAsks[b.LongestTradingPeriod-b.MACDTradingPeriodSR:])
 		currdifference := b.MACDshortperiodavg.Sub(b.MACDlongperiodavg)
@@ -208,10 +208,10 @@ func TradeLive(b *RsiBot) {
 			scores = append(scores, macdScore)
 		}
 	} else {
-			macdValues = append(macdValues, decimal.Zero())
+		macdValues = append(macdValues, decimal.Zero())
 	}
 
-	if Candlestickweighting != '0' {
+	if Candlestickweighting != 0 {
 		if Rev123(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || Hammer(b.Stack[b.LongestTradingPeriod-1]) || InverseHammer(b.Stack[b.LongestTradingPeriod-1]) || WhiteSlaves(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) || MorningStar(b.Stack[b.LongestTradingPeriod-3], b.Stack[b.LongestTradingPeriod-2], b.Stack[b.LongestTradingPeriod-1]) {
 			candlestickscore := decimal.NewFromInt64(100)
 			for i := 0; i < Candlestickweighting; i++ {
@@ -219,7 +219,7 @@ func TradeLive(b *RsiBot) {
 			}
 		}
 	}
-	if Offsetweighting != '0' {
+	if Offsetweighting != 0 {
 		ema := Ema(prevema, currAsk, b.OffsetTraingPeriod)
 		if currAsk.Cmp(ema.Sub(b.Offset)) == -1 {
 			offsetscore := decimal.NewFromInt64(100)
@@ -246,7 +246,7 @@ func TradeLive(b *RsiBot) {
 	}
 	PrintStatus(b, currBid, currAsk, status, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 
-//	fmt.Println("Average Score: ", averageScore)
+	//	fmt.Println("Average Score: ", averageScore)
 	PopulateFile(b, currAsk, currBid, rsi)
 
 	if b.ReadyToBuy { // check if sell order has gone trough
@@ -258,7 +258,7 @@ func TradeLive(b *RsiBot) {
 	} else {
 		bound := currBid.Mul(b.StopLossMult)
 
-	//	log.Println("Current Bid", currBid)
+		//	log.Println("Current Bid", currBid)
 		//log.Println("Stop Loss", b.StopLoss)
 
 		if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) ||
@@ -266,7 +266,7 @@ func TradeLive(b *RsiBot) {
 			sell(b, currBid)
 		} else if bound.Cmp(b.StopLoss) == 1 {
 			b.StopLoss = bound
-	//		log.Println("Stoploss changed to: ", b.StopLoss)
+			//		log.Println("Stoploss changed to: ", b.StopLoss)
 		}
 		b.NumOfDecisions++
 	}
