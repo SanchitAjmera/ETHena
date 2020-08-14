@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"strconv"
@@ -73,8 +74,8 @@ func startBot(pair string) {
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
 
-	timeInterval, _ := strconv.ParseInt(os.Args[3], 10, 64)
-
+	timeIntervalFloat, _ := strconv.ParseFloat(os.Args[3], 64)
+	timeInterval := int64(math.Round(timeIntervalFloat))
 	botstring := ""
 	botstring = os.Args[2]
 	if botstring == "0000" {
