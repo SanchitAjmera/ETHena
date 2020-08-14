@@ -11,7 +11,10 @@ func InitialiseKeys() {
 			"g8ypyturf3a5s",
 			"BZIkiT2IgPhIFMRdBMvKIadmNP_MtksMvHwCaNfqVgE",
 		},
-		"MANUJ":  []string{},
+		"MANUJ": []string{
+			"jt8tkjzekh52e",
+			"KUKkerlv1-1GYbSaHrFa_I1uYzTZPY8AqJpOH2XyGck",
+		},
 		"LUQMAN": []string{},
 		"DEVAM": []string{
 			"mggh7nx5v5vzn",
