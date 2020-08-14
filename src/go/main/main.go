@@ -1,4 +1,4 @@
-package program
+package main
 
 import (
 	backtest "../backtestingUtils"
