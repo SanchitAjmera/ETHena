@@ -18,12 +18,12 @@ layout = [
     [sg.Text('TimeInterval(seconds)', size=text_size), sg.InputText('30')],
     [sg.Text('', size=text_size), sg.Radio('Live', "RADIO1", default=True, size=(19, 3)),
      sg.Radio("Offline", "RADIO1")],
-    [sg.T('main.go file', size=text_size), sg.In()],
+    [sg.T('Path to main.go file', size=text_size), sg.In()],
     [sg.Text('', size=text_size), sg.FileBrowse(target=(-1, 1))],
     [sg.OK(button_text="Run"), sg.Cancel()]]
 
 # form the window
-window = sg.Window('Ethena GUI', layout)
+window = sg.Window('ETHena', layout)
 # get the values from the GUI
 
 while True:
