@@ -15,7 +15,7 @@ var scoreValues []decimal.Decimal
 
 // function to cancel most recent order
 func cancelPrevOrder(b *RsiBot) {
-	PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLING PREVIOUS ORDER","", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+	PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLING PREVIOUS ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 	if b.PrevOrder == "" {
 	//	log.Println("No previous order to cancel")
 		return
@@ -35,14 +35,14 @@ func cancelPrevOrder(b *RsiBot) {
 		}
 		if res.Success {
 		//	log.Println("Successfully cancelled previous order")
-			PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLED PREVIOUS ORDER","", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+			PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLED PREVIOUS ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 
 		} else {
 		//	log.Println("ERROR! Failed to cancel previous order")
 			cancelPrevOrder(b)
 		}
 	}
-	PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLED PREVIOUS ORDER","", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+	PrintStatus(b, decimal.Zero(), decimal.Zero(), "CANCELLED PREVIOUS ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 }
 
 // function to execute buying of items
@@ -58,7 +58,7 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	// checking if there are no funds available
 
 	if buyableStock.Sign() == 0 {
-			PrintStatus(b, decimal.Zero(), currAsk, "NO FUND AVAILABLE","", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+			PrintStatus(b, decimal.Zero(), currAsk, "NO FUND AVAILABLE", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 		b.ReadyToBuy = false
 		return
 	}
@@ -78,8 +78,8 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 		time.Sleep(time.Second * 30)
 		res, err = Client.PostLimitOrder(context.Background(), &req)
 	}
-	info := "BUY ORDER " + res.OrderId+  " PLACED AT " + price.String()[:6]
-	PrintStatus(b, decimal.Zero(), currAsk, "BUY ORDER PLACED",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+	//info := "BUY ORDER " + res.OrderId+  " PLACED AT " + price.String()[:6]
+	PrintStatus(b, decimal.Zero(), currAsk, "BUY ORDER PLACED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 
 	b.PrevOrder = res.OrderId
 	b.ReadyToBuy = false
@@ -87,18 +87,18 @@ func buy(b *RsiBot, currAsk decimal.Decimal) {
 	b.StopLoss = price
 	b.BuyPrice = price
 	// wait till order has gone through
-	PrintStatus(b, decimal.Zero(), currAsk, "WAITING FOR BUY ORDER TO BE FILLED",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+	PrintStatus(b, decimal.Zero(), currAsk, "WAITING FOR BUY ORDER TO BE FILLED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 	counter := 0
 	for {
 		time.Sleep(2 * time.Second)
 		counter++
 		if startStock.Cmp(getAsset("ETH")) == -1 {
-			PrintStatus(b, decimal.Zero(), currAsk, "BUY ORDER FILLED",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+			PrintStatus(b, decimal.Zero(), currAsk, "BUY ORDER FILLED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 			return
 		}
 		if counter > 15 {
 			b.TradesMade--
-			PrintStatus(b, decimal.Zero(), currAsk, "RETRYING BUY ORDER",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+			PrintStatus(b, decimal.Zero(), currAsk, "RETRYING BUY ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 			buy(b, currAsk)
 			return
 		}
@@ -115,7 +115,7 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 	// checking if there are no stock available
 	//log.Println("startstock after scale: ", startStock)
 	if startStock.Sign() == 0 {
-		PrintStatus(b, decimal.Zero(), decimal.Zero(), "NO FUND AVAILABLE","", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+		PrintStatus(b, decimal.Zero(), decimal.Zero(), "NO FUND AVAILABLE", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 		b.ReadyToBuy = true
 		return
 	}
@@ -137,24 +137,24 @@ func sell(b *RsiBot, currBid decimal.Decimal) {
 		res, err = Client.PostLimitOrder(context.Background(), &req)
 	}
 
-	info := "SELL ORDER " + res.OrderId +  " PLACED AT " + price.String()[:6]
-	PrintStatus(b, price, decimal.Zero(), "SELL ORDER PLACED",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+//	info := "SELL ORDER " + res.OrderId +  " PLACED AT " + price.String()[:6]
+	PrintStatus(b, price, decimal.Zero(), "SELL ORDER PLACED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 	b.PrevOrder = res.OrderId
 	b.ReadyToBuy = true
 	b.TradesMade++
-	b.BuyPrice = decimal.Zero()
-	PrintStatus(b, price, decimal.Zero(), "WAITING FOR SELL ORDER TO BE FILLED",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+	b.SellPrice = price
+	PrintStatus(b, price, decimal.Zero(), "WAITING FOR SELL ORDER TO BE FILLED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 	counter := 0
 	for {
 		time.Sleep(2 * time.Second)
 		counter++
 		if startFunds.Cmp(getAsset("XBT")) == -1 {
-			PrintStatus(b, price, decimal.Zero(), "SELL ORDER FILLED",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+			PrintStatus(b, price, decimal.Zero(), "SELL ORDER FILLED", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 			return
 		}
 		if counter > 15 {
 			b.TradesMade--
-			PrintStatus(b, price, decimal.Zero(), "RETRYING SELL ORDER",info, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+			PrintStatus(b, price, decimal.Zero(), "RETRYING SELL ORDER", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 			sell(b, currBid)
 			return
 		}
@@ -238,13 +238,13 @@ func TradeLive(b *RsiBot) {
 	scoreValues = append(scoreValues, averageScore)
 	stopLossValues = append(stopLossValues, b.StopLoss)
 
-	if len(rsiValues) > 5 {
+	if len(rsiValues) > 6 {
 		rsiValues = rsiValues[1:]
 		stopLossValues = stopLossValues[1:]
 		macdValues = macdValues[1:]
 		scoreValues = scoreValues[1:]
 	}
-	PrintStatus(b, currBid, currAsk, status,"", []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
+	PrintStatus(b, currBid, currAsk, status, []([]decimal.Decimal){rsiValues, macdValues, stopLossValues, scoreValues})
 
 //	fmt.Println("Average Score: ", averageScore)
 	PopulateFile(b, currAsk, currBid, rsi)

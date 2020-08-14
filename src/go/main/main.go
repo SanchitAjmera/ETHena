@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	// "fmt"
+	// "log"
 	"math"
 	"os"
 	"os/exec"
@@ -35,7 +35,7 @@ func GetCandlesticksandPastAsks(b *live.RsiBot) ([]live.Candlestick, []decimal.D
 		stick := live.GetCandleStick(b.TimeInterval)
 		pastAsks = append(pastAsks, stick.CloseAsk)
 		status := "GETTING PAST ASKS [" + strconv.FormatInt(i+1, 10) + "/" + strconv.FormatInt((b.LongestTradingPeriod),10) + "]"
-		live.PrintStatus(b, stick.CloseBid, stick.CloseAsk,status,"", nil)
+		live.PrintStatus(b, stick.CloseBid, stick.CloseAsk,status, nil)
 		stack = append(stack, stick)
 	//	fmt.Println("Candle " + strconv.Itoa(int(i)) + " got")
 		i++
@@ -77,7 +77,7 @@ func startBot(pair string) {
 	live.PairName = pair
 	live.User = strings.ToUpper(os.Args[1])
 	live.Client = live.CreateClient()
-	live.PrintStatus(nil, decimal.Zero(), decimal.Zero(), "UPDATE EMAIL SENT" ,"",nil)
+	live.PrintStatus(nil, decimal.Zero(), decimal.Zero(), "UPDATE EMAIL SENT" ,nil)
 	live.Email("START", decimal.Zero())
 
 	timeIntervalFloat, _ := strconv.ParseFloat(os.Args[3], 64)
@@ -85,7 +85,7 @@ func startBot(pair string) {
 	botstring := ""
 	botstring = os.Args[2]
 	if botstring == "0000" {
-		fmt.Println("No Strategies Chosen. Bot has been stopped")
+	//	fmt.Println("No Strategies Chosen. Bot has been stopped")
 		return
 	}
 	offset, _ := decimal.NewFromString("0.00000020")
@@ -129,6 +129,7 @@ func startBot(pair string) {
 		OverSold:             rsiLowerLim,
 		ReadyToBuy:           true,
 		BuyPrice:             decimal.Zero(),
+		SellPrice:             decimal.Zero(),
 		UpEma:                decimal.Zero(),
 		DownEma:              decimal.Zero(),
 		PrevAsk:              decimal.Zero(),
@@ -184,7 +185,7 @@ func startBot(pair string) {
 			err1 := graphCmd.Run()
 
 			if err1 != nil {
-				log.Println("ERROR! Failed to graph data:", err1)
+				//log.Println("ERROR! Failed to graph data:", err1)
 			}
 			//Emailing
 			//newFunds, _ := live.getAssets("XRP","XBT")
@@ -197,11 +198,11 @@ func startBot(pair string) {
 			err2 := deletePicCmd.Run()
 
 			if err2 != nil {
-				log.Println("ERROR! Failed to delete graph:", err2)
+				//log.Println("ERROR! Failed to delete graph:", err2)
 			}
 
 			if err1 == nil && err2 == nil {
-				log.Println("Graphed daily data successfully")
+				//log.Println("Graphed daily data successfully")
 			}
 
 			live.SetUpNewFile()

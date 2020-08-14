@@ -37,7 +37,7 @@ func LoadScreen(){
   fmt.Printf("\n")
 }
 
-func PrintStatus(b *RsiBot, currAsk decimal.Decimal, currBid decimal.Decimal, status string, info string, values []([]decimal.Decimal)){
+func PrintStatus(b *RsiBot, currAsk decimal.Decimal, currBid decimal.Decimal, status string, values []([]decimal.Decimal)){
   clear()
   fmt.Printf("Date | %v", StartDay.Format("2006-01-02"))
   fmt.Printf("\n")
@@ -57,14 +57,19 @@ func PrintStatus(b *RsiBot, currAsk decimal.Decimal, currBid decimal.Decimal, st
     printIndicators(values[0], values[1], values[2], values[3])
   }
 
-  if info != "" {
-      fmt.Printf("                               ")
-      fmt.Println(info)
+  if b != nil {
+    fmt.Printf("\n\n")
+    fmt.Printf("                 ")
+    fmt.Printf("Buy Price  | %v", b.BuyPrice)
+    fmt.Printf("\n")
+    fmt.Printf("                 ")
+    fmt.Printf("Sell Price | %v", b.SellPrice)
   }
+
 }
 
 func printEthena(){
-  fmt.Printf("\n\n\n\n\n\n")
+  fmt.Printf("\n\n\n\n\n\n\n")
   fmt.Println("                    #####  #####  #   #  #####  #   #    #")
   fmt.Println("                    #        #    #   #  #      ##  #   # #")
   fmt.Println("                    #####    #    #####  #####  # # #  #####")
@@ -79,7 +84,7 @@ func printIndicators(rsiValues []decimal.Decimal,macdValues []decimal.Decimal, s
   fmt.Printf("|    RSI   |   MACD   | STOPLOSS |  SCORE   |\n")
   fmt.Printf("                 ")
   fmt.Printf("|          |          |          |          |\n")
-  for i := 0 ; i < len(rsiValues) ; i++{
+  for i := 0 ; i < len(rsiValues) - 1 ; i++{
     fmt.Printf("                 ")
     rsiValue := rsiValues[i].Div(one, 16).String()
     macdValue := macdValues[i].Div(one, 16).String()
@@ -95,6 +100,20 @@ func printIndicators(rsiValues []decimal.Decimal,macdValues []decimal.Decimal, s
     fmt.Printf(" | ")
     fmt.Printf("\n")
   }
+  fmt.Printf("               > ")
+  rsiValue := rsiValues[len(rsiValues) - 1].Div(one, 16).String()
+  macdValue := macdValues[len(rsiValues) - 1].Div(one, 16).String()
+  scoreValue := scoreValues[len(rsiValues) - 1].Div(one, 16).String()
+  stopLossValue := stopLossValues[len(rsiValues) - 1].Div(one, 16).String()
+  fmt.Printf("| %v",rsiValue[:8])
+  fmt.Printf(" | ")
+  fmt.Printf("%v",macdValue[:8])
+  fmt.Printf(" | ")
+  fmt.Printf("%v",stopLossValue[:8])
+  fmt.Printf(" | ")
+  fmt.Printf("%v",scoreValue[:8])
+  fmt.Printf(" | ")
+  fmt.Printf("\n")
 
 }
 

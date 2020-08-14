@@ -24,6 +24,7 @@ type RsiBot struct {
 	OverSold             decimal.Decimal   // bound to tell the bot when to buy
 	ReadyToBuy           bool              // false means ready to sell
 	BuyPrice             decimal.Decimal   // stores most recent price we bought at
+	SellPrice					   decimal.Decimal   // stores most recent price we sold at
 	UpEma                decimal.Decimal   // exponentially smoothed Wilder's MMA for upward change
 	DownEma              decimal.Decimal   // exponentially smoothed Wilder's MMA for downward change
 	PrevAsk              decimal.Decimal   // the previous recorded ask price
