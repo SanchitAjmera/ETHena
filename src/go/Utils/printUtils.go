@@ -42,7 +42,7 @@ func PrintStatus(b *RsiBot, currAsk decimal.Decimal, currBid decimal.Decimal, st
 	fmt.Printf("\n")
 	fmt.Printf("Time | %v", StartDay.Format("15:04:05 MST"))
 	fmt.Printf("\n")
-	fmt.Printf("Pair | ETHBTX                     ")
+	fmt.Printf("Pair | ETHBTC                     ")
 	fmt.Printf("Status:")
 	fmt.Printf("\n")
 	fmt.Printf("User | %v            ", User)
