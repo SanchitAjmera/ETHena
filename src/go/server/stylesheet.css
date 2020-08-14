@@ -1,0 +1,165 @@
+body{
+  padding: 0;
+  margin: 0;
+
+}
+
+
+.container{
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+img{
+  max-width:100%;
+}
+
+.title {
+  position: absolute;
+  top: 1.5em;
+  font-size: 12em;
+  left: 17%;
+  color: white;
+  font-family: Impact, Charcoal, sans-serif;
+  font-weight: bold;
+}
+
+
+.parallax {
+
+  /* Set a specific height */
+  min-height: 40em;
+
+  /* Create the parallax scrolling effect */
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#firstImage{
+  /* The image used */
+    background-image: url("img_trading2.jpg");
+}
+
+#secondImage{
+  /* The image used */
+    background-image: url("img_trading3.jpg");
+}
+
+.fill-info{
+  height: 45em;
+  padding-top: 5em;
+  padding-bottom: 4em;
+  margin: 0 auto;
+  background-image: url("img_formBackground.jpg");
+  color:white;
+}
+
+.form{
+  max-height: 90%;
+  min-height: 80%;
+  border-radius: 10px;
+  margin: 0 auto;
+  background-color: black;
+  color: white;
+  width: 50%;
+  text-align: center;
+  padding: 3em;
+}
+
+#formHeading{
+ margin: 0;
+ color: white;
+ font-size: 4em;
+ font-family: Impact, Charcoal, sans-serif;
+}
+
+.info{
+  height: 50em;
+  background-color: white;
+  color:grey;
+}
+
+
+
+
+
+
+/* #############################################################*/
+
+
+
+
+
+
+
+.form-style-8{
+  font-family: Impact, Charcoal, sans-serif;
+	min-width: 500px;
+	background: black;
+	margin: 0 auto;
+  margin-top:50px;
+	box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.22);
+	-moz-box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.22);
+	-webkit-box-shadow:  0px 0px 15px rgba(0, 0, 0, 0.22);
+
+}
+
+.form-style-8 input[type="text"],
+.form-style-8 input[type="date"],
+.form-style-8 input[type="datetime"],
+.form-style-8 input[type="email"],
+.form-style-8 input[type="number"],
+.form-style-8 input[type="search"],
+.form-style-8 input[type="time"],
+.form-style-8 input[type="url"],
+.form-style-8 input[type="password"],
+.form-style-8 textarea,
+.form-style-8 select
+{
+  color: white;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	outline: none;
+	display: block;
+	width: 100%;
+	padding: 7px;
+	border: none;
+	border-bottom: 1px solid #ddd;
+	background: transparent;
+	margin-bottom: 20px;
+  margin-top: 20px;
+  font-family: Impact, Charcoal, sans-serif;
+  font-size: 20px;
+	height: 45px;
+}
+
+
+
+.form-style-8 input[type="submit"]{
+	-moz-box-shadow: inset 0px 1px 0px 0px #45D6D6;
+	-webkit-box-shadow: inset 0px 1px 0px 0px #45D6D6;
+	box-shadow: inset 0px 1px 0px 0px #45D6D6;
+	display: inline-block;
+	cursor: pointer;
+	color: black;
+  font-family: Impact, Charcoal, sans-serif;
+	font-size: 20px;
+	padding: 8px 18px;
+	text-decoration: none;
+  margin-top:20px;
+}
+
+.form-style-8 input[type="text"]:hover,
+.form-style-8 input[type="email"]:hover,
+.form-style-8 input[type="submit"]:hover {
+  color: #f83931;
+
+}
