@@ -39,7 +39,13 @@ Congratulations on completing the setup. To run ETHena go to src/python/GUI and 
 ```python3
 python3 GUI.py
 ```
-this will open up the ETHena GUI where your trading preferences can be entered. Please enter the name you entered into the apiKeys.go file or select it from the drop-down menu. The GUI allows you to weight 4 different strategies from 1 to 9. The weighting of each strategy will determine it's importance when making a decision to buy or sell crytocurrency. Move the slider to the desired level for each strategy - 0 weighting means it will not be used to execute trades. The recommanded setting are 1 on the RSI only. Please enter a time interval, which will be how often the bot decides to whether to trade or not. Our recommended value for this is 20 seconds. Finally, browse your files and select the main.go file within src/go/main/ and click run to start ETHena.
+the ETHena GUI will open and you can enter your trading preferences. Please enter your name which should be the same one you entered into the apiKeys.go file. 
+
+ETHena allows you to weight 4 different strategies from 1 to 9. The weighting of each strategy will determine their importance when making a decision to whether buy or sell. Move the slider to the desired level for each strategy - 0 weighting means it will not be used to execute trades.
+
+Please enter a time interval, which will be how often ETHena decided to execute a trade. Recommended settings are 1 for RSI at 20 second intervals. 
+
+Finally, browse your files and select the main.go file within src/go/main/ and click run to start ETHena.
 
 <p align="center">
   <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png" width="40%">
