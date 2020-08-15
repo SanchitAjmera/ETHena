@@ -41,7 +41,7 @@ python3 GUI.py
 ```
 this will open up the ETHena GUI where your trading preferences can be entered.
 
-![ETHena GUI](https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png?raw=true)
+![ETHena GUI](https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png?raw=true | width=100)
 
 # TODO:
   - Clean up ReadMe
