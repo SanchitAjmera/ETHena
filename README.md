@@ -42,7 +42,7 @@ python3 GUI.py
 this will open up the ETHena GUI where your trading preferences can be entered.
 
 <div style="text-align:center">
-	<img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png" width="40%">
+  <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png" width="40%">
 </div>
 
 # TODO:
