@@ -2,8 +2,8 @@
 
 A trading bot which executes trades on the Luno exchange using multiple strategies. This was developed as a solution for the Spark Blockchain Hackathon's Luno challenge.
 
-## Installation and setup
-### dependencies
+## Installation & Setup
+### Dependencies
 This system must have the Go language pre-installed. To find out how to install Go, please follow the steps on this page - https://golang.org/doc/install. Python is also used throughout this program, please find the step-by-step guide to install Python here - https://www.python.org/downloads/
 
 To install further dependacies used within the project, navigate through src/go/utils/setup folder and run the file setup.go to install all dependancies:
@@ -14,7 +14,7 @@ go run setup.go
 
 If you recieve an error while running this file, then you can also links and instructions to manually install the dependancies in src/go/utils/setup/ReadMe.md
 
-### Luno setup
+### Luno Setup
 To access the Luno market, sign up and verify your Luno account here - https://www.luno.com/en/login. Once you've been verified, deposit money into your wallet and initialise an API key. The API key should be kept private as it will provide access to your Luno account remotely. 
 
 Once you've authorised an API key, please insert them into src/go/utils/apiKeys.go in this format:
@@ -39,7 +39,7 @@ Congratulations on completing the setup. To run ETHena go to src/python/GUI and 
 ```python3
 python3 GUI.py
 ```
-this will open up the ETHena GUI where your trading preferences can be entered.
+this will open up the ETHena GUI where your trading preferences can be entered. Please enter the name you entered into the apiKeys.go file or select it from the drop-down menu. The GUI allows you to weight 4 different strategies from 1 to 9. The weighting of each strategy will determine it's importance when making a decision to buy or sell crytocurrency. Move the slider to the desired level for each strategy - 0 weighting means it will not be used to execute trades. The recommanded setting are 1 on the RSI only. Please enter a time interval, which will be how often the bot decides to whether to trade or not. Our recommended value for this is 20 seconds. Finally, browse your files and select the main.go file within src/go/main/ and click run to start ETHena.
 
 <p align="center">
   <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png" width="40%">
