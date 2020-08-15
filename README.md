@@ -30,7 +30,16 @@ func InitialiseKeys() {
 }
 ```
 
-Note: Please ensure the <NAME> is all uppercase.
+Note: Please ensure the "<NAME>" is all uppercase.
+
+## Running ETHena
+### GUI
+Congratulations on completing the setup. To run ETHena go to src/python/GUI and enter the following command:
+
+```python3
+python3 GUI.py
+```
+this will open up the ETHena GUI where your trading preferences can be entered.
 
 # TODO:
   - Clean up ReadMe
