@@ -1,18 +1,36 @@
 # ETHena
 
-ETHena is a bot which executes trades on the Luno exchange based on multiple strategies. This was developed as a solution for the Spark Blockchain Hackathon's Luno challenge.
+A trading bot which executes trades on the Luno exchange using multiple strategies. This was developed as a solution for the Spark Blockchain Hackathon's Luno challenge.
 
 ## Installation and setup
-
+### dependencies
 This system must have the Go language pre-installed. To find out how to install Go, please follow the steps on this page - https://golang.org/doc/install. Python is also used throughout this program, please find the step-by-step guide to install Python here - https://www.python.org/downloads/
 
-To install further dependacies used within the project, navigate through src -> go -> utils -> setup folder and run the file setup.go to install all dependancies:
+To install further dependacies used within the project, navigate through src/go/utils/setup folder and run the file setup.go to install all dependancies:
 
 ```go
 go run setup.go
 ```
 
-If you recieve an error while running this file, then you can also links to manually install the dependancies in src -> go -> util -> setup -> ReadMe.md
+If you recieve an error while running this file, then you can also links and instructions to manually install the dependancies in src/go/utils/setup/ReadMe.md
+
+### Luno setup
+To access the Luno market, sign up and verify your Luno account here - https://www.luno.com/en/login. Once you've been verified, deposit money into your wallet and initialise an API key. the API key should be kept private as it will provide access to your Luno account remotely. 
+
+Once you've authorised an API key, please insert them into src/go/utils/apiKeys.go in this format:
+
+```go
+func InitialiseKeys() {
+	ApiKeys = map[string]([]string){
+		"<NAME>": []string{
+			"<KEY_ID>",
+			"<KEY>",
+		},
+	}
+}
+```
+
+Note: Please ensure the <NAME> is all uppercase.
 
 # TODO:
   - Clean up ReadMe
