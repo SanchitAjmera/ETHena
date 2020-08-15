@@ -8,9 +8,9 @@ This system must have the Go language pre-installed. To find out how to install 
 
 To install further dependacies used within the project, navigate through src -> go -> utils -> setup folder and run the file setup.go to install all dependancies:
 
-'''
+```go
 go run setup.go
-'''
+```
 
 If you recieve an error while running this file, then you can also links to manually install the dependancies in src -> go -> util -> setup -> ReadMe.md
 
