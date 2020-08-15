@@ -8,11 +8,23 @@ import (
 	"github.com/luno/luno-go/decimal"
 )
 
+type info struct {
+	timeStampRow int
+	openAsk      decimal.Decimal
+	closeAsk     decimal.Decimal
+	maxAsk       decimal.Decimal
+	minAsk       decimal.Decimal
+	openBid      decimal.Decimal
+	closeBid     decimal.Decimal
+	maxBid       decimal.Decimal
+	minBid       decimal.Decimal
+}
+
 var timeInPeriodMins = 30
 
-func getInfoFromSpread(startRow int) candlestick {
-	// file, err := excelize.OpenFile("../ticker/data_7to8_July/tickerData09072020.xlsx")
-	file, err := excelize.OpenFile("../../ticker/data/18to19-July.xlsx")
+func getInfoFromSpread(startRow int) info {
+	// file, err := excelize.OpenFile("../../ticker/data_7to8_July/tickerData09072020.xlsx")
+	file, err := excelize.OpenFile("../../ticker/data_8to9_July/tickerDataDay2.xlsx")
 	if err != nil {
 		panic(err)
 	}
@@ -71,94 +83,54 @@ func getInfoFromSpread(startRow int) candlestick {
 			closeBid = cellBid
 		}
 	}
-	info := candlestick{openAsk, closeAsk, maxAsk, minAsk, openBid, closeBid, maxBid, minBid}
+	info := info{upperRowBound, openAsk, closeAsk, maxAsk, minAsk, openBid, closeBid, maxBid, minBid}
+	// fmt.Println("Row: ", info.timeStampRow, " OpenAsk: ", info.openAsk, " CloseAsk: ", info.closeAsk, " MaxAsk: ", info.maxAsk, " MinAsk: ", info.minAsk)
 	return info
 }
 
-func rev123(stick1 candlestick, stick2 candlestick, stick3 candlestick) bool {
-	b1Op := stick1.openAsk
-	b1Cl := stick1.closeAsk
-	b1Max := stick1.maxAsk
-	b1Min := stick1.minAsk
+func upDownOrNothing() {
 
-	// b2Op := stick2.openAsk
-	// b2Cl := stick2.closeAsk
-	b2Min := stick2.minAsk
-	b2Max := stick2.maxAsk
-
-	// b3Op := stick3.openAsk
-	b3Cl := stick3.closeAsk
-	// b3Max := stick3.maxAsk
-	b3Min := stick3.minAsk
-
-	//For buying
-	return b1Cl.Cmp(b1Op) == -1 && b2Min.Cmp(b1Min) == -1 && b2Min.Cmp(b3Min) == -1 && b3Cl.Cmp(b1Max) == 1 && b3Cl.Cmp(b2Max) == 1
-}
-
-func hammer(stick candlestick) bool {
-	op := stick.openAsk
-	cl := stick.closeAsk
-	// max := stick.maxAsk
-	min := stick.minAsk
-
-	diffClOp := cl.Sub(op)
-	hammerScale, _ := decimal.NewFromString("2")
-	diffOpMin := (op.Sub(min)).Mul(hammerScale)
-
-	return op.Cmp(cl) == -1 && diffOpMin.Cmp(diffClOp) == 1
-}
-
-func inverseHammer(stick candlestick) bool {
-	op := stick.openAsk
-	cl := stick.closeAsk
-	max := stick.maxAsk
-	// min := stick.minAsk
-
-	diffClOp := cl.Sub(op)
-	hammerScale, _ := decimal.NewFromString("2")
-	diffMaxCl := (max.Sub(cl)).Mul(hammerScale)
-
-	return op.Cmp(cl) == -1 && (diffMaxCl).Cmp(diffClOp) == 1
-}
-
-func whiteSlaves(stick1 candlestick, stick2 candlestick, stick3 candlestick) bool {
-	return stick1.openAsk.Cmp(stick1.closeAsk) == -1 && stick2.openAsk.Cmp(stick2.closeAsk) == -1 && stick3.openAsk.Cmp(stick3.closeAsk) == -1
-}
-
-func morningStar(stick1 candlestick, stick2 candlestick, stick3 candlestick) bool {
-	b1Op := stick1.openAsk
-	b1Cl := stick1.closeAsk
-
-	b2Op := stick2.openAsk
-	b2Cl := stick2.closeAsk
-
-	b3Op := stick3.openAsk
-	b3Cl := stick3.closeAsk
-
-	diffb1 := b1Op.Sub(b1Cl)
-	diffb3 := b3Cl.Sub(b3Op)
-	scale, _ := decimal.NewFromString("3")
-	diffb2 := (b2Op.Sub(b2Cl)).Mul(scale)
-
-	return b1Op.Cmp(b1Cl) == 1 && b2Op.Cmp(b2Cl) == 1 && b3Op.Cmp(b3Cl) == -1 && diffb1.Cmp(diffb2) == 1 && diffb3.Cmp(diffb2) == 1
-}
-
-func tradeBacktester() {
-
-	stack := []candlestick{getInfoFromSpread(2), getInfoFromSpread(2 + 30), getInfoFromSpread(2 + 60)}
+	stack := []info{getInfoFromSpread(2), getInfoFromSpread(2 + 30), getInfoFromSpread(2 + 60)}
 
 	for currentRow := 62; currentRow < 1322; currentRow += timeInPeriodMins {
 
-		fmt.Println("123Rev : ", rev123(stack[0], stack[1], stack[2]))
-		fmt.Println("Hammer : ", hammer(stack[2]))
-		fmt.Println("Inverse Hammer : ", inverseHammer(stack[2]))
-		fmt.Println("White Slaves : ", whiteSlaves(stack[0], stack[1], stack[2]))
-		fmt.Println("Morningstar : ", morningStar(stack[0], stack[1], stack[2]))
+		b1Op := stack[0].openAsk
+		b1Cl := stack[0].closeAsk
+		b1Max := stack[0].maxAsk
+		b1Min := stack[0].minAsk
+
+		b2Op := stack[1].openAsk
+		b2Cl := stack[1].closeAsk
+		b2Max := stack[1].maxAsk
+		b2Min := stack[1].minAsk
+
+		b3Op := stack[2].openAsk
+		b3Cl := stack[2].closeAsk
+		b3Max := stack[2].maxAsk
+		b3Min := stack[2].minAsk
+
+		fmt.Println("\n------------------ Time Stamp of Bar 3 : ", stack[2].timeStampRow)
+
+		if b1Cl.Cmp(b1Op) == -1 && b2Min.Cmp(b1Min) == -1 && b2Min.Cmp(b3Min) == -1 && b3Cl.Cmp(b1Max) == 1 && b3Cl.Cmp(b2Max) == 1 {
+			fmt.Println("Predicting to buy")
+		} else if b1Cl.Cmp(b1Op) == 1 && b2Min.Cmp(b1Min) == 1 && b2Min.Cmp(b3Min) == 1 && b3Cl.Cmp(b1Max) == -1 && b3Cl.Cmp(b2Max) == -1 {
+			fmt.Println("Predicting to sell")
+		} else {
+			fmt.Println("Predicting to do nada")
+		}
+
+		fmt.Println("Bar 1 opening : ", b1Op, "  Bar 1 closing : ", b1Cl, "  Bar 1 high : ", b1Max, " Bar 1 low : ", b1Min)
+		fmt.Println("Bar 2 opening : ", b2Op, "  Bar 2 closing : ", b2Cl, "  Bar 2 high : ", b2Max, " Bar 2 low : ", b2Min)
+		fmt.Println("Bar 3 opening : ", b3Op, "  Bar 3 closing : ", b3Cl, "  Bar 3 high : ", b3Max, " Bar 3 low : ", b3Min)
+		fmt.Println("------------------")
 
 		stack = append(stack[1:], getInfoFromSpread(currentRow))
 	}
 }
 
-// func main() {
-// 	trade()
-// }
+func main() {
+	fmt.Println("Hello world")
+
+	upDownOrNothing()
+
+}

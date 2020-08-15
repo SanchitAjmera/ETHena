@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	backtest "../../backtestingUtils"
 	luno "github.com/luno/luno-go"
 	"github.com/luno/luno-go/decimal"
-  backtest "TradingHackathon/src/go/backtestingUtils"
-  "time"
-
 )
 
 // Global Variables
@@ -41,7 +39,7 @@ func getPastAsks(b *offsetBot) []decimal.Decimal {
 
 func main() {
 
-  isLive = true
+	isLive = true
 
 	var pastAsks []decimal.Decimal
 
@@ -77,8 +75,8 @@ func main() {
 
 	} else {
 
-	  backtest.InitialiseFunds(decimal.NewFromFloat64(0.014,8), decimal.Zero())
-		for i:= 0; i < int(tradingPeriod); i++ {
+		backtest.InitialiseFunds(decimal.NewFromFloat64(0.014, 8), decimal.Zero())
+		for i := 0; i < int(tradingPeriod); i++ {
 			pastAsks = append(pastAsks, backtest.GetOfflineAsk(int64(i+1)))
 
 		}

@@ -1,297 +1,201 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"time"
-
-	"github.com/luno/luno-go"
-	"github.com/luno/luno-go/decimal"
+  "fmt"
+  "github.com/luno/luno-go/decimal"
 )
 
-// Client is the luno client
-var Client *luno.Client
 
-// PairName is pair
-var PairName string
 
 type candleBot struct {
-	TradingPeriod int64           // How often the bot calculates a result
-	TradesMade    int64           // total number of trades executed
-	ReadyToBuy    bool            // holds the state of the bot
-	BuyPrice      decimal.Decimal // price we bought at
-	PrevOrder     string
-	StopLoss      decimal.Decimal
-	StopLossMult  decimal.Decimal
+	TradingPeriod		int64										// How often the bot calculates a result
+	TradesMade	   	int64						 				// total number of trades executed
+	NumOfDecisions 	int64					 					// number of times the bot calculates
+	queue					  []candlestick				  	// previous 3 candlesticks
+  ReadyToBuy      bool                    // holds the state of the bot
+	BuyPrice				decimal.Decimal					// price we bought at
+  currRow         int64
 }
 
 type candlestick struct {
-	openAsk  decimal.Decimal
-	closeAsk decimal.Decimal
-	maxAsk   decimal.Decimal
-	minAsk   decimal.Decimal
-	openBid  decimal.Decimal
-	closeBid decimal.Decimal
-	maxBid   decimal.Decimal
-	minBid   decimal.Decimal
+	openAsk   decimal.Decimal
+	closeAsk  decimal.Decimal
+	maxAsk    decimal.Decimal
+	minAsk    decimal.Decimal
+	openBid   decimal.Decimal
+	closeBid  decimal.Decimal
+	maxBid    decimal.Decimal
+	minBid    decimal.Decimal
 }
 
-func getTickerRes() luno.GetTickerResponse {
-	reqPointer := luno.GetTickerRequest{Pair: PairName}
-	res, err := Client.GetTicker(context.Background(), &reqPointer)
-	if err != nil {
-		log.Println(err)
-		time.Sleep(2 * time.Second)
-		return getTickerRes()
-	}
-	return *res
+func (b *candleBot) getCurrCandlestick() candlestick{
+  var maxInt64 int64 = 1844674407370955200
+  result := candlestick{
+    openAsk:  decimal.Zero(),
+    closeAsk: decimal.Zero(),
+    maxAsk:   decimal.Zero(),
+    minAsk:   decimal.NewFromInt64(maxInt64),
+    openBid:  decimal.Zero(),
+    closeBid:  decimal.Zero(),
+    maxBid:   decimal.Zero(),
+    minBid:   decimal.NewFromInt64(maxInt64),
+  }
+
+  result.openBid = getBid(b.currRow)
+  result.openAsk = getAsk(b.currRow)
+  b.currRow += 1
+
+	callsPerMinute := 1
+
+  for i := 1; i < callsPerMinute * int(b.TradingPeriod)-1; i++ {
+
+    currBid := getBid(b.currRow)
+    currAsk := getAsk(b.currRow)
+
+    if result.maxAsk.Cmp(currAsk) == -1 {
+      result.maxAsk = currAsk
+    }
+
+    if result.maxBid.Cmp(currBid) == -1 {
+      result.maxBid = currBid
+    }
+
+    if currAsk.Cmp(result.minAsk) == -1 {
+      result.minAsk = currAsk
+    }
+
+    if currBid.Cmp(result.minBid) == -1 {
+      result.minBid = currBid
+    }
+
+    b.currRow += 1
+  }
+
+  result.closeBid = getBid(b.currRow+int64(b.TradingPeriod))
+  result.closeAsk = getAsk(b.currRow+int64(b.TradingPeriod))
+
+  b.currRow += 1
+
+  // fmt.Println("Bids:  Open - ",result.openBid," High - ",result.maxBid," Low - ",result.minBid," Close - ",result.closeBid)
+  // fmt.Println("Asks:  Open - ",result.openAsk," High - ",result.maxAsk," Low - ",result.minAsk," Close - ",result.closeAsk)
+
+  return result
 }
 
-func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Decimal) {
-	balancesReq := luno.GetBalancesRequest{}
-	balances, err := Client.GetBalances(context.Background(), &balancesReq)
-	if err != nil {
-		log.Println(err)
-		time.Sleep(2 * time.Second)
-		getAssets(currency1, currency2)
-	}
-	var return1 decimal.Decimal
-	var return2 decimal.Decimal
-	for _, accBalance := range balances.Balance {
-		if accBalance.Asset == currency1 {
-			return1 = accBalance.Balance
-		}
-		if accBalance.Asset == currency2 {
-			return2 = accBalance.Balance
-		}
-	}
-	return return1, return2
+func (b *candleBot) fillQueue(queueSize int) {
+  for i := 0; i < queueSize; i++ {
+    fmt.Println("Filling queue: ",i+1,"/",queueSize,"\n")
+    b.queue = append(b.queue, b.getCurrCandlestick())
+  }
 }
 
-// function to execute buying of items
-func buy(b *candleBot, currAsk decimal.Decimal) {
-	time.Sleep(time.Second * 2)
+func (b *candleBot) trade3() {
+		b1Op := b.queue[0].openAsk
+		b1Cl := b.queue[0].closeAsk
+		b1Max := b.queue[0].maxAsk
+		b1Min := b.queue[0].minAsk
 
-	_, startFunds := getAssets("ETH", "XBT")
-	price := currAsk.Sub(decimal.NewFromFloat64(0.000001, 8))
-	buyableStock := startFunds.Div(price, 8)
-	buyableStock = buyableStock.ToScale(2)
+		b2Op := b.queue[1].openAsk
+		b2Cl := b.queue[1].closeAsk
+		b2Max := b.queue[1].maxAsk
+		b2Min := b.queue[1].minAsk
 
-	// checking if there are no funds available
-	if buyableStock.Sign() == 0 {
-		log.Println("Not enough funds available")
-		b.ReadyToBuy = false
+		b3Op := b.queue[2].openAsk
+		b3Cl := b.queue[2].closeAsk
+		b3Max := b.queue[2].maxAsk
+		b3Min := b.queue[2].minAsk
+
+		if b2Max.Cmp(b1Max) == 1 && b2Max.Cmp(b3Max) == 1 && b2Min.Cmp(b1Min) == 1 && b2Min.Cmp(b3Min) == 1 {
+			if b1Cl.Cmp(b1Op) == 1 && b3Op.Cmp(b3Cl) == 1 && b2Cl.Cmp(b2Op) == 1 {
+        b.sell()
+			}
+		} else if b2Max.Cmp(b1Max) == -1 && b2Max.Cmp(b3Max) == -1 && b2Min.Cmp(b1Min) == -1 && b2Min.Cmp(b3Min) == -1{
+			if b1Cl.Cmp(b1Op) == -1 && b3Op.Cmp(b3Cl) == -1 && b2Cl.Cmp(b2Op) == -1{
+        b.buy()
+			}
+		} else {
+  //     fmt.Println("HOLD at",b3Cl)
+    }
+    b.NumOfDecisions++
+}
+
+func (b *candleBot) trade() {
+//  fmt.Println("currRow", b.currRow)
+  //Move the queue forward
+  for i := 0; i < len(b.queue) - 1; i++ {
+    b.queue[i] = b.queue[i+1]
+  }
+  b.queue[len(b.queue) - 1] = b.getCurrCandlestick()
+
+  b.trade3()
+}
+
+
+func (b *candleBot) buy() {
+  price := getAsk(b.currRow).Mul(decimal.NewFromFloat64(0.99999,8))
+
+//  buyableStock := currFunds.Div(price, 8)
+  // checking if there are enough funds to buy the given amount of stock
+/*  if currFunds.Sign() == 0 {
+    fmt.Println("No funds available")
+    return
+  } else {
+    //Create limit order
+
+    req := luno.PostLimitOrderRequest{
+      Pair: pair,
+      Price: price,
+      Type: "BID", //We are putting in a bid to buy at the ask price
+      Volume: buyableStock,
+      //BaseAccountId: --> Not needed until using multiple strategies
+      //CounterAccoundId: --> Same as above
+      PostOnly: true,
+    }
+    res, err := client.PostLimitOrder(context.Background(), &req)
+    if err != nil {panic(err)}*/
+    fmt.Println("BUYS at", price, " currRow:", b.currRow)
+    b.ReadyToBuy = false
+		b.BuyPrice = price
+    b.TradesMade++
+
+}
+
+
+func (b *candleBot) sell() {
+	price := getBid(b.currRow).Mul(decimal.NewFromFloat64(1.00001, 8))
+/*
+	if price < b.BuyPrice {
+		fmt.Println("Spread too high to sell")
 		return
 	}
-	//Create limit order
-	req := luno.PostLimitOrderRequest{
-		Pair:   PairName,
-		Price:  price,
-		Type:   "BID", //We are putting in a bid to buy at the ask price
-		Volume: buyableStock,
-		//BaseAccountId: --> Not needed until using multiple strategies
-		//CounterAccountId: --> Same as above
-		PostOnly: true,
-	}
-	res, err := Client.PostLimitOrder(context.Background(), &req)
-	for err != nil {
-		log.Println(err)
-		time.Sleep(time.Second * 30)
-		res, err = Client.PostLimitOrder(context.Background(), &req)
-	}
-	log.Println("BUY - order ", res.OrderId, " placed at ", price)
-	b.PrevOrder = res.OrderId
-	b.ReadyToBuy = false
-	b.TradesMade++
-	b.StopLoss = price
-	b.BuyPrice = price
-	// wait till order has gone through
-	log.Println("Waiting for buy order to be partially filled")
-	counter := 0
-	for {
-		time.Sleep(2 * time.Second)
-		counter++
-		if getOrderStatus(b.PrevOrder) == "COMPLETE" {
-			return
-		}
-		if counter > 15 {
-			b.TradesMade--
-			log.Println("Buy order timed out. Retrying")
-			buy(b, currAsk)
-			return
-		}
-	}
-}
-
-func sell(b *candleBot, currBid decimal.Decimal) {
-	time.Sleep(time.Second * 2)
-
-	startStock, _ := getAssets("ETH", "XBT")
-	startStock = startStock.ToScale(2)
-
-	// checking if there are no stock available
-	log.Println("startstock after scale: ", startStock)
-	if startStock.Sign() == 0 {
-		log.Println("Not enough stock available")
-		b.ReadyToBuy = true
-		return
-	}
-	price := currBid.Add(decimal.NewFromFloat64(0.000001, 8))
 
 	req := luno.PostLimitOrderRequest{
-		Pair:   PairName,
-		Price:  price,
-		Type:   "ASK",
-		Volume: startStock,
+		Pair: pair,
+		Price: price,
+		Type: "ASK", //We are putting in a ask to sell at the bid price
+		Volume: getAsset("XBT"),
 		//BaseAccountId: --> Not needed until using multiple strategies
 		//CounterAccoundId: --> Same as above
 		PostOnly: true,
 	}
-	res, err := Client.PostLimitOrder(context.Background(), &req)
-	for err != nil {
-		log.Println(err)
-		time.Sleep(2 * time.Second)
-		res, err = Client.PostLimitOrder(context.Background(), &req)
+
+	if (b.lastOrderId != "") {
+		stopReq := luno.StopOrderRequest{OrderId: b.lastOrderId}
+		stopRes, err := client.StopOrder(context.Background(), &stopReq)
+		if err != nil {panic(err)}
+		if !stopRes.Success {
+			fmt.Println("Failed to cancel order")
+			return
+		}
+		fmt.Println("Previous order successfully cancelled")
 	}
 
-	log.Println("SELL - order ", res.OrderId, " placed at ", price)
-	b.PrevOrder = res.OrderId
+	res, err := client.PostLimitOrder(context.Background(), &req)
+	if err != nil {panic(err)}
+*/
+	fmt.Println("SELL at", price)
+//  fmt.Println("At the time above, ask price was:",currAsk,"\n")
+	//b.lastOrderId = res.OrderId
 	b.ReadyToBuy = true
 	b.TradesMade++
-	log.Println("Waiting for sell order to be partially filled")
-	counter := 0
-	for {
-		time.Sleep(2 * time.Second)
-		counter++
-		if getOrderStatus(b.PrevOrder) == "COMPLETE" {
-			return
-		}
-		if counter > 15 {
-			b.TradesMade--
-			log.Println("Sell order timed out. Retrying")
-			sell(b, currBid)
-			return
-		}
-	}
-}
-
-func getOrderStatus(id string) luno.OrderState {
-	orderReq := luno.GetOrderRequest{
-		Id: id,
-	}
-
-	res, err := Client.GetOrder(context.Background(), &orderReq)
-	if err != nil {
-		log.Println(err)
-		time.Sleep(2 * time.Second)
-		return getOrderStatus(id)
-	}
-	return res.State
-}
-
-func getCandleStick(b *candleBot) candlestick {
-	maxAsk := decimal.Zero()
-	minAsk := decimal.NewFromInt64(1844674407370955200)
-	openAsk := decimal.Zero()
-	closeAsk := decimal.Zero()
-	maxBid := decimal.Zero()
-	minBid := decimal.NewFromInt64(1844674407370955200)
-	openBid := decimal.Zero()
-	closeBid := decimal.Zero()
-
-	for i := 0; int64(i) <= b.TradingPeriod; i++ {
-		res := getTickerRes()
-		currAsk, currBid := res.Ask, res.Bid
-
-		if maxAsk.Cmp(currAsk) == -1 {
-			maxAsk = currAsk
-		}
-
-		if maxBid.Cmp(currBid) == -1 {
-			maxBid = currBid
-		}
-
-		if currAsk.Cmp(minAsk) == -1 {
-			minAsk = currAsk
-		}
-
-		if currBid.Cmp(minBid) == -1 {
-			minBid = currBid
-		}
-
-		if i == 0 {
-			openAsk = currAsk
-			openBid = currBid
-		}
-
-		if int64(i) == b.TradingPeriod {
-			closeAsk = currAsk
-			closeBid = currBid
-		}
-		time.Sleep(time.Second)
-	}
-	stick := candlestick{openAsk, closeAsk, maxAsk, minAsk, openBid, closeBid, maxBid, minBid}
-	return stick
-}
-
-func tradeLive(b *candleBot) {
-	fmt.Println("Processing 1")
-	initStick1 := getCandleStick(b)
-	fmt.Println("Processing 2")
-
-	initStick2 := getCandleStick(b)
-	fmt.Println("Processing 3")
-	initStick3 := getCandleStick(b)
-
-	stack := []candlestick{initStick1, initStick2, initStick3}
-
-	for {
-
-		if b.ReadyToBuy {
-			fmt.Println("123Rev : ", rev123(stack[0], stack[1], stack[2]))
-			fmt.Println("Hammer : ", hammer(stack[2]))
-			fmt.Println("Inverse Hammer : ", inverseHammer(stack[2]))
-			fmt.Println("White Slaves : ", whiteSlaves(stack[0], stack[1], stack[2]))
-			fmt.Println("Morningstar : ", morningStar(stack[0], stack[1], stack[2]))
-			if rev123(stack[0], stack[1], stack[2]) || hammer(stack[2]) || inverseHammer(stack[2]) || whiteSlaves(stack[0], stack[1], stack[2]) || morningStar(stack[0], stack[1], stack[2]) {
-				buy(b, stack[2].closeAsk)
-			}
-		} else {
-			bound := stack[2].closeBid.Mul(b.StopLossMult)
-			currBid := stack[2].closeBid
-			if (currBid.Cmp(b.BuyPrice) == 1 && currBid.Cmp(b.StopLoss) == -1) || currBid.Cmp(b.BuyPrice.Mul(decimal.NewFromFloat64(0.99, 8))) == -1 {
-				sell(b, currBid)
-			} else if bound.Cmp(b.StopLoss) == 1 {
-				b.StopLoss = bound
-				log.Println("Stoploss changed to: ", b.StopLoss)
-			}
-		}
-		// fmt.Println(stack)
-		stack = append(stack[1:], getCandleStick(b))
-	}
-}
-
-func main() {
-
-	PairName = "ETHXBT"
-	// live.InitialiseKeys()
-	// live.User = strings.ToUpper("devam")
-	// live.Client = live.CreateClient()
-
-	Client = luno.NewClient()
-	Client.SetAuth("mggh7nx5v5vzn",
-		"DiHrN4Lqu27eCajdCTBEKU4H-oIFAFR4_k1eRlx5Kho")
-
-	bot := candleBot{
-		TradingPeriod: 60,
-		TradesMade:    0,
-		ReadyToBuy:    true,
-		BuyPrice:      decimal.Zero(),
-		StopLoss:      decimal.Zero(),
-		StopLossMult:  decimal.NewFromFloat64(0.9975, 8),
-	}
-
-	tradeLive(&bot)
-	// tradeBacktester()
 }

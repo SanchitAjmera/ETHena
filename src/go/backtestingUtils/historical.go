@@ -17,7 +17,7 @@ var HistoricalData [][][]string
 // function to process the csv file and return a 3d array of strings
 // HistoricalData is of the form: [sheetNum][rowNum][colNum]
 func parseXlsx() {
-	fileSlice, err := xlsx.FileToSlice("C:\\Users\\Shivam Patel\\GolandProjects\\Trading_Hackathon\\src\\go\\backtestingUtils\\data.xlsx")
+	fileSlice, err := xlsx.FileToSlice("../ticker/data_7to8_July/tickerData09072020.xlsx")
 	if err != nil {
 		panic(err)
 	}
@@ -26,9 +26,9 @@ func parseXlsx() {
 
 // function to get the bid price from a given row in the excel spreadsheet
 func GetOfflineBid(currRow int64) decimal.Decimal {
-	currPrice := HistoricalData[0][int(currRow)][3] //Change this
+	currPrice := HistoricalData[0][int(currRow)][5] //Change this
 	// if data is non applicable skip this row
-	if currPrice == "NaN" {
+	if (currPrice == "NaN") {
 		return GetOfflineBid(currRow - 1)
 	}
 
@@ -49,9 +49,9 @@ func GetOfflineAsk(currRow int64) decimal.Decimal {
 		os.Exit(3)
 	}
 
-	currPrice := HistoricalData[0][currRow][2] //Change this
+	currPrice := HistoricalData[0][currRow][4] //Change this
 	// if data is non applicable skip this row
-	if currPrice == "NaN" {
+	if (currPrice == "NaN") {
 		return GetOfflineAsk(currRow - 1)
 	}
 
