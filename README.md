@@ -15,7 +15,7 @@ go run setup.go
 If you recieve an error while running this file, then you can also links and instructions to manually install the dependancies in src/go/utils/setup/ReadMe.md
 
 ### Luno setup
-To access the Luno market, sign up and verify your Luno account here - https://www.luno.com/en/login. Once you've been verified, deposit money into your wallet and initialise an API key. the API key should be kept private as it will provide access to your Luno account remotely. 
+To access the Luno market, sign up and verify your Luno account here - https://www.luno.com/en/login. Once you've been verified, deposit money into your wallet and initialise an API key. The API key should be kept private as it will provide access to your Luno account remotely. 
 
 Once you've authorised an API key, please insert them into src/go/utils/apiKeys.go in this format:
 
@@ -30,7 +30,7 @@ func InitialiseKeys() {
 }
 ```
 
-Note: Please ensure the "<NAME>" is all uppercase.
+Note: Please ensure the "NAME" is all uppercase.
 
 ## Running ETHena
 ### GUI
@@ -40,6 +40,8 @@ Congratulations on completing the setup. To run ETHena go to src/python/GUI and 
 python3 GUI.py
 ```
 this will open up the ETHena GUI where your trading preferences can be entered.
+
+![ETHena GUI](https://github.com/SanchitAjmera/ETHena/doc/images/GUI_Image.jpg?raw=true)
 
 # TODO:
   - Clean up ReadMe
