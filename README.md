@@ -1,7 +1,13 @@
-# TradingHackathon
-Implementation of a trading bot for the luno challenge
-  
-TODO:
+# ETHena
+
+ETHena is a bot which executes trades based on multiple strategies on the Luno exchange. This was developed as a solution for the Spark Blockchain Hackathon's Luno challenge.
+
+# Installation and setup
+
+This system must have the Go language pre-installed. To find out how to install Go, follow the steps on this page - https://golang.org/doc/install. Python is also used throughout this program, please find the step-by-step guide to install Python here - https://www.python.org/downloads/
+
+
+# TODO:
   - Clean up ReadMe
   - Finish acknowledgements in report
   - submit
