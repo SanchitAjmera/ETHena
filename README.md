@@ -2,8 +2,10 @@
 Implementation of a trading bot for the luno challenge
   
 TODO:
-  - Clean up repo 
-  - Prepare submission report, presentation
+  - Clean up ReadMe
+  - Finish acknowledgements in report
+  - submit
+
 
 DONE:
   - Clean up github repo
@@ -12,6 +14,7 @@ DONE:
   - Set up email notifications
   - Email notifications with graphed data
   - Research and develop security for api-keys
+  - Prepare submission report, presentation
   
 "There's a problem here, a real problem. We should be able to work together"
                                               - Sanchit 3 weeks into the competition
