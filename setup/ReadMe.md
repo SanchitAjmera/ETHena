@@ -24,7 +24,7 @@ Update to the latest golang version by replacing the 15 with the latest on golan
 wget https://dl.google.com/go/go1.15.linux-amd64.tar.gz
 ```
 
-YOu may inherit some problems with the PySimpleGUI if you do not have the tkinter module
+You may inherit some problems with the PySimpleGUI if you do not have the tkinter module
 
 ```shell
 sudo apt-get install python3-tk
