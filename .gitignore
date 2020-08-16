@@ -4,3 +4,4 @@ docs/report.log
 docs/report.out
 docs/report.toc
 docs/report.synctex.gz
+src/go/Utils/apiKeys.go
