@@ -1,5 +1,5 @@
 
-<img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/ETHenaLogo.png" width="60%">
+<img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/ETHenaLogo.png" width="30%">
 
 ETHena is an algorithmic trading bot which executes trades on the Luno exchange using multiple strategies. This was developed as a solution for the Spark Blockchain Hackathon's Luno trading challenge.
 
