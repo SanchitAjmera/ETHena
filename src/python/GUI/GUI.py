@@ -61,7 +61,7 @@ while True:
         else:
             live = "0"
         # form the command
-        command = "go run " + values[10] + " " + name + " " + strategy_chooser + " " + timeinterval + " " + live + ""
+        command = "go run '" + values[10] + "' " + name + " " + strategy_chooser + " " + timeinterval + " " + live + ""
         # run the comamnd
         os.system(command)
         break
