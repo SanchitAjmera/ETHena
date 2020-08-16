@@ -13,7 +13,7 @@ ETHena is an algorithmic trading bot which executes trades on the Luno exchange 
 
 ## Installation
 ### Dependencies
-This system is supported the Go language and Python 3.8 . To find out how to install Go, and Python 3.8 follow the step-by-step guides here - https://golang.org/doc/install, https://www.python.org/downloads/
+This system is supported the Go language and Python 3.8 and uses the Linux Operating System . To find out how to install Go, and Python 3.8 follow the step-by-step guides here - https://golang.org/doc/install, https://www.python.org/downloads/
 
 To install further dependacies used within the project, navigate through the ```src/Setup``` folder and run the file ```setup.sh``` to install all dependancies:
 
