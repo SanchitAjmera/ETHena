@@ -15,13 +15,13 @@ ETHena is an algorithmic trading bot which executes trades on the Luno exchange 
 ### Dependencies
 This system is supported the Go language and Python 3.8 . To find out how to install Go, and Python 3.8 follow the step-by-step guides here - https://golang.org/doc/install, https://www.python.org/downloads/
 
-To install further dependacies used within the project, navigate through the ```src/shell``` folder and run the file ```setup.sh``` to install all dependancies:
+To install further dependacies used within the project, navigate through the ```src/Setup``` folder and run the file ```setup.sh``` to install all dependancies:
 
 ```shell
 ./setup.sh
 ```
 
-**Note:** If you receive an error while running this file, then follow the links and instructions to manually install the dependancies in ```src/shell/ReadMe.md```
+**Note:** If you receive an error while running this file, then follow the links and instructions to manually install the dependancies in ```src/Setup/ReadMe.md```
 
 ### Luno Setup
 To access the Luno market, sign up and verify your Luno account here - https://www.luno.com/en/login. After you've been verified, deposit money into your wallet and initialise an API key. The API key should be kept private as it will provide access to your Luno account remotely. 
