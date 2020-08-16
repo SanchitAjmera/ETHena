@@ -9,9 +9,9 @@ import plotly.graph_objects as go
 # global variable
 wb = xlrd.open_workbook(
 <<<<<<< HEAD
-    "../../../go/src1/ticker/data_7to8_July/tickerData09072020.xlsx")
+    "../../../go/src/ticker/data_7to8_July/tickerData09072020.xlsx")
 =======
-    "../../../go/src1/backtesting-sanchit/recentAPIdata2018v2.xlsx")
+    "../../../go/src/backtesting-sanchit/recentAPIdata2018v2.xlsx")
 >>>>>>> c69df557ad4a17931d1064a37e86ec44bb0e021a
 sheet = wb.sheet_by_index(0)
 
