@@ -1,8 +1,15 @@
 ## Prerequisites:
 
+- This script is designed for Linux Operating Systems
 - Have python3 installed
 - Have pip3 installed
 - Have Golang installed
+- Type the following commands
+
+```shell
+chmod +x setup.sh\ 
+./setup.sh
+```
 
 ## Troubleshooting:
 
