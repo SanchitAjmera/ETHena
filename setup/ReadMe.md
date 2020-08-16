@@ -7,7 +7,7 @@
 - Type the following commands
 
 ```shell
-chmod +x setup.sh\ 
+chmod +x setup.sh
 ./setup.sh
 ```
 
