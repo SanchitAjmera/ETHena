@@ -1,11 +1,12 @@
 package backtestingUtils
 
 import (
-	live "../Utils"
 	"fmt"
+	"strconv"
+
+	live "../utils"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/luno/luno-go/decimal"
-	"strconv"
 )
 
 var xrp decimal.Decimal

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	live "../Utils"
 	backtest "../backtestingUtils"
+	live "../utils"
 	"github.com/luno/luno-go/decimal"
 )
 

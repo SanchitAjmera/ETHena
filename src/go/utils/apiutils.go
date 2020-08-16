@@ -2,6 +2,8 @@ package Utils
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"time"
 
 	luno "github.com/luno/luno-go"
@@ -73,7 +75,7 @@ func getAssets(currency1 string, currency2 string) (decimal.Decimal, decimal.Dec
 	balancesReq := luno.GetBalancesRequest{}
 	balances, err := Client.GetBalances(context.Background(), &balancesReq)
 	if err != nil {
-	//	log.Println(err)
+		//	log.Println(err)
 		time.Sleep(2 * time.Second)
 		getAssets(currency1, currency2)
 	}
