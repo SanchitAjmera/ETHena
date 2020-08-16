@@ -35,7 +35,7 @@ func InitialiseKeys() {
 	ApiKeys = map[string]([]string){
 		"<NAME>": []string{
 			"<KEY_ID>",
-			"<KEY>",
+			"<SECRET>",
 		},
 	}
 }
