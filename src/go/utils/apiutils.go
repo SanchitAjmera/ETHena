@@ -15,9 +15,22 @@ var User string
 var ApiKeys map[string]([]string)
 
 func CreateClient() *luno.Client {
+	if ApiKeys[User] == nil {
+		clear()
+		fmt.Println("User does not exist")
+		os.Exit(0)
+	}
+
 	lunoClient := luno.NewClient()
 	keyID := ApiKeys[User][0]
 	key := ApiKeys[User][1]
+
+	if keyID == "KEY_ID" || key == "SECRET" {
+		clear()
+		fmt.Println("Please update your API Keys")
+		os.Exit(0)
+	}
+
 	lunoClient.SetAuth(keyID, key)
 	lunoClient.SetTimeout(2 * time.Minute)
 	return lunoClient
