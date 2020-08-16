@@ -1,8 +1,17 @@
 # ETHena
 
-A trading bot which executes trades on the Luno exchange using multiple strategies. This was developed as a solution for the Spark Blockchain Hackathon's Luno challenge.
+=============
 
-## Installation & Setup
+ETHena is an algorithmic trading bot which executes trades on the Luno exchange using multiple strategies. This was developed as a solution for the Spark Blockchain Hackathon's Luno trading challenge.
+
+## Features
+ - **Luno API:** Integrated functionality from the Luno GO SDK, with ability to fetch live prices of six cryptocurrency paris as well as place and cancel post-limit-orders
+ - **Multiple Strategies:** ETHena can trade using information from 4 (user-weighted) strategies including RSI, MACD, Candlesticks, Offset-Ema and Trailing Stoploss for risk managment.
+ - **Email Notification:** A convenient manner to update the user on ETHena's trade histories, status, and daily performance summaries.
+ - **Performance Report:** Utility feature which automatically generates a graph to help pinpoint where ETHena decided to buy or sell over the course of one day.
+ 
+
+## Installation
 ### Dependencies
 This system must have the Go language pre-installed. To find out how to install Go, please follow the steps on this page - https://golang.org/doc/install. Python is also used throughout this program, please find the step-by-step guide to install Python here - https://www.python.org/downloads/
 
@@ -43,13 +52,15 @@ the ETHena GUI will open and you can enter your trading preferences. Please ente
 
 ETHena allows you to weight 4 different strategies from 1 to 9. The weighting of each strategy will determine their importance when making a decision to whether buy or sell. Move the slider to the desired level for each strategy - 0 weighting means it will not be used to execute trades.
 
-Please enter a time interval, which will be how often ETHena decided to execute a trade. Recommended settings are 1 for RSI at 20 second intervals. 
+Please enter a time interval, which will be how often ETHena decided to execute a trade. The recommended settings are 1 for RSI at 20 second intervals. 
 
-Finally, browse your files and select the main.go file within src/go/main/ and click run to start ETHena.
+Finally, browse your files to select the main.go file within the src/go/main/ directory and click run to start ETHena.
 
 <p align="center">
-  <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png" width="40%">
+  <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/GUI-Image.png" width="60%">
 </p>
+
+You will be directed to ETHena's TUI where you can monitor the ask, bid price and keep track of previous buy and sell orders.
 
 # TODO:
   - Clean up ReadMe
