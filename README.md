@@ -50,7 +50,7 @@ python3 GUI.py
 ```
 The ETHena GUI will open and you can enter your trading preferences.
  - Enter your name which should be the same one you entered into the apiKeys.go file.
- - ETHena allows you to weight 4 different strategies from 1 to 9. The weighting of each strategy will determine their importance when making a decision to whether buy or sell. Move the slider to the desired level for each strategy - 0 weighting means it will not be used to execute trades.
+ - ETHena allows you to weight 4 different strategies from 0 to 9. The weighting of each strategy will determine their importance when making a decision to whether buy or sell. Move the slider to the desired level for each strategy - 0 weighting means it will not be used to execute trades.
  - Specify a time interval, which will be how often ETHena decided to execute a trade. The recommended settings are 1 for RSI at 20 second intervals. 
  - Finally, browse your files to select the ```main.go``` file within the ```src/go/main/``` directory and click run to start ETHena.
 
@@ -61,7 +61,7 @@ The ETHena GUI will open and you can enter your trading preferences.
 You will be directed to ETHena's TUI where you can monitor the ask, bid price and keep track of previous buy and sell orders.
 
 ## Questions?
-If you don't understand something or find an issue with the program, please create an issue for this repository on Github or contact one of the contributors - our contact details are:
+If you don't understand something or find an issue in the program, please create an issue for this repository on Github or contact one of the contributors - our contact details are:
  - **Sanchit Ajmera:** <sanchitajmera2017@gmail.com>
  - **Shivam Patel:** <shivpatel1306@gmail.com>
  - **Manuj Mishra:** <manujmishra2000@gmail.com>
