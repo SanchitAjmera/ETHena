@@ -41,6 +41,8 @@ func InitialiseKeys() {
 }
 ```
 
+**Note:** For email-notifications, enter your own gmail instead of ```profit.profit.profit.icl@gmail.com``` in the ```To``` variable in ```src/go/utils/email.go``` and ensure that you have 'Enable Less Secure Apps' turned on within your gmail account settings.
+
 ## Quickstart
 ### GUI
 Congratulations on completing the setup. To run ETHena, go to ```src/python/GUI``` and enter the following command:
