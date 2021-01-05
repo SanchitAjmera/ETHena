@@ -63,9 +63,4 @@ The ETHena GUI will open and you can enter your trading preferences.
 You will be directed to ETHena's TUI where you can monitor the ask, bid price and keep track of previous buy and sell orders. A demo of ETHena being run can be found here <https://youtu.be/INVkpd85hOY>
 
 ## Questions?
-If you don't understand something or find an issue in the program, please create an issue for this repository on Github or contact one of the contributors - our contact details are:
- - **Sanchit Ajmera:** <sanchitajmera2017@gmail.com>
- - **Shivam Patel:** <shivpatel1306@gmail.com>
- - **Manuj Mishra:** <manujmishra2000@gmail.com>
- - **Luqman Liaquat:** <luqman.liaquat90@gmail.com>
- - **Devam Savjani:** <devamsavjani@rocketmail.com>
+If you don't understand something or find an issue in the program, please create an issue for this repository on Github.
