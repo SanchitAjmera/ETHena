@@ -41,7 +41,7 @@ func InitialiseKeys() {
 }
 ```
 
-**Note:** For email-notifications, enter your own gmail instead of ```profit.profit.profit.icl@gmail.com``` in the ```To``` variable in ```src/go/utils/email.go``` and ensure that you have 'Enable Less Secure Apps' turned on within your gmail account settings.
+**Note:** For email-notifications, enter your own gmail instead of ```<your_email@gmail.com>``` in the ```To``` and ```From``` variable in ```src/go/utils/email.go```. Insert your own credentials on line 40 and ensure that you have 'Enable Less Secure Apps' turned on within your gmail account settings.
 
 ## Quickstart
 ### GUI
