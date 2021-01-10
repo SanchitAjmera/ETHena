@@ -10,8 +10,8 @@ import (
 func Email(action string, yield decimal.Decimal) {
 	//initialising email
 	m := gomail.NewMessage()
-	m.SetHeader("From", "profit.profit.profit.icl@gmail.com")
-	m.SetHeader("To", "profit.profit.profit.icl@gmail.com") // can add multiple recievers
+	m.SetHeader("From", "<your_email@gmail.com>")
+	m.SetHeader("To", "<your_email@gmail.com>") // can add multiple recievers
 	var messageStr string
 	name := strings.Title(User)
 	switch action {
@@ -37,7 +37,7 @@ func Email(action string, yield decimal.Decimal) {
 	m.SetHeader("Subject", messageStr)
 	m.SetBody("text/html", "")
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, "profit.profit.profit.icl@gmail.com", "Password123??")
+	d := gomail.NewDialer("smtp.gmail.com", 587, "<your_email@gmail.com>", "<your_email_password>")
 
 	// function doesn't panic when error occurs
 	if err := d.DialAndSend(m); err != nil {
