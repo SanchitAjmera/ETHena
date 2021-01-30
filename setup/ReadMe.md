@@ -71,10 +71,4 @@ cd ~/go
 git clone https://github.com/SanchitAjmera/ETHena.git
 ```
 
-Now try and run the shell command. If there are still any issues contact any of the develops below:
-
-- **Sanchit Ajmera:** <sanchitajmera2017@gmail.com>
-- **Shivam Patel:** <shivpatel1306@gmail.com>
-- **Manuj Mishra:** <manujmishra2000@gmail.com>
-- **Luqman Liaquat:** <luqman.liaquat90@gmail.com>
-- **Devam Savjani:** <devamsavjani@rocketmail.com>
+Now try and run the shell command. If there are still any problems please create an issue for this project:
