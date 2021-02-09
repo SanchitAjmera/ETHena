@@ -1,3 +1,6 @@
+#ETHena
+[![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
+
 <p align="center">
   <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/ETHenaLogo.png" width="25%">
 </p> 
