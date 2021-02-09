@@ -16,8 +16,11 @@ var HistoricalData [][][]string
 
 // function to process the csv file and return a 3d array of strings
 // HistoricalData is of the form: [sheetNum][rowNum][colNum]
+// Find more historical data files within src/go/ticker/data
+// Ensure the 3rd and 4th column of every row in the file is the bid and ask price of the currency
 func parseXlsx() {
-	fileSlice, err := xlsx.FileToSlice("C:\\Users\\Shivam Patel\\GolandProjects\\Trading_Hackathon\\src\\go\\backtestingUtils\\data.xlsx")
+	pathToHistoricalData := "../ticker/data/16to17-July.xlsx"
+	fileSlice, err := xlsx.FileToSlice(pathToHistoricalData)
 	if err != nil {
 		panic(err)
 	}
