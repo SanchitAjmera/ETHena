@@ -2,7 +2,7 @@
 
 [![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
-![](https://komarev.com/ghpvc/?SanchitAjmera/ETHena)
+![](https://komarev.com/ghpvc/?username=SanchitAjmera/ETHena)
 
 <p align="center">
   <img src="https://github.com/SanchitAjmera/ETHena/blob/master/docs/images/ETHenaLogo.png" width="25%">
